@@ -1,52 +1,62 @@
 <template>
-    <div class="contenedor">
-        <template lwc:if={enviando}>
-            <lightning-spinner alternative-text="Enviando" size="medium"></lightning-spinner>
-        </template>
-
-        <template lwc:if={error}>
-            <p class="error" role="alert">{error}</p>
-        </template>
-
-        <template lwc:if={aviso}>
-            <p class="info" role="status">{aviso}</p>
-        </template>
-
-        <template lwc:if={registrado}>
-            <h2 class="titulo">{mensajeExito}</h2>
-            <template lwc:if={esAutorregistro}>
-                <lightning-button variant="brand" label="Continuar a donar" onclick={continuarADonar}></lightning-button>
-            </template>
-            <template lwc:else>
-                <lightning-button variant="neutral" label="Invitar a otra persona" onclick={invitarOtra}></lightning-button>
-            </template>
-        </template>
-
-        <template lwc:if={mostrarFormulario}>
-            <h2 class="titulo">{titulo}</h2>
-            <p class="intro">{intro}</p>
-
-            <lightning-input label="Nombre" data-campo="nombre" value={nombre} onchange={cambio} maxlength="40" required></lightning-input>
-            <lightning-input label="Apellidos" data-campo="apellidos" value={apellidos} onchange={cambio} maxlength="80" required></lightning-input>
-            <lightning-input type="email" label="Correo electrónico" data-campo="correo" value={correo} onchange={cambio} maxlength="80" required></lightning-input>
-
-            <lightning-input type="checkbox" label={etiquetaEmpresa} data-campo="esEmpresa" checked={esEmpresa} onchange={cambio}></lightning-input>
-            <template lwc:if={esEmpresa}>
-                <lightning-input label="Nombre de la empresa" data-campo="empresa" value={empresa} onchange={cambio} maxlength="120" required></lightning-input>
-                <p class="aviso">Si el donativo es público, se mostrará el nombre de la empresa.</p>
-            </template>
-
-            <!-- Campo trampa: las personas no lo ven; los programas automáticos sí lo llenan. -->
-            <div class="trampa" aria-hidden="true">
-                <label>Sitio web (déjalo vacío)
-                    <input type="text" name="sitioWeb" tabindex="-1" autocomplete="off" data-campo="sitioWeb" value={sitioWeb} onchange={cambio} />
-                </label>
+    <div class="pagina">
+        <header class="banda">
+            <span class="burbuja burbuja-a" aria-hidden="true"></span>
+            <span class="burbuja burbuja-b" aria-hidden="true"></span>
+            <div class="banda-contenido">
+                <span class="etiqueta">Únete a la campaña</span>
+                <h1 class="banda-titulo">Registro</h1>
             </div>
+        </header>
+        <div class="contenedor">
+            <template lwc:if={enviando}>
+                <lightning-spinner alternative-text="Enviando" size="medium"></lightning-spinner>
+            </template>
 
-            <lightning-input type="checkbox" label={etiquetaAviso} data-campo="aceptaAviso" checked={aceptaAviso} onchange={cambio}></lightning-input>
-            <p class="aviso"><a href={avisoUrl} target="_blank" rel="noopener">Ver aviso de privacidad</a></p>
+            <template lwc:if={error}>
+                <p class="error" role="alert">{error}</p>
+            </template>
 
-            <lightning-button variant="brand" label="Enviar" onclick={enviar} disabled={enviando}></lightning-button>
-        </template>
+            <template lwc:if={aviso}>
+                <p class="info" role="status">{aviso}</p>
+            </template>
+
+            <template lwc:if={registrado}>
+                <h2 class="titulo">{mensajeExito}</h2>
+                <template lwc:if={esAutorregistro}>
+                    <button type="button" class="btn btn-primario" onclick={continuarADonar}>Continuar a donar</button>
+                </template>
+                <template lwc:else>
+                    <button type="button" class="btn btn-secundario" onclick={invitarOtra}>Invitar a otra persona</button>
+                </template>
+            </template>
+
+            <template lwc:if={mostrarFormulario}>
+                <h2 class="titulo">{titulo}</h2>
+                <p class="intro">{intro}</p>
+
+                <lightning-input label="Nombre" data-campo="nombre" value={nombre} onchange={cambio} maxlength="40" required></lightning-input>
+                <lightning-input label="Apellidos" data-campo="apellidos" value={apellidos} onchange={cambio} maxlength="80" required></lightning-input>
+                <lightning-input type="email" label="Correo electrónico" data-campo="correo" value={correo} onchange={cambio} maxlength="80" required></lightning-input>
+
+                <lightning-input type="checkbox" label={etiquetaEmpresa} data-campo="esEmpresa" checked={esEmpresa} onchange={cambio}></lightning-input>
+                <template lwc:if={esEmpresa}>
+                    <lightning-input label="Nombre de la empresa" data-campo="empresa" value={empresa} onchange={cambio} maxlength="120" required></lightning-input>
+                    <p class="aviso">Si el donativo es público, se mostrará el nombre de la empresa.</p>
+                </template>
+
+                <!-- Campo trampa: las personas no lo ven; los programas automáticos sí lo llenan. -->
+                <div class="trampa" aria-hidden="true">
+                    <label>Sitio web (déjalo vacío)
+                        <input type="text" name="sitioWeb" tabindex="-1" autocomplete="off" data-campo="sitioWeb" value={sitioWeb} onchange={cambio} />
+                    </label>
+                </div>
+
+                <lightning-input type="checkbox" label={etiquetaAviso} data-campo="aceptaAviso" checked={aceptaAviso} onchange={cambio}></lightning-input>
+                <p class="aviso"><a href={avisoUrl} target="_blank" rel="noopener">Ver aviso de privacidad</a></p>
+
+                <button type="button" class="btn btn-primario" onclick={enviar} disabled={enviando}>Enviar</button>
+            </template>
+        </div>
     </div>
 </template>
