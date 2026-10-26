@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Campana__c</fullName>
+    <label>Campaña</label>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <referenceTo>Campaign</referenceTo>
+    <relationshipLabel>Reconocimientos públicos</relationshipLabel>
+    <relationshipName>Reconocimientos_Publicos</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

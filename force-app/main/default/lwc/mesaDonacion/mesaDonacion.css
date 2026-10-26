@@ -1,0 +1,42 @@
+.contenedor {
+    position: relative;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.titulo {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #032d60;
+}
+.publico {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    background: #eaf5fe;
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+.aviso {
+    font-size: 0.875rem;
+    color: #3e4a5e;
+}
+.empresa {
+    background: #eaf5fe;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    color: #032d60;
+}
+.resumen {
+    font-weight: 600;
+    color: #0b5cab;
+}
+.error {
+    color: #8e030f;
+    background: #fef1ee;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+}

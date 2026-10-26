@@ -1,0 +1,11 @@
+<template>
+    <section class="hero">
+        <h1 class="titulo">{titulo}</h1>
+        <p class="descripcion">{descripcion}</p>
+        <div class="acciones">
+            <lightning-button variant="brand" label={textoBotonDonar} onclick={donar}></lightning-button>
+            <lightning-button variant="neutral" label={textoBotonMuro} onclick={verMuro}></lightning-button>
+        </div>
+        <p class="ayuda">{ayuda}</p>
+    </section>
+</template>

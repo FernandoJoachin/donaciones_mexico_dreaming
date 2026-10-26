@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Consentimiento_Contacto__c</fullName>
+    <description>La persona aceptó recibir mensajes sobre eventos y campañas</description>
+    <label>Consentimiento de contacto</label>
+    <defaultValue>false</defaultValue>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

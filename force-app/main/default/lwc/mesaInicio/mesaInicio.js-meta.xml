@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>62.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Mesa - Inicio</masterLabel>
+    <targets>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightningCommunity__Default">
+            <property name="titulo" type="String" label="Título" default="México Dreaming"/>
+            <property name="descripcion" type="String" label="Descripción breve"/>
+            <property name="textoBotonDonar" type="String" label="Texto del botón de donar" default="Quiero donar"/>
+            <property name="textoBotonMuro" type="String" label="Texto del botón del muro" default="Ver quién ya se sumó"/>
+            <property name="paginaDonar" type="String" label="Página de donación" default="donar"/>
+            <property name="paginaRegistro" type="String" label="Página de registro" default="registro"/>
+            <property name="paginaMuro" type="String" label="Página del muro" default="muro"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

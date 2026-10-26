@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Version_Aviso_Privacidad__c</fullName>
+    <label>Versión del aviso de privacidad</label>
+    <length>20</length>
+    <unique>false</unique>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+</CustomField>

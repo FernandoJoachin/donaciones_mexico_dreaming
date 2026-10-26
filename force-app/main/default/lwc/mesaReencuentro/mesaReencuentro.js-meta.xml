@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>62.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Mesa - Reencuentro</masterLabel>
+    <targets>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightningCommunity__Default">
+            <property name="avisoUrl" type="String" label="URL del aviso de privacidad"/>
+            <property name="versionAviso" type="String" label="Versión del aviso" default="v1"/>
+            <property name="paginaDonar" type="String" label="Página de donación (nombre en la URL)" default="donar"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>
