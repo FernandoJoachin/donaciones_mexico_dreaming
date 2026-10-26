@@ -9,10 +9,13 @@
     </targets>
     <targetConfigs>
         <targetConfig targets="lightningCommunity__Default">
+            <property name="etiqueta" type="String" label="Etiqueta superior" default="Campaña de ex-alumnos"/>
             <property name="titulo" type="String" label="Título" default="México Dreaming"/>
             <property name="descripcion" type="String" label="Descripción breve"/>
             <property name="textoBotonDonar" type="String" label="Texto del botón de donar" default="Quiero donar"/>
             <property name="textoBotonMuro" type="String" label="Texto del botón del muro" default="Ver quién ya se sumó"/>
+            <property name="tituloFinal" type="String" label="Título del cierre" default="Gracias por ser parte de Ohana"/>
+            <property name="textoFinal" type="String" label="Texto del cierre"/>
             <property name="paginaDonar" type="String" label="Página de donación" default="donar"/>
             <property name="paginaRegistro" type="String" label="Página de registro" default="registro"/>
             <property name="paginaMuro" type="String" label="Página del muro" default="muro"/>

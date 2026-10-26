@@ -1,11 +1,56 @@
 <template>
-    <section class="hero">
-        <h1 class="titulo">{titulo}</h1>
-        <p class="descripcion">{descripcion}</p>
-        <div class="acciones">
-            <lightning-button variant="brand" label={textoBotonDonar} onclick={donar}></lightning-button>
-            <lightning-button variant="neutral" label={textoBotonMuro} onclick={verMuro}></lightning-button>
-        </div>
-        <p class="ayuda">{ayuda}</p>
-    </section>
+    <div class="pagina">
+        <header class="hero">
+            <span class="burbuja burbuja-a" aria-hidden="true"></span>
+            <span class="burbuja burbuja-b" aria-hidden="true"></span>
+            <span class="burbuja burbuja-c" aria-hidden="true"></span>
+            <div class="hero-contenido">
+                <span class="etiqueta">{etiqueta}</span>
+                <h1 class="titulo">{titulo}</h1>
+                <p class="descripcion">{descripcion}</p>
+                <div class="acciones">
+                    <button type="button" class="btn btn-claro" onclick={donar}>{textoBotonDonar}</button>
+                    <button type="button" class="btn btn-contorno" onclick={verMuro}>{textoBotonMuro}</button>
+                </div>
+                <p class="ayuda">{ayuda}</p>
+            </div>
+        </header>
+
+        <section class="seccion">
+            <h2 class="seccion-titulo">Cómo sumarte</h2>
+            <p class="seccion-sub">Tres pasos, a tu ritmo.</p>
+            <ol class="pasos">
+                <template for:each={pasos} for:item="paso">
+                    <li key={paso.numero} class="tarjeta paso">
+                        <span class="numero">{paso.numero}</span>
+                        <h3 class="tarjeta-titulo">{paso.titulo}</h3>
+                        <p class="tarjeta-texto">{paso.texto}</p>
+                    </li>
+                </template>
+            </ol>
+        </section>
+
+        <section class="seccion seccion-suave">
+            <h2 class="seccion-titulo">Elige tu aportación</h2>
+            <p class="seccion-sub">Tú decides cuánto y si tu nombre se muestra.</p>
+            <ul class="opciones">
+                <template for:each={opciones} for:item="opcion">
+                    <li key={opcion.id}>
+                        <button type="button" class="opcion" onclick={donar}>
+                            <span class="opcion-nombre">{opcion.nombre}</span>
+                            <span class="opcion-monto">{opcion.monto}</span>
+                        </button>
+                    </li>
+                </template>
+            </ul>
+        </section>
+
+        <section class="seccion cierre">
+            <div class="cierre-tarjeta">
+                <h2 class="cierre-titulo">{tituloFinal}</h2>
+                <p class="cierre-texto">{textoFinal}</p>
+                <button type="button" class="btn btn-claro" onclick={verMuro}>{textoBotonMuro}</button>
+            </div>
+        </section>
+    </div>
 </template>
