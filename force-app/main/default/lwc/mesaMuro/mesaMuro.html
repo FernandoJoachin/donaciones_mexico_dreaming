@@ -1,23 +1,35 @@
 <template>
-    <div class="contenedor">
-        <template lwc:if={hayMeta}>
-            <p class="avance-texto">Llevamos {porcentaje}% de la meta</p>
-            <lightning-progress-bar value={porcentaje} size="large"></lightning-progress-bar>
-        </template>
-
-        <h2 class="titulo">Gracias por sumarse</h2>
-
-        <template lwc:if={sinItems}>
-            <p class="vacio">Pronto aparecerán aquí quienes decidan hacer público su donativo.</p>
-        </template>
-
-        <ul class="lista">
-            <template for:each={items} for:item="item">
-                <li key={item.clave} class="item">
-                    <span class="nombre">{item.nombre}</span>
-                    <span class="detalle">{item.detalle}</span>
-                </li>
+    <div class="pagina">
+        <header class="banda">
+            <span class="burbuja burbuja-a" aria-hidden="true"></span>
+            <span class="burbuja burbuja-b" aria-hidden="true"></span>
+            <div class="banda-contenido">
+                <span class="etiqueta">Ohana</span>
+                <h1 class="banda-titulo">Muro de agradecimiento</h1>
+            </div>
+        </header>
+        <div class="contenedor">
+            <template lwc:if={hayMeta}>
+                <div class="avance">
+                    <p class="avance-texto">Llevamos {porcentaje}% de la meta</p>
+                    <lightning-progress-bar value={porcentaje} size="large"></lightning-progress-bar>
+                </div>
             </template>
-        </ul>
+
+            <h2 class="titulo">Gracias por sumarse</h2>
+
+            <template lwc:if={sinItems}>
+                <p class="vacio">Pronto aparecerán aquí quienes decidan hacer público su donativo.</p>
+            </template>
+
+            <ul class="lista">
+                <template for:each={items} for:item="item">
+                    <li key={item.clave} class="item">
+                        <span class="nombre">{item.nombre}</span>
+                        <span class="detalle">{item.detalle}</span>
+                    </li>
+                </template>
+            </ul>
+        </div>
     </div>
 </template>
