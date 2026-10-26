@@ -1,22 +1,9 @@
-:host {
-    --mesa-azul: #0176d3;
-    --mesa-azul-oscuro: #032d60;
-    --mesa-azul-medio: #0b5cab;
-    --mesa-azul-claro: #1b96ff;
-    --mesa-cielo: #eaf5fe;
-    --mesa-texto: #181818;
-    --mesa-gris: #444444;
-    --mesa-radio: 24px;
-    display: block;
-    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    color: var(--mesa-texto);
-}
+@import 'c/mesaEstilos';
 
+/* ---------- Portada ---------- */
 .pagina {
     width: 100%;
 }
-
-/* ---------- Portada ---------- */
 .hero {
     position: relative;
     overflow: hidden;
@@ -37,27 +24,14 @@
     align-items: center;
     gap: 1.1rem;
 }
-.burbuja {
-    position: absolute;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-}
 .burbuja-a { width: 280px; height: 280px; top: -90px; left: -80px; }
 .burbuja-b { width: 200px; height: 200px; bottom: -70px; right: 8%; background: rgba(144, 208, 254, 0.18); }
 .burbuja-c { width: 120px; height: 120px; top: 22%; right: -30px; }
 
-.etiqueta {
-    display: inline-block;
-    padding: 0.35rem 1rem;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.16);
-    font-size: 0.8125rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-}
+/* El título compartido es azul (para tarjetas); en la portada va en blanco. */
 .titulo {
     margin: 0;
+    color: #ffffff;
     font-size: clamp(2.25rem, 6vw, 3.75rem);
     line-height: 1.1;
     font-weight: 800;
@@ -83,25 +57,7 @@
     color: #cfe6fb;
 }
 
-/* ---------- Botones ---------- */
-.btn {
-    font: inherit;
-    font-weight: 700;
-    cursor: pointer;
-    border-radius: 999px;
-    padding: 0.85rem 1.75rem;
-    border: 2px solid transparent;
-    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-}
-.btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 18px rgba(3, 45, 96, 0.25);
-}
-.btn:focus-visible,
-.opcion:focus-visible {
-    outline: 3px solid #90d0fe;
-    outline-offset: 3px;
-}
+/* ---------- Botones propios de Inicio (la base .btn viene del compartido) ---------- */
 .btn-claro {
     background: #ffffff;
     color: var(--mesa-azul-oscuro);
@@ -111,8 +67,12 @@
     color: #ffffff;
     border-color: rgba(255, 255, 255, 0.85);
 }
-.btn-contorno:hover {
+.btn-contorno:hover:not(:disabled) {
     background: rgba(255, 255, 255, 0.12);
+}
+.opcion:focus-visible {
+    outline: 3px solid #90d0fe;
+    outline-offset: 3px;
 }
 
 /* ---------- Secciones ---------- */
@@ -236,6 +196,10 @@
     background: linear-gradient(135deg, var(--mesa-azul-oscuro), var(--mesa-azul));
     color: #ffffff;
 }
+/* El botón compartido se alinea a la izquierda; aquí va centrado. */
+.cierre-tarjeta .btn {
+    align-self: center;
+}
 .cierre-titulo {
     margin: 0;
     font-size: clamp(1.5rem, 3.5vw, 2rem);
@@ -263,11 +227,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .btn,
     .opcion {
         transition: none;
     }
-    .btn:hover,
     .opcion:hover {
         transform: none;
     }
