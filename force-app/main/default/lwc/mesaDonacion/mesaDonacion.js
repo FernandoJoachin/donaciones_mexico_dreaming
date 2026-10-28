@@ -102,6 +102,10 @@ export default class MesaDonacion extends LightningElement {
         return `Monto mínimo: ${formatearMonto(MONTO_MINIMO)} MXN`;
     }
 
+    get avisoHref(){
+        return this.avisoUrl ? resolverUrl(this.avisoUrl) : undefined;
+    }
+
     cambioPaquete(evento) {
         this.paquete = evento.detail.value;
     }

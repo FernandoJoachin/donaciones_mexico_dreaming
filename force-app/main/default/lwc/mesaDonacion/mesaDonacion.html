@@ -73,7 +73,7 @@
                 </template>
 
                 <lightning-input type="checkbox" label="He leído y acepto el aviso de privacidad" data-campo="aceptaAviso" checked={aceptaAviso} onchange={cambio}></lightning-input>
-                <p class="aviso"><a href={avisoUrl} target="_blank" rel="noopener">Ver aviso de privacidad</a></p>
+                <p class="aviso"><a href={avisoHref} target="_blank" rel="noopener">Ver aviso de privacidad</a></p>
 
                 <button type="button" class="btn btn-primario" onclick={enviar} disabled={cargando}>Continuar</button>
             </template>

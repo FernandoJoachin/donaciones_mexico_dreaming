@@ -61,6 +61,10 @@ export default class MesaReencuentro extends LightningElement {
     get mostrarFormulario() {
         return this.invitacion && !this.enviado;
     }
+    
+    get avisoHref(){
+        return this.avisoUrl ? resolverUrl(this.avisoUrl) : undefined;
+    }
 
     cambio(evento) {
         const campo = evento.target.dataset.campo;

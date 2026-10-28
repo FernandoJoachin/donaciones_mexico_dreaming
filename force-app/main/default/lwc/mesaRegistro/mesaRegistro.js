@@ -72,6 +72,10 @@ export default class MesaRegistro extends LightningElement {
         return !!this.tokenNuevo;
     }
 
+    get avisoHref(){
+        return this.avisoUrl ? resolverUrl(this.avisoUrl) : undefined;
+    }
+
     cambio(evento) {
         const campo = evento.target.dataset.campo;
         if (evento.target.type === 'checkbox') {
