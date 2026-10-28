@@ -9,12 +9,12 @@
     </targets>
     <targetConfigs>
         <targetConfig targets="lightningCommunity__Default">
-            <property name="responsable" type="String" label="Responsable del tratamiento" default="el comité organizador de México Dreaming (grupo Salesforce MID)"/>
+            <property name="responsable" type="String" label="Responsable del tratamiento"/>
             <property name="domicilio" type="String" label="Domicilio del responsable"/>
             <property name="correoContacto" type="String" label="Correo de contacto para derechos y dudas"/>
             <property name="plazoConservacion" type="String" label="Plazo de conservación de los datos"/>
-            <property name="versionAviso" type="String" label="Versión del aviso" default="v1"/>
-            <property name="fechaActualizacion" type="String" label="Fecha de última actualización" default="28 de octubre de 2026"/>
+            <property name="versionAviso" type="String" label="Versión del aviso"/>
+            <property name="fechaActualizacion" type="String" label="Fecha de última actualización"/>
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>
