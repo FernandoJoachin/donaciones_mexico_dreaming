@@ -1,0 +1,128 @@
+<template>
+    <div class="pagina">
+        <header class="banda">
+            <span class="burbuja burbuja-a" aria-hidden="true"></span>
+            <span class="burbuja burbuja-b" aria-hidden="true"></span>
+            <div class="banda-contenido">
+                <span class="etiqueta">México Dreaming</span>
+                <h1 class="banda-titulo">Aviso de privacidad</h1>
+                <p class="banda-sub">Versión {versionAviso} · Actualizado el {fechaActualizacion}</p>
+            </div>
+        </header>
+
+        <article class="contenedor">
+            <section class="resumen">
+                <h2 class="resumen-titulo">En breve</h2>
+                <ul>
+                    <li>Pedimos tus datos para invitarte, registrar tu participación y, si decides donar, tu donativo.</li>
+                    <li>Solo publicamos tu nombre (o el de tu empresa) y, si lo autorizas, el monto (cuando lo seleccionas al donar). Si eliges "privado", no publicamos nada.</li>
+                    <li>Puedes darte de baja o pedir acceso, corrección o eliminación de tus datos cuando quieras.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2 class="seccion">1. ¿Quién es responsable de tus datos?</h2>
+                <p>
+                    <b>{responsableTexto}</b> es responsable del tratamiento de tus datos personales, conforme a la legislación
+                    mexicana aplicable en materia de protección de datos personales en posesión de particulares.
+                </p>
+                <p>Domicilio: <span class={claseDomicilio}>{domicilioTexto}</span>.</p>
+                <p>
+                    Contacto para dudas y para ejercer tus derechos:
+                    <template lwc:if={hayCorreo}>
+                        <a href={enlaceCorreo}>{correoTexto}</a>.
+                    </template>
+                    <template lwc:else>
+                        <span class="pendiente">{correoTexto}</span>.
+                    </template>
+                </p>
+            </section>
+
+            <section>
+                <h2 class="seccion">2. ¿Qué datos recabamos?</h2>
+                <ul>
+                    <li><b>Identificación y contacto:</b> nombre, apellidos y correo electrónico.</li>
+                    <li><b>Empresa</b>, si participas en su nombre: el nombre de la empresa.</li>
+                    <li><b>Información académica y profesional</b> (opcional): generación, enlace a tu cuenta de Trailhead, certificaciones de Salesforce y enlace de LinkedIn.</li>
+                    <li><b>Donativo:</b> paquete o monto, si lo haces público o privado, fecha y estado del pago.</li>
+                    <li><b>Consentimientos:</b> qué aceptaste, cuándo y con qué versión de este aviso.</li>
+                    <li><b>Invitación:</b> si llegaste por invitación de alguien y de quién.</li>
+                </ul>
+                <p>No pedimos datos personales sensibles. Si el pago se realiza en línea, los datos de tu tarjeta los trata el proveedor de pagos y no se guardan en nuestro sistema.</p>
+            </section>
+
+            <section>
+                <h2 class="seccion">3. ¿Para qué usamos tus datos?</h2>
+                <h3 class="subseccion">Finalidades necesarias</h3>
+                <p>Sin ellas no podemos darte el servicio:</p>
+                <ul>
+                    <li>Identificarte y contactarte en relación con esta campaña.</li>
+                    <li>Registrar tu participación (reencuentro) y tu donativo.</li>
+                    <li>Confirmar el pago, darte seguimiento y agradecerte.</li>
+                    <li>Administrar el sitio y evitar usos indebidos, como registros automatizados.</li>
+                </ul>
+                <h3 class="subseccion">Finalidades que requieren tu autorización</h3>
+                <p>Las pedimos por separado y puedes negarte sin que afecte tu participación ni tu donativo:</p>
+                <ul>
+                    <li>Enviarte mensajes sobre próximos eventos de Salesforce y esta campaña.</li>
+                    <li>Publicar tu <b>nombre</b> (o el de tu empresa) y tu generación en el muro de agradecimiento del sitio y, solo si lo autorizas, el <b>monto</b> de tu donativo.</li>
+                    <li>Mencionarte en publicaciones de agradecimiento en LinkedIn. Para ello te pedimos tu enlace de LinkedIn.</li>
+                </ul>
+                <p>Lo que se publica es visible para cualquier persona que visite el sitio o la publicación.</p>
+            </section>
+
+            <section>
+                <h2 class="seccion">4. ¿Con quién compartimos tus datos?</h2>
+                <ul>
+                    <li>Con la plataforma Salesforce, proveedor de tecnología donde se almacena la información.</li>
+                    <li>Con el proveedor de pagos, cuando el pago se haga en línea.</li>
+                    <li>Con el público, únicamente lo que tú autorizaste publicar.</li>
+                </ul>
+                <p>No vendemos tus datos ni los compartimos con otras personas u organizaciones distintas a las anteriores.</p>
+            </section>
+
+            <section>
+                <h2 class="seccion">5. Si alguien te invitó</h2>
+                <p>
+                    Si una persona de la comunidad te invitó, nos compartió tu nombre, correo y, en su caso, el de tu empresa.
+                    Los usamos solo para hacerte llegar tu enlace personal e invitarte a esta campaña. No te inscribimos a mensajes
+                    de eventos ni publicamos nada tuyo sin que tú lo autorices. Puedes pedirnos que eliminemos tus datos en cualquier momento.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="seccion">6. Tus derechos</h2>
+                <p>
+                    Puedes pedir <b>acceso</b> a tus datos, su <b>rectificación</b> o <b>cancelación</b>, y <b>oponerte</b> a su uso
+                    (derechos ARCO), así como <b>revocar</b> tu consentimiento.
+                </p>
+                <ul>
+                    <li>Para darte de baja de los mensajes, marca "Prefiero darme de baja" en la página de Reencuentro con tu enlace personal.</li>
+                    <li>Para cualquier otra solicitud, escribe al correo de contacto con tu nombre completo, el correo con el que participaste y qué quieres pedir. Te responderemos en los plazos que marca la ley.</li>
+                    <li>Si ya publicamos tu nombre en el muro, puedes pedir que lo retiremos. Lo que ya se haya publicado en LinkedIn lo retiramos en lo que dependa de nosotros.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2 class="seccion">7. ¿Cuánto tiempo conservamos tus datos?</h2>
+                <p>Los conservamos <span class={clasePlazo}>{plazoTexto}</span>.</p>
+            </section>
+
+            <section>
+                <h2 class="seccion">8. Tecnologías del sitio</h2>
+                <p>
+                    El sitio puede usar tecnologías necesarias para su funcionamiento, como cookies técnicas de la plataforma.
+                    No las usamos para publicidad.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="seccion">9. Cambios a este aviso</h2>
+                <p>
+                    Si este aviso cambia, publicaremos la nueva versión en esta misma página, con su número de versión y fecha.
+                    Guardamos la versión que aceptaste en cada formulario.
+                </p>
+            </section>
+        </article>
+    </div>
+</template>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>62.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Mesa - Aviso de privacidad</masterLabel>
+    <targets>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightningCommunity__Default">
+            <property name="responsable" type="String" label="Responsable del tratamiento" default="el comité organizador de México Dreaming (grupo Salesforce MID)"/>
+            <property name="domicilio" type="String" label="Domicilio del responsable"/>
+            <property name="correoContacto" type="String" label="Correo de contacto para derechos y dudas"/>
+            <property name="plazoConservacion" type="String" label="Plazo de conservación de los datos"/>
+            <property name="versionAviso" type="String" label="Versión del aviso" default="v1"/>
+            <property name="fechaActualizacion" type="String" label="Fecha de última actualización" default="28 de octubre de 2026"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>
