@@ -2,7 +2,7 @@ import { LightningElement, api, wire } from 'lwc';
 import { CurrentPageReference } from 'lightning/navigation';
 import obtenerInvitacion from '@salesforce/apex/MesaRegalosController.obtenerInvitacion';
 import guardarPromesa from '@salesforce/apex/MesaRegalosController.guardarPromesa';
-import { parseMonto, formatearMonto, mensajeError } from 'c/mesaUtil';
+import { parseMonto, formatearMonto, mensajeError, resolverUrl } from 'c/mesaUtil';
 
 // Deben coincidir con MesaRegalosController (el servidor es quien manda).
 const MONTO_MINIMO = 100;
