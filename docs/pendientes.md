@@ -1,7 +1,7 @@
 # Pendientes vs. rúbrica
 
 Fechas: **Entrega 1 mar 10 nov** · **Entrega 2 mar 17 nov** · **Defensa mié 18 nov** · Evento vie 20 nov. Hora límite 23:59 (Mérida).
-Estado según el repo y las respuestas del cliente en #questions del 3 y 4 de nov (sin verificar contra una org).
+Estado según el repo, las respuestas del cliente en #questions (3 y 4 nov) y la clase Discovery Day del 4 nov (sin verificar contra una org).
 
 ## 0. Mínimos (pasa / no pasa, −10 pts de equipo cada uno en la Entrega 2)
 
@@ -12,17 +12,20 @@ Estado según el repo y las respuestas del cliente en #questions del 3 y 4 de no
 ## 1. Antes de la Entrega 1 (10 nov)
 
 **Sitio y flujo de donación**
-- [ ] Donación **sin token**: un formulario único (el cliente confirmó que cualquier visitante debe poder donar).
-- [ ] Lista de campañas con meta, avance y fechas; con una sola campaña, ir directo a ella.
-- [ ] Campañas con nombre, meta, inicio y fin obligatorios; activa solo dentro de su rango.
+- [ ] Donación **sin token**: un formulario único (cliente y clase confirmaron que cualquiera dona).
+- [ ] Tablero de historias (GitHub Projects, simple) listo antes del viernes; documentar qué queda dentro y fuera del alcance.
+- [ ] Lista de campañas con **imagen**, descripción, meta, avance y fecha; con una sola campaña, ir directo a ella; campaña "Donación general" siempre abierta.
+- [ ] Campañas con nombre, meta, inicio y fin obligatorios; activa = estatus activo y fecha dentro del rango (poder pausar sin tocar fechas).
 - [ ] Montos sugeridos $100, $250, $500, $1,000, $2k, $5k, $10k y $20k, más monto libre; mínimo según la pasarela; sin máximo; confirmación desde $1,000.
-- [ ] Modalidades: anónima, con crédito y con factura (hoy solo existe Pública/Privada).
-- [ ] Factura: nombre y RFC con validación del patrón SAT (RF-F1) y marca "solicita factura" visible para staff (RF-F2).
+- [ ] Modalidad anónima o con crédito, más un interruptor independiente "quiero factura" (hoy solo existe Pública/Privada). Anónimo pide solo correo.
+- [ ] Factura: nombre, RFC y código postal con validación del patrón SAT (RF-F1), checkbox de consentimiento guardado en Salesforce y marca "solicita factura" visible para staff (RF-F2).
 - [ ] Donación anónima: staff la ve como anónima; no se puede pedir factura (RF-D2).
 - [ ] Registro de la donación con una **referencia** que viaje a la pasarela (RF-D3). Ver la tensión en §6.
 - [ ] Página de agradecimiento que no afirma un pago no confirmado (RF-D4).
-- [ ] Vista de staff: administrar campañas, listar donaciones, confirmar pago a mano (RF-S1 a S3).
-- [ ] Moderación de nombres públicos (lista negra y quitar entradas) y lista con autoscroll.
+- [ ] Vista de staff: administrar campañas y listar donaciones (RF-S1, S2). RF-S3 queda en espera de confirmación (§7).
+- [ ] Tres roles: admin, gestor de campañas y moderador; nadie edita montos ni estatus de pago a mano.
+- [ ] Moderación de nombres públicos (lista negra y editar u ocultar) y lista con autoscroll.
+- [ ] Sanear todo texto del formulario y validar el correo por formato.
 - [ ] Cuenta de Stripe en modo prueba, sin activarla.
 
 **Documentación**
@@ -43,7 +46,8 @@ Estado según el repo y las respuestas del cliente en #questions del 3 y 4 de no
 ## 2. Antes de la Entrega 2 (17 nov)
 
 - [ ] Webhook de Stripe → Salesforce que deja la donación pagada sin intervención (RF-D5, V3a).
-- [ ] Comprobante: el cliente dijo que basta el recibo de la pasarela; el único correo extra es el de la factura (que Salesforce envía tras un formulario).
+- [ ] Comprobante: decidido, basta el recibo de Stripe (un solo correo, en español); el único extra es el de la factura.
+- [ ] Revisar en la documentación de Stripe el monto máximo por pago y el mínimo para México.
 - [ ] Rechazar avisos falsos (firma) y deduplicar avisos repetidos (RF-V3b, segundo nivel).
 - [ ] Registro de avisos rechazados y distinción automática/manual para staff (RF-S4).
 - [ ] Manejo de errores demostrado en al menos un caso (pago cancelado, aviso fallido, correo no sale).
@@ -68,20 +72,19 @@ Estado según el repo y las respuestas del cliente en #questions del 3 y 4 de no
 - [ ] Guardar pasos, resultado esperado/obtenido y evidencia, para que otra persona los repita.
 - [ ] Documentar que `MesaRegalosController` es `without sharing` y por qué; revisar que `obtenerMuro` y `obtenerAvance` no devuelvan nada de donantes anónimos.
 
-## 6. Tensiones con la guía (confirmar con el profesor)
+## 6. Tensiones con la guía (resueltas en la clase del 4 nov)
 
-1. **Registro antes vs. después del pago.** RF-D3 pide una donación pendiente antes de abrir la pasarela; el cliente dijo que el registro solo se crea tras un pago exitoso. Decidir cómo cumplir ambos.
-2. **Meta inmutable vs. RF-S1 CA2.** El cliente no quiere cambiar la meta una vez activa; la guía pide que al cambiarla el sitio muestre la nueva. ¿Se permite editarla antes de activarse?
-3. **Comprobante propio vs. recibo de la pasarela** (RF-D5, RF-S3 CA2).
-4. **Factura siempre pública** (propuesta de otro equipo) vs. privacidad y modalidad anónima.
+1. **Registro antes vs. después del pago:** crear después de confirmar; si se crea antes (RF-D3), copiar el estado de Stripe y no mostrarlo. Plan: *Pendiente* invisible con referencia, que pasa a *Pagada* solo por el aviso firmado.
+2. **Meta inmutable vs. RF-S1 CA2:** sin bloqueo en el sistema; capacitación y documentarlo.
+3. **Comprobante:** el recibo de Stripe basta.
+4. **Factura vs. visibilidad:** decisiones independientes.
 
 ## 7. Preguntas que siguen abiertas
 
-1. RF-S3: ¿existe el botón de confirmación manual y en qué casos se usa? (El cliente no entendió la pregunta.)
-2. ¿Qué datos mínimos exige una factura? (El cliente devolvió la pregunta al equipo.)
-3. Cuando una campaña llega al 100 %, ¿cómo se decide si sigue recibiendo donaciones?
-4. ¿El monto mínimo de $50 queda confirmado, o es el que indique la pasarela?
-5. Para el webhook de Stripe en un Developer Edition: ¿se acepta un endpoint de Apex REST con acceso de guest? ¿Y guardar el secreto de firma en Custom Metadata sin acceso para el guest?
-6. ¿Cómo debemos registrar en la bitácora de IA el código que se generó antes de la guía?
+1. **RF-S3:** la clase dijo que no se toca. Está en la guía como mínimo: pedir por escrito que no se evalúa.
+2. ¿Cuál es el monto máximo y mínimo real de Stripe? (Lo debemos investigar nosotros.)
+3. Para el webhook de Stripe en un Developer Edition: ¿se acepta un endpoint de Apex REST con acceso de guest? ¿Y guardar el secreto de firma en Custom Metadata sin acceso para el guest?
+4. ¿Cómo debemos registrar en la bitácora de IA el código que se generó antes de la guía?
+5. ¿Plazo para cancelar una donación pendiente que nunca se paga? (Stripe decide el estado; falta definir cuándo la damos por vencida.)
 
-Las respuestas del cliente ya recibidas (montos, campañas, factura, comprobante, roles, alcance) están resumidas en `docs/respuestas_cliente.md`.
+Las respuestas del cliente y de la clase están resumidas en `docs/respuestas_cliente.md`.
