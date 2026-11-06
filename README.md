@@ -1,4 +1,4 @@
-# Mesa de regalos · México Dreaming
+# Mesa de regalos test · México Dreaming
 
 Proyecto base para que los ex-estudiantes de la materia de Salesforce actualicen sus datos (entrada) y registren un donativo en dinero, con control de qué se hace público.
 
