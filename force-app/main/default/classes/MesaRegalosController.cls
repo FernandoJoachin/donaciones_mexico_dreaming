@@ -91,6 +91,18 @@ public without sharing class MesaRegalosController {
         @AuraEnabled public Decimal porcentaje;
     }
 
+    public class CampanaDTO {
+        @AuraEnabled public Id id;
+        @AuraEnabled public String nombre;
+        @AuraEnabled public String descripcion;
+        @AuraEnabled public Decimal meta;
+        @AuraEnabled public Decimal total;
+        @AuraEnabled public Integer donativos;
+        @AuraEnabled public Decimal porcentaje;
+        @AuraEnabled public Date fechaFin;
+        @AuraEnabled public Boolean activa;     // false = ya cerró (se muestra en "Campañas pasadas")
+    }
+
     // ---------- Entrada: formulario de reencuentro ----------
 
     @AuraEnabled
@@ -387,6 +399,63 @@ public without sharing class MesaRegalosController {
             a.porcentaje = pct > tope ? tope : pct;
         }
         return a;
+    }
+
+    /**
+     * Lista las campañas publicadas para el sitio central (US-01). Solo devuelve datos que ya son
+     * públicos: nombre, descripción, meta, avance y fecha de cierre.
+     *  - Una campaña se publica si está activa (IsActive) y ya empezó.
+     *  - Está "activa" si no tiene fecha de cierre o esa fecha no ha pasado; si ya pasó, se
+     *    devuelve con activa = false para la pestaña "Campañas pasadas".
+     *  - Pausar una campaña (IsActive = false) la oculta en ambas vistas, sin tocar sus fechas.
+     * El recaudado cuenta solo donativos pagados (Closed Won); las promesas pendientes no suman.
+     */
+    @AuraEnabled(cacheable=true)
+    public static List<CampanaDTO> obtenerCampanas() {
+        Date hoy = Date.today();
+        List<Campaign> campanas = [
+            SELECT Id, Name, Description, ExpectedRevenue, EndDate
+            FROM Campaign
+            WHERE IsActive = true AND (StartDate = null OR StartDate <= :hoy)
+            ORDER BY StartDate DESC NULLS LAST, Name
+            LIMIT 100
+        ];
+
+        Map<Id, AggregateResult> pagados = new Map<Id, AggregateResult>();
+        for (AggregateResult ar : [
+            SELECT CampaignId, SUM(Amount) total, COUNT(Id) donativos
+            FROM Opportunity
+            WHERE CampaignId IN :campanas AND StageName = 'Closed Won'
+            GROUP BY CampaignId
+        ]) {
+            pagados.put((Id) ar.get('CampaignId'), ar);
+        }
+
+        List<CampanaDTO> resultado = new List<CampanaDTO>();
+        for (Campaign c : campanas) {
+            CampanaDTO d = new CampanaDTO();
+            d.id = c.Id;
+            d.nombre = c.Name;
+            d.descripcion = c.Description;
+            d.meta = c.ExpectedRevenue == null ? 0 : c.ExpectedRevenue;
+            d.total = 0;
+            d.donativos = 0;
+            AggregateResult ar = pagados.get(c.Id);
+            if (ar != null) {
+                d.total = (Decimal) ar.get('total');
+                d.donativos = (Integer) ar.get('donativos');
+            }
+            d.porcentaje = 0;
+            if (d.meta > 0) {
+                Decimal pct = (d.total * 100 / d.meta).setScale(0);
+                Decimal tope = 100;
+                d.porcentaje = pct > tope ? tope : pct;
+            }
+            d.fechaFin = c.EndDate;
+            d.activa = c.EndDate == null || c.EndDate >= hoy;
+            resultado.add(d);
+        }
+        return resultado;
     }
 
     // ---------- Utilidades ----------
