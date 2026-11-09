@@ -26,7 +26,7 @@ export default class MesaMuro extends LightningElement {
             clave: `${i}-${m.nombre}`,
             nombre: m.nombre,
             detalle: [
-                m.generacion ? `Generación ${m.generacion}` : null,
+                m.esEmpresa ? 'Empresa' : null,
                 m.monto != null
                     ? new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(m.monto)
                     : null

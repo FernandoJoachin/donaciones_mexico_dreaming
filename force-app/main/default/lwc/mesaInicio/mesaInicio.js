@@ -1,11 +1,9 @@
-import { LightningElement, api, wire } from 'lwc';
-import { CurrentPageReference } from 'lightning/navigation';
+import { LightningElement, api } from 'lwc';
 import { resolverUrl, irA } from 'c/mesaUtil';
 
 /**
  * Página de inicio: presentación breve y puertas de entrada.
- *  - Con ?token= en la URL: el botón principal lleva directo a donar.
- *  - Sin token: lleva al registro (la persona aún no tiene cuenta).
+ * Sin token: todas las personas llegan al mismo formulario de registro y donación.
  * Los textos se editan en Experience Builder, sin tocar código.
  */
 export default class MesaInicio extends LightningElement {
@@ -19,36 +17,26 @@ export default class MesaInicio extends LightningElement {
     @api textoFinal =
         'Cada aportación ayuda a que más personas vivan la experiencia. Conoce a quienes ya se sumaron.';
     /** Nombres de página (como aparecen en la URL) o rutas completas que empiecen con "/". */
-    @api paginaDonar = 'donar';
     @api paginaRegistro = 'registro';
     @api paginaMuro = 'muro';
-
-    token;
-
-    @wire(CurrentPageReference)
-    resolverPagina(ref) {
-        if (ref) {
-            this.token = ref.state && ref.state.token ? ref.state.token : undefined;
-        }
-    }
 
     /** Pasos de la sección "Cómo sumarte". Solo describen lo que el sistema hace hoy. */
     get pasos() {
         return [
             {
                 numero: '1',
-                titulo: 'Reencuéntrate',
-                texto: 'Actualiza tus datos y cuéntanos cómo estás.'
+                titulo: 'Elige tu aportación',
+                texto: 'Escoge un paquete u otro monto desde $100.'
             },
             {
                 numero: '2',
-                titulo: 'Elige tu aportación',
-                texto: 'Escoge un paquete u otro monto. Tú decides si tu donativo es público o privado.'
+                titulo: 'Decide cómo aparecer',
+                texto: 'Con tu nombre (o el de tu empresa) o como Anónimo. El monto se muestra en ambos casos.'
             },
             {
                 numero: '3',
-                titulo: 'Recibe tu reconocimiento',
-                texto: 'Si lo autorizas, tu nombre aparece en el muro de agradecimiento.'
+                titulo: 'Completa tu pago',
+                texto: 'Te llevamos al pago seguro y tu donativo aparece en el muro cuando se confirme.'
             }
         ];
     }
@@ -72,16 +60,11 @@ export default class MesaInicio extends LightningElement {
     }
 
     get ayuda() {
-        return this.token
-            ? 'Tu enlace personal está activo: te llevamos directo a donar.'
-            : '¿Ya tienes tu enlace personal? Ábrelo desde el correo que te enviamos. Si aún no tienes cuenta, te registramos en un minuto.';
+        return 'Tarda un minuto: eliges tu aportación, nos dejas tus datos y pasas al pago.';
     }
 
     donar() {
-        const url = this.token
-            ? resolverUrl(this.paginaDonar, this.token, true)
-            : resolverUrl(this.paginaRegistro, null, true);
-        irA(url);
+        irA(resolverUrl(this.paginaRegistro, null, true));
     }
 
     verMuro() {
