@@ -132,3 +132,78 @@ Nuevo componente **Mesa - Registro e invitación** y nuevo método `registrarDon
 - `lwc/mesaRegistro/` — registro e invitación.
 - `objects/Contact/fields/Registro_Como_Empresa__c`, `Origen_Registro__c`, `Invitado_Por__c`
 - `scripts/apex/limpiar-pruebas.apex` — borra los donativos de un contacto de prueba para repetir la simulación.
+
+
+##    
+##  
+##  
+## V2. Después de llamada
+# Donaciones para Campañas — México Dreaming
+
+Campaña de donativos tipo "mesa de regalos" (Ohana) para la comunidad de Salesforce.
+Cualquier persona se registra y dona desde un solo formulario, sin cuenta ni enlace personal.
+Construida con Experience Cloud (LWR), Lightning Web Components y Apex.
+
+## Flujo
+1. La persona entra al sitio y elige un monto (paquetes de $1,000, $3,000 y $5,000, o monto
+   abierto desde $100 MXN) (cantidades de ejemplo).
+2. Elige cómo aparecerá en el muro: **Pública** (nombre y, si quiere, enlace de LinkedIn) o
+   **Anónima** ("Anónimo"). El monto se muestra en ambos casos.
+3. Escribe nombre y apellido, o marca "Donar en nombre de una empresa" y escribe solo el
+   nombre de la empresa. Escribe su correo y responde si quiere recibir avisos de futuros
+   eventos y donaciones. Acepta el aviso de privacidad.
+4. El botón dice "Donarás: $X MXN". Al enviarlo se registra la promesa y se redirige al
+   Payment Link de Stripe con el correo pre-rellenado.
+5. Al confirmarse el pago, la donación pasa a Closed Won y aparece en el muro.
+   Hoy se confirma a mano con `confirmarPago`; el webhook de Stripe automatiza este paso.
+
+## Pantallas (LWC)
+`mesaInicio`, `mesaRegistro` (registro + donación), `mesaBaja`, `mesaMuro`, `mesaAviso`.
+Compartidos: `mesaUtil` (JS) y `mesaEstilos` (CSS).
+
+## Modelo de datos
+| Objeto | Campos propios |
+|---|---|
+| Contact | `Consentimiento_Avisos__c` (Sí/No; vacío = sin respuesta), `Fecha_Consentimiento__c`, `Version_Aviso_Privacidad__c` |
+| Opportunity | `Visibilidad__c` (Pública/Anónima), `Nombre_Visible__c`, `Donacion_Empresa__c`, `Consentimiento_Publicacion__c`, `LinkedIn_URL__c`, `Contacto_Donador__c`, `Stripe_Pago_Id__c` (único), `Version_Aviso_Privacidad__c` |
+| Reconocimiento_Publico__c | `Campana__c`, `Donativo__c`, `Monto__c`, `Es_Empresa__c`, `LinkedIn_URL__c`, `Mostrar_En_Muro__c` (moderación) |
+| Ofrecimiento_Especie__c | Ofrecimientos en especie, de uso interno |
+
+Sin Accounts: todas las personas y empresas son Contactos. El correo identifica al Contacto
+y no hay contactos duplicados por correo (regla de duplicados). Un Contacto existente se reutiliza
+sin modificarlo, salvo el consentimiento de avisos, y solo si estaba vacío.
+
+## Embudo (CampaignMember)
+Registrado → Redirigido a donar → Donó. "Identificado" y "Contactado" se usan solo cuando el
+equipo carga personas antes de una campaña por correo.
+
+## Backend (Apex)
+- `MesaRegalosController`: `guardarDonativo`, `darseDeBaja`, `obtenerMuro`, `obtenerAvance`.
+- `MesaRegalosService`: `confirmarPago` (invocable e idempotente), `avanzarEstado`, `estadoSiExiste`.
+
+## Privacidad y seguridad
+- El usuario guest solo accede a `MesaRegalosController`, que corre `without sharing`.
+- Nada del sistema se devuelve al navegador al escribir un correo.
+- Anónima fuerza nombre "Anónimo" y descarta empresa y LinkedIn en el servidor.
+- El precio de los paquetes lo fija el servidor.
+- Campo trampa y tope de registros y bajas por hora.
+- Un "No" de consentimiento no se cambia con un registro nuevo; la baja es explícita en `/baja`.
+- LinkedIn es opcional, solo en Pública, y si viene se valida.
+
+## Pruebas
+`MesaRegalosTest` y `MesaRegalosDonativoTest`: validaciones, montos, correo existente,
+empresa, anónimo, baja, confirmación de pago e idempotencia, y datos del muro.
+
+## Pendientes y mejoras marcadas
+- Correos automáticos con Flow (campaña, agradecimiento).
+- Webhook de Stripe con validación de firma, incluyendo pagos diferidos (OXXO, SPEI).
+- Verificación del correo con doble autenticación.
+- El nombre público lo escribe quien dona: definir moderación.
+- Cuidado del consentimiento ante registros con correo ajeno.
+
+Espero seguir un flujo como el siguiente:
+- [ ] 1 Backend nuevo
+- [ ] 2 Interfaz
+- [ ] 3 Pago
+- [ ] 4 Aviso de privacidad
+- [ ] 5 Limpieza
