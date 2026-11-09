@@ -7,7 +7,7 @@ public without sharing class MesaRegalosService {
 
     // Orden del embudo. Solo se avanza, nunca se retrocede.
     public static final List<String> ORDEN_ESTADOS = new List<String>{
-        'Identificado', 'Contactado', 'Respondió', 'Interesado', 'Redirigido a donar', 'Donó'
+        'Identificado', 'Contactado', 'Registrado', 'Respondió', 'Interesado', 'Redirigido a donar', 'Donó'
     };
 
     /** 32 bytes aleatorios en hexadecimal = 64 caracteres. */
@@ -61,7 +61,7 @@ public without sharing class MesaRegalosService {
         List<Opportunity> pendientes = [
             SELECT Id, Amount, CampaignId, StageName, AccountId, Account.Name, Contacto_Donador__c,
                    Contacto_Donador__r.Name, Contacto_Donador__r.Generacion__c,
-                   Visibilidad__c, LinkedIn_URL__c, Consentimiento_Publicacion__c, Mostrar_Monto__c
+                   Visibilidad__c, LinkedIn_URL__c, Consentimiento_Publicacion__c, Mostrar_Monto__c, Nombre_Visible__c, Donacion_Empresa__c
             FROM Opportunity
             WHERE Id IN :opportunityIds AND StageName != 'Closed Won'
         ];
@@ -82,7 +82,12 @@ public without sharing class MesaRegalosService {
                 campanas.add(o.CampaignId);
                 pares.add(o.CampaignId + '|' + o.Contacto_Donador__c);
             }
-            if (o.Visibilidad__c == 'Publica'
+            if (o.Nombre_Visible__c != null) {
+                // Formulario único (Pública o Anónima)
+                if (o.Consentimiento_Publicacion__c == true) {
+                    reconocimientos.add(armarReconocimientoNuevo(o));
+                }
+            } else if (o.Visibilidad__c == 'Publica'
                 && o.Consentimiento_Publicacion__c == true
                 && o.Contacto_Donador__c != null) {
                 reconocimientos.add(armarReconocimiento(o));
@@ -106,6 +111,22 @@ public without sharing class MesaRegalosService {
                 }
             }
         }
+    }
+
+    /** Reconocimiento del formulario único: el monto se muestra siempre y la Anónima oculta todo lo demás. */
+    private static Reconocimiento_Publico__c armarReconocimientoNuevo(Opportunity o) {
+        Boolean anonimo = o.Visibilidad__c == 'Anonima';
+        String nombre = (anonimo || String.isBlank(o.Nombre_Visible__c)) ? 'Anónimo' : o.Nombre_Visible__c;
+        return new Reconocimiento_Publico__c(
+            Name = nombre.abbreviate(80),
+            Monto__c = o.Amount,
+            Mostrar_Monto__c = true,
+            Mostrar_En_Muro__c = true,
+            LinkedIn_URL__c = anonimo ? null : o.LinkedIn_URL__c,
+            Es_Empresa__c = !anonimo && o.Donacion_Empresa__c == true,
+            Donativo__c = o.Id,
+            Campana__c = o.CampaignId
+        );
     }
 
     private static Reconocimiento_Publico__c armarReconocimiento(Opportunity o) {

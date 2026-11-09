@@ -12,6 +12,11 @@
                 <label>Pública</label>
             </value>
             <value>
+                <fullName>Anonima</fullName>
+                <default>false</default>
+                <label>Anónima</label>
+            </value>
+            <value>
                 <fullName>Privada</fullName>
                 <default>true</default>
                 <label>Privada</label>

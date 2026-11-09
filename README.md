@@ -202,7 +202,7 @@ empresa, anónimo, baja, confirmación de pago e idempotencia, y datos del muro.
 - Cuidado del consentimiento ante registros con correo ajeno.
 
 Espero seguir un flujo como el siguiente:
-- [ ] 1 Backend nuevo
+- [✅] 1 Backend nuevo
 - [ ] 2 Interfaz
 - [ ] 3 Pago
 - [ ] 4 Aviso de privacidad
