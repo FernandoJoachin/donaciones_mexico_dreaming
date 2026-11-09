@@ -4,14 +4,19 @@
             <span class="burbuja burbuja-a" aria-hidden="true"></span>
             <span class="burbuja burbuja-b" aria-hidden="true"></span>
             <div class="banda-contenido">
-                <span class="etiqueta">{etiqueta}</span>
+                <template lwc:if={etiqueta}>
+                    <span class="etiqueta">{etiqueta}</span>
+                </template>
                 <h1 class="banda-titulo">{titulo}</h1>
+                <template lwc:if={descripcion}>
+                    <p class="banda-descripcion">{descripcion}</p>
+                </template>
             </div>
         </header>
         <div class="contenedor">
             <div class="tabs">
                 <button type="button" class={claseActivas} data-pestana="activas" aria-pressed={pulsadaActivas} onclick={cambiarPestana}>Activas</button>
-                <button type="button" class={clasePasadas} data-pestana="pasadas" aria-pressed={pulsadaPasadas} onclick={cambiarPestana}>Campañas pasadas</button>
+                <button type="button" class={clasePasadas} data-pestana="pasadas" aria-pressed={pulsadaPasadas} onclick={cambiarPestana}>Pasadas</button>
             </div>
 
             <template lwc:if={cargando}>
@@ -27,6 +32,9 @@
             <ul class="lista">
                 <template for:each={tarjetas} for:item="c">
                     <li key={c.id} class="campana">
+                        <template lwc:if={c.imagen}>
+                            <img class="campana-imagen" src={c.imagen} alt="" loading="lazy" onerror={ocultarImagen} />
+                        </template>
                         <div class="campana-cabeza">
                             <h2 class="campana-nombre">{c.nombre}</h2>
                             <template lwc:if={c.cerrada}>
@@ -41,7 +49,9 @@
                                 <span class="cifra-grande">{c.recaudado}</span>
                                 <span class="cifra-meta">de {c.meta}</span>
                             </div>
-                            <lightning-progress-bar value={c.porcentaje} size="large"></lightning-progress-bar>
+                            <div class="barra" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow={c.porcentaje} aria-label="Avance de la campaña">
+                                <div class="barra-relleno" style={c.estiloBarra}></div>
+                            </div>
                         </template>
                         <template lwc:elseif={c.hayRecaudado}>
                             <div class="cifras">
@@ -52,7 +62,9 @@
                         <template lwc:if={c.leyenda}>
                             <p class="leyenda">{c.leyenda}</p>
                         </template>
-                        <button type="button" class={c.claseBoton} data-id={c.id} onclick={verCampana}>{textoBotonVer}</button>
+                        <template lwc:if={c.puedeDonar}>
+                            <button type="button" class="btn btn-primario" data-id={c.id} onclick={verCampana}>{textoBotonVer}</button>
+                        </template>
                     </li>
                 </template>
             </ul>

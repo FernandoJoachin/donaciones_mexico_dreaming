@@ -7,14 +7,17 @@ const MS_DIA = 24 * 60 * 60 * 1000;
 /**
  * Sitio central (US-01): lista las campañas con su meta y su avance.
  *  - Por defecto muestra las campañas activas; la pestaña "Campañas pasadas" muestra las que ya
- *    cerraron, con la etiqueta "Cerrada".
+ *    cerraron, con la etiqueta "Cerrada" y sin botón para donar.
  *  - Qué campañas se publican y cuáles están activas lo decide el servidor (obtenerCampanas).
  *  - El botón lleva a la página de presentación de la campaña con ?campana=<Id>.
  * Los textos y la página de destino se editan en Experience Builder, sin tocar código.
  */
 export default class MesaCampanas extends LightningElement {
-    @api etiqueta = 'Campaña de ex-alumnos';
-    @api titulo = 'México Dreaming';
+    /** Texto pequeño sobre el título. Opcional: si queda vacío no se muestra. */
+    @api etiqueta = '';
+    @api titulo = 'Donaciones';
+    @api descripcion =
+        'Conoce las campañas de ex-alumnos de la Facultad de Matemáticas y apoya la que más te llegue.';
     @api textoBotonVer = 'Ver campaña';
     /** Nombre de la página de presentación (como aparece en la URL) o ruta completa que empiece con "/". */
     @api paginaCampana = 'campana';
@@ -71,6 +74,7 @@ export default class MesaCampanas extends LightningElement {
         const conMeta = c.meta > 0;
         return {
             id: c.id,
+            imagen: c.imagenUrl,
             nombre: c.nombre,
             descripcion: c.descripcion,
             cerrada: !c.activa,
@@ -79,8 +83,10 @@ export default class MesaCampanas extends LightningElement {
             recaudado: formatearMonto(c.total),
             meta: formatearMonto(c.meta),
             porcentaje: c.porcentaje,
+            estiloBarra: `width: ${c.porcentaje}%`,
             leyenda: this.leyenda(c),
-            claseBoton: c.activa ? 'btn btn-primario' : 'btn btn-secundario'
+            // CA7: las campañas cerradas se muestran sin opción de donar (no llevan botón).
+            puedeDonar: c.activa
         };
     }
 
@@ -104,6 +110,11 @@ export default class MesaCampanas extends LightningElement {
             return 'Cierra hoy';
         }
         return dias === 1 ? 'Falta 1 día' : `Faltan ${dias} días`;
+    }
+
+    /** Si la imagen no carga (enlace roto o bloqueado), se oculta en lugar de mostrar el ícono roto. */
+    ocultarImagen(evento) {
+        evento.target.style.display = 'none';
     }
 
     cambiarPestana(evento) {

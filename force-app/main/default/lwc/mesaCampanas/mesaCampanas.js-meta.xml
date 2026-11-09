@@ -9,8 +9,9 @@
     </targets>
     <targetConfigs>
         <targetConfig targets="lightningCommunity__Default">
-            <property name="etiqueta" type="String" label="Etiqueta superior" default="Campaña de ex-alumnos"/>
-            <property name="titulo" type="String" label="Título" default="México Dreaming"/>
+            <property name="etiqueta" type="String" label="Etiqueta superior (opcional)" default=""/>
+            <property name="titulo" type="String" label="Título" default="Donaciones"/>
+            <property name="descripcion" type="String" label="Descripción del sitio (bajo el título)" default="Conoce las campañas de ex-alumnos de la Facultad de Matemáticas y apoya la que más te llegue."/>
             <property name="textoBotonVer" type="String" label="Texto del botón de cada campaña" default="Ver campaña"/>
             <property name="paginaCampana" type="String" label="Página de presentación de la campaña" default="campana"/>
         </targetConfig>
