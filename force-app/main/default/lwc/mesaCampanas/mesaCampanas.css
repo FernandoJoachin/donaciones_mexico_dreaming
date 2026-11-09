@@ -1,0 +1,97 @@
+@import 'c/mesaEstilos';
+
+.tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.4rem;
+    padding: 0.3rem;
+    background: var(--mesa-cielo);
+    border-radius: 999px;
+}
+.tab {
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0.65rem 0.75rem;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--mesa-azul-medio);
+}
+.tab:focus-visible {
+    outline: 3px solid #90d0fe;
+    outline-offset: 2px;
+}
+.tab-activa {
+    background: #ffffff;
+    color: var(--mesa-azul-oscuro);
+    box-shadow: 0 2px 8px rgba(3, 45, 96, 0.12);
+}
+.lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+.campana {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1.1rem 1.25rem;
+    background: #f3f8fd;
+    border-left: 6px solid var(--mesa-azul);
+    border-radius: 20px;
+}
+.campana-cabeza {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+.campana-nombre {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--mesa-azul-oscuro);
+}
+.insignia {
+    flex: none;
+    padding: 0.2rem 0.75rem;
+    border-radius: 999px;
+    background: #e8ecf3;
+    color: var(--mesa-gris);
+    font-size: 0.8125rem;
+    font-weight: 700;
+}
+.campana-texto {
+    margin: 0;
+    color: var(--mesa-gris);
+    line-height: 1.45;
+}
+.cifras {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+.cifra-grande {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--mesa-azul-oscuro);
+}
+.cifra-meta,
+.leyenda {
+    margin: 0;
+    color: var(--mesa-gris);
+    font-size: 0.875rem;
+}
+.vacio {
+    margin: 0;
+    padding: 1.25rem;
+    text-align: center;
+    color: var(--mesa-gris);
+    border: 2px dashed #b7d4ee;
+    border-radius: 20px;
+}

@@ -1,0 +1,61 @@
+<template>
+    <div class="pagina">
+        <header class="banda">
+            <span class="burbuja burbuja-a" aria-hidden="true"></span>
+            <span class="burbuja burbuja-b" aria-hidden="true"></span>
+            <div class="banda-contenido">
+                <span class="etiqueta">{etiqueta}</span>
+                <h1 class="banda-titulo">{titulo}</h1>
+            </div>
+        </header>
+        <div class="contenedor">
+            <div class="tabs">
+                <button type="button" class={claseActivas} data-pestana="activas" aria-pressed={pulsadaActivas} onclick={cambiarPestana}>Activas</button>
+                <button type="button" class={clasePasadas} data-pestana="pasadas" aria-pressed={pulsadaPasadas} onclick={cambiarPestana}>Campañas pasadas</button>
+            </div>
+
+            <template lwc:if={cargando}>
+                <p class="info">Cargando campañas…</p>
+            </template>
+            <template lwc:if={hayError}>
+                <p class="error">No pudimos cargar las campañas. Intenta de nuevo en unos minutos.</p>
+            </template>
+            <template lwc:if={sinTarjetas}>
+                <p class="vacio">{mensajeVacio}</p>
+            </template>
+
+            <ul class="lista">
+                <template for:each={tarjetas} for:item="c">
+                    <li key={c.id} class="campana">
+                        <div class="campana-cabeza">
+                            <h2 class="campana-nombre">{c.nombre}</h2>
+                            <template lwc:if={c.cerrada}>
+                                <span class="insignia">Cerrada</span>
+                            </template>
+                        </div>
+                        <template lwc:if={c.descripcion}>
+                            <p class="campana-texto">{c.descripcion}</p>
+                        </template>
+                        <template lwc:if={c.conMeta}>
+                            <div class="cifras">
+                                <span class="cifra-grande">{c.recaudado}</span>
+                                <span class="cifra-meta">de {c.meta}</span>
+                            </div>
+                            <lightning-progress-bar value={c.porcentaje} size="large"></lightning-progress-bar>
+                        </template>
+                        <template lwc:elseif={c.hayRecaudado}>
+                            <div class="cifras">
+                                <span class="cifra-grande">{c.recaudado}</span>
+                                <span class="cifra-meta">recaudados</span>
+                            </div>
+                        </template>
+                        <template lwc:if={c.leyenda}>
+                            <p class="leyenda">{c.leyenda}</p>
+                        </template>
+                        <button type="button" class={c.claseBoton} data-id={c.id} onclick={verCampana}>{textoBotonVer}</button>
+                    </li>
+                </template>
+            </ul>
+        </div>
+    </div>
+</template>
