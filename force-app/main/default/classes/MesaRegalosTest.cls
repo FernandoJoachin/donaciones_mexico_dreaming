@@ -423,6 +423,20 @@ private class MesaRegalosTest {
     }
 
     @IsTest
+    static void campanaDevuelveSuImagenSoloSiEsHttps() {
+        Campaign c = [SELECT Id FROM Campaign WHERE Name = 'México Dreaming TEST' LIMIT 1];
+        Assert.isNull(campanaPorNombre('México Dreaming TEST').imagenUrl);
+
+        c.Imagen_Url__c = 'https://example.com/foto.jpg';
+        update c;
+        Assert.areEqual('https://example.com/foto.jpg', campanaPorNombre('México Dreaming TEST').imagenUrl);
+
+        c.Imagen_Url__c = 'http://example.com/foto.jpg';
+        update c;
+        Assert.isNull(campanaPorNombre('México Dreaming TEST').imagenUrl);
+    }
+
+    @IsTest
     static void sinCampanasPublicadasDevuelveListaVacia() {
         delete [SELECT Id FROM Campaign];
         Assert.areEqual(0, MesaRegalosController.obtenerCampanas().size());

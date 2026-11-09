@@ -101,6 +101,7 @@ public without sharing class MesaRegalosController {
         @AuraEnabled public Decimal porcentaje;
         @AuraEnabled public Date fechaFin;
         @AuraEnabled public Boolean activa;     // false = ya cerró (se muestra en "Campañas pasadas")
+        @AuraEnabled public String imagenUrl;   // null = la campaña no tiene imagen
     }
 
     // ---------- Entrada: formulario de reencuentro ----------
@@ -414,7 +415,7 @@ public without sharing class MesaRegalosController {
     public static List<CampanaDTO> obtenerCampanas() {
         Date hoy = Date.today();
         List<Campaign> campanas = [
-            SELECT Id, Name, Description, ExpectedRevenue, EndDate
+            SELECT Id, Name, Description, ExpectedRevenue, EndDate, Imagen_Url__c
             FROM Campaign
             WHERE IsActive = true AND (StartDate = null OR StartDate <= :hoy)
             ORDER BY StartDate DESC NULLS LAST, Name
@@ -453,6 +454,9 @@ public without sharing class MesaRegalosController {
             }
             d.fechaFin = c.EndDate;
             d.activa = c.EndDate == null || c.EndDate >= hoy;
+            // Solo se publica si es https; cualquier otro esquema se descarta.
+            d.imagenUrl = (c.Imagen_Url__c != null && c.Imagen_Url__c.startsWithIgnoreCase('https://'))
+                ? c.Imagen_Url__c : null;
             resultado.add(d);
         }
         return resultado;
