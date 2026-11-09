@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>62.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Mesa - Pie de página</masterLabel>
+    <targets>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightningCommunity__Default">
+            <property name="titulo" type="String" label="Título" default="Salesforce Community"/>
+            <property name="descripcion" type="String" label="Descripción breve" default="Comunidad de ex-alumnos y amigos de la Facultad de Matemáticas, reunida en torno a causas que importan."/>
+            <property name="universidad" type="String" label="Universidad" default="Universidad Autónoma de Yucatán"/>
+            <property name="facultad" type="String" label="Facultad" default="Facultad de Matemáticas"/>
+            <property name="paginaCampanas" type="String" label="Página de campañas (vacío = no se muestra)" default=""/>
+            <property name="paginaDonar" type="String" label="Página de donación (vacío = no se muestra)" default="donar"/>
+            <property name="paginaMuro" type="String" label="Página del muro (vacío = no se muestra)" default="muro"/>
+            <property name="paginaReencuentro" type="String" label="Página de reencuentro (vacío = no se muestra)" default="reencuentro"/>
+            <property name="paginaAviso" type="String" label="Aviso de privacidad: página o URL (vacío = no se muestra)" default=""/>
+            <property name="correoContacto" type="String" label="Correo de contacto (vacío = no se muestra)" default=""/>
+            <property name="telefonoContacto" type="String" label="Teléfono de contacto (vacío = no se muestra)" default=""/>
+            <property name="urlInstagram" type="String" label="URL de Instagram (https://...)" default=""/>
+            <property name="urlFacebook" type="String" label="URL de Facebook (https://...)" default=""/>
+            <property name="urlLinkedin" type="String" label="URL de LinkedIn (https://...)" default=""/>
+            <property name="textoCta" type="String" label="Texto del llamado a donar" default="Cada aporte cuenta. Elige una campaña y sé parte."/>
+            <property name="textoBotonCta" type="String" label="Texto del botón de donar" default="Quiero donar"/>
+            <property name="textoLegal" type="String" label="Texto legal (tras el © y el año)" default="Facultad de Matemáticas, UADY."/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>
