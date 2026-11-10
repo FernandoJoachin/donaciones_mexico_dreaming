@@ -1,0 +1,138 @@
+@import 'c/mesaEstilos';
+
+/* Misma banda de degradado que el encabezado, con las esquinas redondeadas hacia arriba. */
+.pie {
+    position: relative;
+    overflow: hidden;
+    margin-top: 3rem;
+    padding: 3rem 1.5rem 1.25rem;
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--mesa-azul-oscuro) 0%, var(--mesa-azul-medio) 55%, var(--mesa-azul-claro) 100%);
+    border-top-left-radius: 48px;
+    border-top-right-radius: 48px;
+}
+.pie-contenido {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 2rem 2.5rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+.pie-columna {
+    min-width: 0;
+}
+.pie-titulo {
+    margin: 0 0 0.5rem;
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1.2;
+}
+.pie-texto {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.85);
+}
+.pie-institucion {
+    margin: 0.75rem 0 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+.pie-facultad {
+    margin-top: 0.1rem;
+    font-weight: 600;
+    color: #90d0fe;
+}
+.pie-encabezado {
+    margin: 0 0 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #90d0fe;
+}
+.pie-lista,
+.pie-redes {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.pie-enlace {
+    font-size: 0.9rem;
+    color: #ffffff;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+.pie-enlace:hover {
+    text-decoration: underline;
+}
+.pie-redes {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+.pie-red {
+    display: inline-block;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--mesa-azul-oscuro);
+    background: var(--mesa-cielo);
+    text-decoration: none;
+}
+.pie-red:hover {
+    background: #ffffff;
+}
+.pie-enlace:focus-visible,
+.pie-red:focus-visible {
+    outline: 3px solid #90d0fe;
+    outline-offset: 2px;
+}
+.pie-base {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    max-width: 1000px;
+    margin: 2rem auto 0;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.25);
+}
+.pie-legal {
+    margin: 0;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+@media (min-width: 801px) {
+    .pie-marca {
+        grid-column: span 2;
+    }
+}
+.pie-boton {
+    display: inline-block;
+    margin-top: 0.9rem;
+    padding: 0.7rem 1.5rem;
+    border-radius: 999px;
+    font-weight: 700;
+    color: var(--mesa-azul);
+    background: #ffffff;
+    text-decoration: none;
+}
+.pie-boton:hover {
+    background: var(--mesa-cielo);
+}
+.pie-boton:focus-visible {
+    outline: 3px solid #90d0fe;
+    outline-offset: 2px;
+}
+@media (max-width: 600px) {
+    .pie {
+        padding: 2.25rem 1.25rem 1rem;
+        border-top-left-radius: 32px;
+        border-top-right-radius: 32px;
+    }
+}
