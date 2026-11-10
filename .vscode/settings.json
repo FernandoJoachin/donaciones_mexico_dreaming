@@ -3,6 +3,7 @@
     "conventionalCommits.scopes": [
         "Backend",
         "Frontend",
-        "Doc"
+        "Doc",
+        "Clean"
     ]
 }

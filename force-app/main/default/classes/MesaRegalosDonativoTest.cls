@@ -260,14 +260,13 @@ private class MesaRegalosDonativoTest {
         Assert.areEqual(2, [SELECT COUNT() FROM Reconocimiento_Publico__c]);
 
         Reconocimiento_Publico__c p = [
-            SELECT Name, Es_Empresa__c, LinkedIn_URL__c, Monto__c, Mostrar_Monto__c
+            SELECT Name, Es_Empresa__c, LinkedIn_URL__c, Monto__c
             FROM Reconocimiento_Publico__c WHERE Donativo__c = :oppPub
         ];
         Assert.areEqual('Acme SA', p.Name);
         Assert.isTrue(p.Es_Empresa__c);
         Assert.isNotNull(p.LinkedIn_URL__c);
         Assert.isTrue(p.Monto__c == 3000);
-        Assert.isTrue(p.Mostrar_Monto__c);
 
         Reconocimiento_Publico__c a = [
             SELECT Name, Es_Empresa__c, LinkedIn_URL__c
@@ -308,5 +307,49 @@ private class MesaRegalosDonativoTest {
             lanzo = true;
         }
         Assert.isTrue(lanzo);
+    }
+
+    // ---------- Avance y utilidades ----------
+
+    @IsTest
+    static void elAvanceSoloSumaLosDonativosPagados() {
+        Id pagado = enviar(base()).donativoId;
+        Map<String, Object> otro = base();
+        otro.put('correo', 'otro.donante@example.com');
+        enviar(otro); // queda en promesa: no cuenta
+
+        Assert.isTrue(MesaRegalosController.obtenerAvance(campana()).total == 0);
+        Assert.areEqual(0, MesaRegalosController.obtenerMuro(campana()).size());
+
+        MesaRegalosService.confirmarPago(new List<Id>{ pagado });
+
+        MesaRegalosController.AvanceDTO avance = MesaRegalosController.obtenerAvance(campana());
+        Assert.isTrue(avance.total == 3000);
+        Assert.isTrue(avance.porcentaje == 30); // la meta de la campaña de prueba es 10,000
+        Assert.areEqual(1, avance.donativos);
+        Assert.areEqual(1, MesaRegalosController.obtenerMuro(campana()).size());
+    }
+
+    @IsTest
+    static void sinCampanaElMuroYElAvanceVienenVacios() {
+        Assert.areEqual(0, MesaRegalosController.obtenerMuro(null).size());
+        Assert.isTrue(MesaRegalosController.obtenerAvance(null).total == 0);
+    }
+
+    @IsTest
+    static void validacionDeCorreos() {
+        Assert.isTrue(MesaRegalosController.esCorreoValido('a.b+c@dominio.com.mx'));
+        Assert.isFalse(MesaRegalosController.esCorreoValido('sin-arroba.com'));
+        Assert.isFalse(MesaRegalosController.esCorreoValido('a@b'));
+    }
+
+    @IsTest
+    static void validacionDeUrlsDeLinkedIn() {
+        Assert.isTrue(MesaRegalosController.esUrlLinkedIn('https://www.linkedin.com/in/alguien'));
+        Assert.isTrue(MesaRegalosController.esUrlLinkedIn('https://mx.linkedin.com/in/alguien'));
+        Assert.isTrue(MesaRegalosController.esUrlLinkedIn('https://www.linkedin.com/company/una-empresa'));
+        Assert.isFalse(MesaRegalosController.esUrlLinkedIn('http://www.linkedin.com/in/alguien'));
+        Assert.isFalse(MesaRegalosController.esUrlLinkedIn('https://linkedin.com.malo.com/in/x'));
+        Assert.isFalse(MesaRegalosController.esUrlLinkedIn(null));
     }
 }

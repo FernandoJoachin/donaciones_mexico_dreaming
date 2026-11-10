@@ -16,11 +16,6 @@
                 <default>false</default>
                 <label>Anónima</label>
             </value>
-            <value>
-                <fullName>Privada</fullName>
-                <default>true</default>
-                <label>Privada</label>
-            </value>
         </valueSetDefinition>
     </valueSet>
     <required>false</required>
