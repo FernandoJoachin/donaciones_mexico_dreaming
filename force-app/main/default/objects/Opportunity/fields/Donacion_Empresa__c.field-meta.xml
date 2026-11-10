@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Mostrar_Monto__c</fullName>
-    <label>Mostrar monto</label>
+    <fullName>Donacion_Empresa__c</fullName>
+    <description>El donativo se hizo en nombre de una empresa</description>
+    <label>Donación en nombre de empresa</label>
     <defaultValue>false</defaultValue>
     <required>false</required>
     <trackTrending>false</trackTrending>

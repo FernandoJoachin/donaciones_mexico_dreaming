@@ -1,5 +1,13 @@
 @import 'c/mesaEstilos';
 
+.publico {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1rem 1.1rem;
+    background: var(--mesa-cielo);
+    border-radius: 20px;
+}
 .trampa {
     position: absolute;
     left: -10000px;

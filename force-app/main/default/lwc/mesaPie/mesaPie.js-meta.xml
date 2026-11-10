@@ -14,7 +14,7 @@
             <property name="universidad" type="String" label="Universidad" default="Universidad Autónoma de Yucatán"/>
             <property name="facultad" type="String" label="Facultad" default="Facultad de Matemáticas"/>
             <property name="paginaCampanas" type="String" label="Página de campañas (vacío = no se muestra)" default=""/>
-            <property name="paginaDonar" type="String" label="Página de donación (vacío = no se muestra)" default="donar"/>
+            <property name="paginaDonar" type="String" label="Página de donación (vacío = no se muestra)" default="registro"/>
             <property name="paginaMuro" type="String" label="Página del muro (vacío = no se muestra)" default="muro"/>
             <property name="paginaReencuentro" type="String" label="Página de reencuentro (vacío = no se muestra)" default="reencuentro"/>
             <property name="paginaAviso" type="String" label="Aviso de privacidad: página o URL (vacío = no se muestra)" default=""/>
