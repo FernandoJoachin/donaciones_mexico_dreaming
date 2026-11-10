@@ -33,7 +33,7 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué se verificó y cómo:** cada cambio se ligó al minuto de la transcripción; las decisiones dudosas se confirmaron
   con el autor antes de editar Jira. Un resumen de Jira superó los 255 caracteres y se acortó.
 - **Qué se corrigió:** se descartó un ticket de "resumen de monto antes de pagar" porque ese paso lo hace la pasarela.
-- **Aceleración estimada:** ~4 h (escuchar 1 h de reunión y reconciliar a mano ~25 tickets).
+- **Aceleración estimada:** ~4 h (escuchar 1 h de reunión y reconciliar a mano los tickets afectados).
 
 ### 3. Detalle de campaña: endpoint Apex y componente
 - **Fecha:** 2026-11-09
