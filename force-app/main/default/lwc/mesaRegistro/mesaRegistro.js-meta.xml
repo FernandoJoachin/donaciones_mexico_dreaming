@@ -2,7 +2,7 @@
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>62.0</apiVersion>
     <isExposed>true</isExposed>
-    <masterLabel>Mesa - Registro e invitación</masterLabel>
+    <masterLabel>Mesa - Registro y donación</masterLabel>
     <targets>
         <target>lightningCommunity__Page</target>
         <target>lightningCommunity__Default</target>
@@ -12,7 +12,11 @@
             <property name="campaignId" type="String" label="Id de la campaña"/>
             <property name="avisoUrl" type="String" label="URL del aviso de privacidad"/>
             <property name="versionAviso" type="String" label="Versión del aviso" default="v1"/>
-            <property name="paginaDonar" type="String" label="Página de donación (nombre en la URL)" default="donar"/>
+            <property name="urlPago" type="String" label="Payment Link: otro monto (precio libre)"/>
+            <!-- ESTOS SON LOS PRECIOS FINALES? Averiguar si se puede manejar con el libre -->
+            <property name="urlPagoP1000" type="String" label="Payment Link: Paquete $1,000"/>
+            <property name="urlPagoP3000" type="String" label="Payment Link: Paquete $3,000"/>
+            <property name="urlPagoP5000" type="String" label="Payment Link: Paquete $5,000"/>
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>

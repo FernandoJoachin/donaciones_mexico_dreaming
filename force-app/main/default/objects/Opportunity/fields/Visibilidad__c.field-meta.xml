@@ -12,9 +12,9 @@
                 <label>Pública</label>
             </value>
             <value>
-                <fullName>Privada</fullName>
-                <default>true</default>
-                <label>Privada</label>
+                <fullName>Anonima</fullName>
+                <default>false</default>
+                <label>Anónima</label>
             </value>
         </valueSetDefinition>
     </valueSet>

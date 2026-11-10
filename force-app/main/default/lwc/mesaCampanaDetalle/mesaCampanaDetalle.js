@@ -19,7 +19,7 @@ export default class MesaCampanaDetalle extends LightningElement {
     @api textoBotonDonar = 'Donar';
     @api textoVolver = 'Ver todas las campañas';
     /** Nombre de la página de donación (como aparece en la URL) o ruta completa que empiece con "/". */
-    @api paginaDonar = 'donar';
+    @api paginaDonar = 'registro';
 
     campanaId;
     campana;

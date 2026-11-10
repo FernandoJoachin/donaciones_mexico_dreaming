@@ -14,7 +14,7 @@ export default class MesaPie extends LightningElement {
 
     // Paginas del mismo sitio (nombre de la pagina). Vacio = no se muestra ese enlace.
     @api paginaCampanas = '';
-    @api paginaDonar = 'donar';
+    @api paginaDonar = 'registro';
     @api paginaMuro = 'muro';
     @api paginaReencuentro = 'reencuentro';
     @api paginaFacturas = 'facturas';

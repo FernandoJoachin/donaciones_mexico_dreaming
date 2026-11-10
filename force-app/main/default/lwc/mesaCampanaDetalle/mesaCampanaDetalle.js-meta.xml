@@ -11,7 +11,7 @@
         <targetConfig targets="lightningCommunity__Default">
             <property name="textoBotonDonar" type="String" label="Texto del botón de donar" default="Donar"/>
             <property name="textoVolver" type="String" label="Texto del enlace para volver" default="Ver todas las campañas"/>
-            <property name="paginaDonar" type="String" label="Página de donación" default="donar"/>
+            <property name="paginaDonar" type="String" label="Página de donación" default="registro"/>
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>

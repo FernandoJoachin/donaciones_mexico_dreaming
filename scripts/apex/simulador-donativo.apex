@@ -26,3 +26,9 @@ System.debug('Promesa creada: ' + oppId);
 MesaRegalosService.confirmarPago(new List<Id>{ oppId });
 // MesaRegalosService.confirmarPago(new List<Id>{ '006fj00000OcuMjAAJ' });
 System.debug('Pago confirmado');
+
+// PROBAR FLUJO DE CONFIRMACIÓN DE PAGO
+Opportunity o = [SELECT Id FROM Opportunity WHERE Id = '006XXXXXXXXXXXXXXX'];
+o.Stripe_Pago_Id__c = 'pi_XXXXXXXX';
+update o;
+MesaRegalosService.confirmarPago(new List<Id>{ o.Id });
