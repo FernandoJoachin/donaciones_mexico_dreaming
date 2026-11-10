@@ -6,7 +6,8 @@ const OPCIONES_ORDEN = [
     { label: 'Mayor monto', value: 'monto' },
     { label: 'Más reciente', value: 'fecha' }
 ];
-const VELOCIDAD_DESPLAZAMIENTO = 0.02;
+const INTERVALO_DESPLAZAMIENTO_MS = 80;
+const PAUSA_POR_INTERACCION_MS = 3000;
 const TIEMPO_LIMITE_CARGA_MS = 30000;
 
 export default class MesaMuro extends LightningElement {
@@ -85,13 +86,12 @@ export default class MesaMuro extends LightningElement {
     orden = 'monto';
     opcionesOrden = OPCIONES_ORDEN;
     _needsScrollSetup = false;
-    _scrollFrame;
-    _lastFrameTime;
+    _scrollInterval;
     _scrollPaused = false;
-    _focusInside = false;
     _resizeObserver;
     _resizeHandler;
     _scrollContainer;
+    _scrollResumeTimeout;
 
     get hayMeta() {
         return this.mostrarAvanceActivo && this.avance && this.avance.data && this.metaObjetivo > 0;
@@ -205,6 +205,7 @@ export default class MesaMuro extends LightningElement {
     disconnectedCallback() {
         this.limpiarTiempoLimite();
         this.detenerDesplazamiento();
+        this.limpiarReanudacionDesplazamiento();
         if (this._resizeObserver) {
             this._resizeObserver.disconnect();
             this._resizeObserver = null;
@@ -229,28 +230,20 @@ export default class MesaMuro extends LightningElement {
         if (contenedor) {
             contenedor.scrollTop = 0;
         }
+        this._scrollPaused = false;
+        this.limpiarReanudacionDesplazamiento();
         this._needsScrollSetup = true;
     }
 
-    pausarPorFoco() {
-        this._focusInside = true;
-        this.actualizarPausa();
-    }
-
-    reanudarPorFoco(event) {
-        this._focusInside = event.currentTarget.contains(event.relatedTarget);
-        this.actualizarPausa();
-    }
-
-    actualizarPausa() {
-        const pausado = this._focusInside;
-        if (pausado) {
-            this._scrollPaused = true;
-            this.detenerDesplazamiento();
-        } else if (this._scrollPaused) {
+    pausarPorInteraccion() {
+        this._scrollPaused = true;
+        this.detenerDesplazamiento();
+        this.limpiarReanudacionDesplazamiento();
+        this._scrollResumeTimeout = setTimeout(() => {
+            this._scrollResumeTimeout = null;
             this._scrollPaused = false;
             this.iniciarDesplazamiento();
-        }
+        }, PAUSA_POR_INTERACCION_MS);
     }
 
     configurarDesplazamiento() {
@@ -280,40 +273,45 @@ export default class MesaMuro extends LightningElement {
     iniciarDesplazamiento() {
         this.detenerDesplazamiento();
         const contenedor = this._scrollContainer;
-        const prefiereMovimientoReducido = typeof window.matchMedia === 'function' &&
-            window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         if (this._scrollPaused || !contenedor ||
-            prefiereMovimientoReducido ||
-            contenedor.scrollHeight <= contenedor.clientHeight + 1 ||
-            contenedor.scrollTop + contenedor.clientHeight >= contenedor.scrollHeight - 1) {
+            contenedor.scrollHeight <= contenedor.clientHeight + 1) {
             return;
         }
-        this._scrollFrame = requestAnimationFrame((tiempo) => this.desplazar(tiempo));
+        if (contenedor.scrollTop + contenedor.clientHeight >= contenedor.scrollHeight - 1) {
+            return;
+        }
+        this._scrollInterval = setInterval(
+            () => this.desplazar(),
+            INTERVALO_DESPLAZAMIENTO_MS
+        );
     }
 
-    desplazar(tiempo) {
+    desplazar() {
         const contenedor = this._scrollContainer;
         if (!contenedor) {
             this.detenerDesplazamiento();
             return;
         }
-        if (!this._scrollPaused) {
-            const transcurrido = this._lastFrameTime ? Math.min(tiempo - this._lastFrameTime, 100) : 0;
-            contenedor.scrollTop += transcurrido * VELOCIDAD_DESPLAZAMIENTO;
-        }
-        this._lastFrameTime = tiempo;
         if (contenedor.scrollTop + contenedor.clientHeight >= contenedor.scrollHeight - 1) {
             this.detenerDesplazamiento();
             return;
         }
-        this._scrollFrame = requestAnimationFrame((siguiente) => this.desplazar(siguiente));
+        const prefiereMovimientoReducido = typeof window.matchMedia === 'function' &&
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        contenedor.scrollTop += prefiereMovimientoReducido ? 1 : 2;
+    }
+
+    limpiarReanudacionDesplazamiento() {
+        if (this._scrollResumeTimeout !== undefined && this._scrollResumeTimeout !== null) {
+            clearTimeout(this._scrollResumeTimeout);
+            this._scrollResumeTimeout = null;
+        }
     }
 
     detenerDesplazamiento() {
-        if (this._scrollFrame !== undefined && this._scrollFrame !== null) {
-            cancelAnimationFrame(this._scrollFrame);
-            this._scrollFrame = null;
+        if (this._scrollInterval !== undefined && this._scrollInterval !== null) {
+            clearInterval(this._scrollInterval);
+            this._scrollInterval = null;
         }
-        this._lastFrameTime = null;
     }
 }

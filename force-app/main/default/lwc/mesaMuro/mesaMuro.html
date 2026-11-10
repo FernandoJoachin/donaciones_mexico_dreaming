@@ -78,8 +78,10 @@
                     role="region"
                     aria-label="Donantes de la campaña"
                     tabindex="0"
-                    onfocusin={pausarPorFoco}
-                    onfocusout={reanudarPorFoco}>
+                    onwheel={pausarPorInteraccion}
+                    ontouchstart={pausarPorInteraccion}
+                    onpointerdown={pausarPorInteraccion}
+                    onkeydown={pausarPorInteraccion}>
                     <ul class="lista">
                         <template for:each={items} for:item="item">
                             <li key={item.clave} class="item">

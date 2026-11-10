@@ -134,9 +134,8 @@
     background: #d79a5e;
 }
 .lista-ventana {
-    max-height: min(24rem, 55vh);
+    max-height: min(14rem, 40vh);
     overflow-y: auto;
-    overscroll-behavior: contain;
     scrollbar-width: thin;
 }
 .lista-ventana:focus-visible {
@@ -195,6 +194,6 @@
         font-size: 0.75rem;
     }
     .lista-ventana {
-        max-height: min(24rem, 45vh);
+        max-height: min(12rem, 35vh);
     }
 }
