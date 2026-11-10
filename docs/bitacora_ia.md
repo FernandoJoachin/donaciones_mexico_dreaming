@@ -95,11 +95,22 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué se corrigió:** nada que corregir; se dejó escrito que el muro se probó sin donantes en la org (límite de la prueba).
 - **Aceleración estimada:** ~1.5 h.
 
+### 8. ⚠ Error de la IA — "las páginas dan 200" no era un sitio público
+- **Fecha:** 2026-11-10
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** SCRUM-86 / sitio en la sandbox UADY
+- **Qué se pidió:** limpiar la sandbox UADY (automatizaciones de otros proyectos que impedían guardar donativos) y armar y publicar el sitio nuevo "Mesa de regalos".
+- **Qué se obtuvo:** una prueba en Apex que confirmó el flujo completo de un donativo después de desactivar `OpportunityTrigger` y 4 reglas de validación de Campaign (con respaldo previo). La IA también reportó que las 5 páginas del sitio respondían "200".
+- **Qué se verificó y cómo:** el autor abrió el sitio desde el celular y vio la pantalla de inicio de sesión. Se comprobó con `curl` que la respuesta traía un redireccionamiento a login: el 200 era de la página de login, no del sitio.
+- **Qué se corrigió:** se dejó de usar el código de respuesta como prueba y se anotaron los pasos pendientes (activar el sitio, hacerlo público y dar al usuario guest acceso a `MesaRegalosController`). Esos pasos de seguridad los hace el dueño de la cuenta.
+- **Aceleración estimada:** ~3 h (diagnosticar los bloqueos de la sandbox y armar las 5 páginas).
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 7 | 3 (entradas 1, 4 y 5) |
+| José Carlos Leo Fernández | 8 | 4 (entradas 1, 4, 5 y 8) |
 | Daniel Amaya | por completar | por completar |
 | Fernando Joachín | por completar | por completar |
 
