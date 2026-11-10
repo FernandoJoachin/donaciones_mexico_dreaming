@@ -106,11 +106,22 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué se corrigió:** se dejó de usar el código de respuesta como prueba y se anotaron los pasos pendientes (activar el sitio, hacerlo público y dar al usuario guest acceso a `MesaRegalosController`). Esos pasos de seguridad los hace el dueño de la cuenta.
 - **Aceleración estimada:** ~3 h (diagnosticar los bloqueos de la sandbox y armar las 5 páginas).
 
+### 9. ⚠ Error de la IA — "el flujo de donar funciona" solo se había probado como administrador
+- **Fecha:** 2026-11-10
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** SCRUM-86 / sitio en la sandbox UADY y `docs/seguridad.md`
+- **Qué se pidió:** probar el sitio publicado como visitante (detalle de campaña, formulario de donar) antes de avisar al equipo.
+- **Qué se obtuvo:** la IA había dado por bueno el flujo de donar porque la prueba en Apex, corrida como administrador, pasaba. Al hacer la prueba real como visitante, el formulario falló con "Ocurrió un error". Con el registro de depuración del usuario guest se vio la causa: el trigger `PreApproveStudent`, de otro proyecto de la sandbox, busca la campaña `FONDOS SDU`, que el guest no puede ver, y cancelaba la donación. Antes de eso, la IA había instalado en la sandbox una versión vieja de `MesaRegalosController` (sin el método de campañas) y la lista salía con "No pudimos cargar las campañas".
+- **Qué se verificó y cómo:** se repitió el envío como visitante en un navegador sin sesión y se consultó la org: el donativo quedó `Prospecting` y no apareció en el muro ni en el total. También se encontró en el muro público un reconocimiento de demostración de $99,000 que no creó el código; se ocultó.
+- **Qué se corrigió:** se desplegó el código completo de `entrega-1`, se desactivó `PreApproveStudent` (con respaldo y con la aprobación del autor) y se documentó en `docs/seguridad.md`. Lección: una prueba con permisos de administrador no demuestra lo que puede hacer el visitante.
+- **Aceleración estimada:** ~2 h (la depuración con el registro del guest habría llevado más sin la IA).
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 8 | 4 (entradas 1, 4, 5 y 8) |
+| José Carlos Leo Fernández | 9 | 5 (entradas 1, 4, 5, 8 y 9) |
 | Daniel Amaya | por completar | por completar |
 | Fernando Joachín | por completar | por completar |
 
