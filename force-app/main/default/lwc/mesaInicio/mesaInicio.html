@@ -9,7 +9,7 @@
                 <h1 class="titulo">{titulo}</h1>
                 <p class="descripcion">{descripcion}</p>
                 <div class="acciones">
-                    <button type="button" class="btn btn-claro" onclick={donar}>{textoBotonDonar}</button>
+                    <button type="button" class="btn btn-claro" onclick={irACampanas}>{textoBotonDonar}</button>
                     <button type="button" class="btn btn-contorno" onclick={verMuro}>{textoBotonMuro}</button>
                 </div>
                 <p class="ayuda">{ayuda}</p>
@@ -31,20 +31,19 @@
         </section>
 
         <section class="seccion seccion-suave">
-            <h2 class="seccion-titulo">Elige tu aportación</h2>
-            <p class="seccion-sub">Tú decides cuánto y si tu nombre se muestra.</p>
-            <ul class="opciones">
-                <template for:each={opciones} for:item="opcion">
-                    <li key={opcion.id}>
-                        <button type="button" class="opcion" onclick={donar}>
-                            <span class="opcion-nombre">{opcion.nombre}</span>
-                            <span class="opcion-monto">{opcion.monto}</span>
-                        </button>
+            <h2 class="seccion-titulo">{tituloSobre}</h2>
+            <p class="seccion-sub">{subSobre}</p>
+            <ul class="info-lista">
+                <template for:each={infos} for:item="info">
+                    <li key={info.id} class="tarjeta info">
+                        <h3 class="tarjeta-titulo">{info.titulo}</h3>
+                        <p class="tarjeta-texto">{info.texto}</p>
                     </li>
                 </template>
             </ul>
         </section>
 
+        <template lwc:if={mostrarCierre}>
         <section class="seccion cierre">
             <div class="cierre-tarjeta">
                 <h2 class="cierre-titulo">{tituloFinal}</h2>
@@ -52,5 +51,6 @@
                 <button type="button" class="btn btn-claro" onclick={verMuro}>{textoBotonMuro}</button>
             </div>
         </section>
+        </template>
     </div>
 </template>

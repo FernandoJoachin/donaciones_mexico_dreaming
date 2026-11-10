@@ -16,6 +16,10 @@ export default class MesaCampanas extends LightningElement {
     /** Texto pequeño sobre el título. Opcional: si queda vacío no se muestra. */
     @api etiqueta = '';
     @api titulo = 'Donaciones';
+    /** En la página de inicio la lista va debajo de la portada, sin su propia banda azul. */
+    @api ocultarBanda = false;
+    /** Landing: muestra la portada y la información de mesaInicio arriba de la lista (sin banda propia). */
+    @api sinPortada = false;
     @api descripcion =
         'Conoce las campañas de ex-alumnos de la Facultad de Matemáticas y apoya la que más te llegue.';
     @api textoBotonVer = 'Ver campaña';
@@ -124,5 +128,21 @@ export default class MesaCampanas extends LightningElement {
     verCampana(evento) {
         const id = evento.currentTarget.dataset.id;
         irA(`${resolverUrl(this.paginaCampana, null, true)}?campana=${encodeURIComponent(id)}`);
+    }
+
+    get incluirPortada() {
+        return !this.sinPortada;
+    }
+
+    get sinBanda() {
+        return this.ocultarBanda || this.incluirPortada;
+    }
+
+    get mostrarBanda() {
+        return !this.sinBanda;
+    }
+
+    get claseContenedor() {
+        return this.sinBanda ? 'contenedor sin-banda' : 'contenedor';
     }
 }

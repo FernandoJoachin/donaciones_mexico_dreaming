@@ -9,7 +9,7 @@
     </targets>
     <targetConfigs>
         <targetConfig targets="lightningCommunity__Default">
-            <property name="titulo" type="String" label="Título" default="Salesforce Community"/>
+            <property name="titulo" type="String" label="Título" default="Apoya a la comunidad"/>
             <property name="descripcion" type="String" label="Descripción breve" default="Comunidad de ex-alumnos y amigos de la Facultad de Matemáticas, reunida en torno a causas que importan."/>
             <property name="universidad" type="String" label="Universidad" default="Universidad Autónoma de Yucatán"/>
             <property name="facultad" type="String" label="Facultad" default="Facultad de Matemáticas"/>

@@ -1,5 +1,9 @@
 <template>
     <div class="pagina">
+        <template lwc:if={incluirPortada}>
+            <c-mesa-inicio></c-mesa-inicio>
+        </template>
+        <template lwc:if={mostrarBanda}>
         <header class="banda">
             <span class="burbuja burbuja-a" aria-hidden="true"></span>
             <span class="burbuja burbuja-b" aria-hidden="true"></span>
@@ -13,7 +17,14 @@
                 </template>
             </div>
         </header>
-        <div class="contenedor">
+        </template>
+        <template lwc:if={sinBanda}>
+            <div class="encabezado-seccion">
+                <h2 class="seccion-titulo">Elige una campaña</h2>
+                <template lwc:if={descripcion}><p class="seccion-sub">{descripcion}</p></template>
+            </div>
+        </template>
+        <div class={claseContenedor}>
             <div class="tabs">
                 <button type="button" class={claseActivas} data-pestana="activas" aria-pressed={pulsadaActivas} onclick={cambiarPestana}>Activas</button>
                 <button type="button" class={clasePasadas} data-pestana="pasadas" aria-pressed={pulsadaPasadas} onclick={cambiarPestana}>Pasadas</button>

@@ -143,3 +143,24 @@
         gap: 1.25rem;
     }
 }
+
+/* Sin banda (landing): la tarjeta ya no se monta sobre la banda azul. */
+.pagina .contenedor.sin-banda {
+    margin-top: 1.5rem;
+}
+.encabezado-seccion {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 3.5rem 1.5rem 0;
+    text-align: center;
+}
+.seccion-titulo {
+    margin: 0;
+    font-size: clamp(1.5rem, 3.5vw, 2rem);
+    font-weight: 800;
+    color: var(--mesa-azul-oscuro);
+}
+.seccion-sub {
+    margin: 0.5rem 0 0;
+    color: var(--mesa-gris);
+}
