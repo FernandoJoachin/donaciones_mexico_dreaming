@@ -7,6 +7,7 @@ Se desplegará primero en una Developer Edition y corre las pruebas antes de usa
 
 ## Backlog y avance (Entrega 1)
 
+- **Backlog en el repo:** [docs/backlog.md](docs/backlog.md) (ID, RF que cubre, hito, historia, criterios, estado y evidencia).
 - **Tablero (Jira):** [backlog del proyecto](https://fernandojoachinp.atlassian.net/issues?jql=project%20%3D%20SCRUM%20ORDER%20BY%20key%20ASC).
   Cada historia (`US-xx`) tiene su descripción, sus criterios de aceptación (CA) y su estado; las historias de la entrega llevan la etiqueta `entrega-1`.
 - **Estados:** *Por hacer*, *En curso*, *En revisión* y *Finalizado*. Una historia está **cumplida** solo cuando está en *Finalizado*, es decir,
@@ -14,8 +15,8 @@ Se desplegará primero en una Developer Edition y corre las pruebas antes de usa
   Una historia a medias cuenta como no cumplida.
 - **Cómo se calcula el avance:** `historias en Finalizado ÷ historias del backlog que cubren requisitos de la Entrega 1 × 100`.
   Las historias descartadas (etiqueta `descartada`) no cuentan.
-- **Avance al 9 de noviembre de 2026:** **0 %**. Ninguna historia está todavía en *Finalizado*; varias están en *En revisión* con su evidencia por reunir.
-  Este número se actualiza antes de la entrega con el conteo del día.
+- **Avance al 10 de noviembre de 2026:** **20 %** (3 de 15 historias de la Entrega 1 en *Finalizado*: US-01, US-02 y US-20; el cálculo está en `docs/backlog.md`).
+  Es provisional hasta reunir las capturas de evidencia. Este número se actualiza antes de la entrega con el conteo del día.
 - **Documentos de la entrega** (en `docs/`): `seguridad.md` (prueba del visitante, permisos, datos personales y riesgos) y `bitacora_ia.md`
   (bitácora de uso de IA). Las pestañas de contribución y de preguntas y reportes se agregan en `docs/` con su ticket.
 
