@@ -17,6 +17,7 @@ export default class MesaPie extends LightningElement {
     @api paginaDonar = 'donar';
     @api paginaMuro = 'muro';
     @api paginaReencuentro = 'reencuentro';
+    @api paginaFacturas = 'facturas';
 
     // Aviso de privacidad: URL o nombre de pagina. Vacio = no se muestra.
     @api paginaAviso = '';
@@ -42,7 +43,8 @@ export default class MesaPie extends LightningElement {
             { id: 'campanas', texto: 'Campañas', pagina: this.paginaCampanas },
             { id: 'donar', texto: 'Donar', pagina: this.paginaDonar },
             { id: 'muro', texto: 'Quién ya se sumó', pagina: this.paginaMuro },
-            { id: 'reencuentro', texto: 'Reencuentro', pagina: this.paginaReencuentro }
+            { id: 'reencuentro', texto: 'Reencuentro', pagina: this.paginaReencuentro },
+            { id: 'facturas', texto: 'Facturas', pagina: this.paginaFacturas }
         ];
         return lista
             .map((e) => (e.pagina !== undefined ? { ...e, url: e.pagina ? resolverUrl(e.pagina, null, false) : null } : e))

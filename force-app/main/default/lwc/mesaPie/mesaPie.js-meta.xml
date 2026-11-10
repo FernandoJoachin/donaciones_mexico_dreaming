@@ -17,6 +17,7 @@
             <property name="paginaDonar" type="String" label="Página de donación (vacío = no se muestra)" default="donar"/>
             <property name="paginaMuro" type="String" label="Página del muro (vacío = no se muestra)" default="muro"/>
             <property name="paginaReencuentro" type="String" label="Página de reencuentro (vacío = no se muestra)" default="reencuentro"/>
+            <property name="paginaFacturas" type="String" label="Página de facturas" default="facturas"/>
             <property name="paginaAviso" type="String" label="Aviso de privacidad: página o URL (vacío = no se muestra)" default=""/>
             <property name="correoContacto" type="String" label="Correo de contacto (vacío = no se muestra)" default=""/>
             <property name="telefonoContacto" type="String" label="Teléfono de contacto (vacío = no se muestra)" default=""/>
