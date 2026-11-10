@@ -64,6 +64,19 @@ public without sharing class MesaRegalosController {
         @AuraEnabled public Decimal porcentaje;
     }
 
+    public class CampanaDTO {
+        @AuraEnabled public Id id;
+        @AuraEnabled public String nombre;
+        @AuraEnabled public String descripcion;
+        @AuraEnabled public Decimal meta;
+        @AuraEnabled public Decimal total;
+        @AuraEnabled public Integer donativos;
+        @AuraEnabled public Decimal porcentaje;
+        @AuraEnabled public Date fechaFin;
+        @AuraEnabled public Boolean activa;     // false = ya cerró (se muestra en "Campañas pasadas")
+        @AuraEnabled public String imagenUrl;   // null = la campaña no tiene imagen
+    }
+
     // ---------- Datos públicos: muro y avance ----------
 
     @AuraEnabled(cacheable=true)
@@ -123,6 +136,111 @@ public without sharing class MesaRegalosController {
             a.porcentaje = pct > tope ? tope : pct;
         }
         return a;
+    }
+
+    // ---------- Campañas: lista y página de presentación ----------
+
+    /**
+     * Lista las campañas publicadas para el sitio central (US-01). Solo devuelve datos que ya son
+     * públicos: nombre, descripción, meta, avance y fecha de cierre.
+     *  - Una campaña se publica si está activa (IsActive) y ya empezó.
+     *  - Está "activa" si no tiene fecha de cierre o esa fecha no ha pasado; si ya pasó, se
+     *    devuelve con activa = false para la pestaña "Campañas pasadas".
+     *  - Pausar una campaña (IsActive = false) la oculta en ambas vistas, sin tocar sus fechas.
+     * El recaudado cuenta solo donativos pagados (Closed Won); las promesas pendientes no suman.
+     */
+    @AuraEnabled(cacheable=true)
+    public static List<CampanaDTO> obtenerCampanas() {
+        Date hoy = Date.today();
+        List<Campaign> campanas = [
+            SELECT Id, Name, Description, ExpectedRevenue, EndDate, Imagen_Url__c
+            FROM Campaign
+            WHERE IsActive = true AND (StartDate = null OR StartDate <= :hoy)
+            ORDER BY StartDate DESC NULLS LAST, Name
+            LIMIT 100
+        ];
+
+        Map<Id, AggregateResult> pagados = new Map<Id, AggregateResult>();
+        for (AggregateResult ar : [
+            SELECT CampaignId, SUM(Amount) total, COUNT(Id) donativos
+            FROM Opportunity
+            WHERE CampaignId IN :campanas AND StageName = 'Closed Won'
+            GROUP BY CampaignId
+        ]) {
+            pagados.put((Id) ar.get('CampaignId'), ar);
+        }
+
+        List<CampanaDTO> resultado = new List<CampanaDTO>();
+        for (Campaign c : campanas) {
+            resultado.add(armarCampanaDTO(c, pagados.get(c.Id), hoy));
+        }
+        return resultado;
+    }
+
+    /**
+     * Devuelve una sola campaña para su página de presentación (US-02), o null si el Id no es
+     * válido, no existe o no está publicada (pausada o aún no empieza). Una campaña que ya cerró
+     * SÍ se devuelve, con activa = false, para mostrarla en solo lectura. Recibe String para que un
+     * Id mal escrito en la dirección no provoque un error técnico.
+     */
+    @AuraEnabled(cacheable=true)
+    public static CampanaDTO obtenerCampana(String campaignId) {
+        if (String.isBlank(campaignId) || (campaignId.length() != 15 && campaignId.length() != 18)) {
+            return null;
+        }
+        Id cid;
+        try {
+            cid = Id.valueOf(campaignId);
+        } catch (Exception e) {
+            return null;
+        }
+        if (cid.getSobjectType() != Campaign.SObjectType) {
+            return null;
+        }
+        Date hoy = Date.today();
+        List<Campaign> campanas = [
+            SELECT Id, Name, Description, ExpectedRevenue, EndDate, Imagen_Url__c
+            FROM Campaign
+            WHERE Id = :cid AND IsActive = true AND (StartDate = null OR StartDate <= :hoy)
+            LIMIT 1
+        ];
+        if (campanas.isEmpty()) {
+            return null;
+        }
+        AggregateResult pagado = [
+            SELECT SUM(Amount) total, COUNT(Id) donativos
+            FROM Opportunity
+            WHERE CampaignId = :cid AND StageName = 'Closed Won'
+        ];
+        return armarCampanaDTO(campanas[0], pagado, hoy);
+    }
+
+    /** Arma el DTO público de una campaña. `pagado` puede ser nulo o traer total nulo (sin pagos). */
+    private static CampanaDTO armarCampanaDTO(Campaign c, AggregateResult pagado, Date hoy) {
+        CampanaDTO d = new CampanaDTO();
+        d.id = c.Id;
+        d.nombre = c.Name;
+        d.descripcion = c.Description;
+        d.meta = c.ExpectedRevenue == null ? 0 : c.ExpectedRevenue;
+        d.total = 0;
+        d.donativos = 0;
+        if (pagado != null) {
+            Decimal total = (Decimal) pagado.get('total');
+            d.total = total == null ? 0 : total;
+            d.donativos = (Integer) pagado.get('donativos');
+        }
+        d.porcentaje = 0;
+        if (d.meta > 0) {
+            Decimal pct = (d.total * 100 / d.meta).setScale(0);
+            Decimal tope = 100;
+            d.porcentaje = pct > tope ? tope : pct;
+        }
+        d.fechaFin = c.EndDate;
+        d.activa = c.EndDate == null || c.EndDate >= hoy;
+        // Solo se publica si es https; cualquier otro esquema se descarta.
+        d.imagenUrl = (c.Imagen_Url__c != null && c.Imagen_Url__c.startsWithIgnoreCase('https://'))
+            ? c.Imagen_Url__c : null;
+        return d;
     }
 
     // ---------- Formulario único: registro + donación (sin token) ----------

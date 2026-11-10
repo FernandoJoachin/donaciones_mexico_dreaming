@@ -1,0 +1,166 @@
+@import 'c/mesaEstilos';
+
+/* El tema de Experience Cloud reserva ~32px de encabezado vacio y la region de contenido
+   agrega 12px de relleno. Subimos la banda para que arranque en el borde superior.
+   Solo aplica en el sitio: el componente solo se expone a lightningCommunity__*. */
+:host {
+    margin-top: -44px;
+}
+
+.tabs {
+    display: flex;
+    gap: 0.25rem;
+    align-self: flex-start;
+}
+.tab {
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.35rem 0.9rem;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--mesa-gris);
+}
+.tab:focus-visible {
+    outline: 3px solid #90d0fe;
+    outline-offset: 2px;
+}
+.tab-activa {
+    background: var(--mesa-cielo);
+    color: var(--mesa-azul-oscuro);
+}
+.lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+.campana {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1.1rem 1.25rem;
+    background: #f3f8fd;
+    border-radius: 20px;
+}
+.campana-imagen {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: 14px;
+    background: #dbe5f0;
+}
+.campana-cabeza {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+.campana-nombre {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--mesa-azul-oscuro);
+}
+.insignia {
+    flex: none;
+    padding: 0.2rem 0.75rem;
+    border-radius: 999px;
+    background: #e8ecf3;
+    color: var(--mesa-gris);
+    font-size: 0.8125rem;
+    font-weight: 700;
+}
+.campana-texto {
+    margin: 0;
+    color: var(--mesa-gris);
+    line-height: 1.45;
+}
+.cifras {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+.cifra-grande {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--mesa-azul-oscuro);
+}
+/* Barra de avance en forma de cápsula, como el resto de los elementos. */
+.barra {
+    height: 0.75rem;
+    border-radius: 999px;
+    background: #dbe5f0;
+    overflow: hidden;
+}
+.barra-relleno {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--mesa-azul-claro);
+}
+.cifra-meta,
+.leyenda {
+    margin: 0;
+    color: var(--mesa-gris);
+    font-size: 0.875rem;
+}
+.vacio {
+    margin: 0;
+    padding: 1.25rem;
+    text-align: center;
+    color: var(--mesa-gris);
+    border: 2px dashed #b7d4ee;
+    border-radius: 20px;
+}
+
+.banda-descripcion {
+    margin: 0.75rem auto 0;
+    max-width: 38rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.9);
+}
+.campana .btn {
+    margin-top: auto;
+    align-self: flex-start;
+}
+
+/* Pantallas grandes: no se queda la columna angosta de celular. Dos campañas por fila
+   (no cuatro: cada tarjeta lleva imagen, cifras y barra, y se aprieta). */
+@media (min-width: 900px) {
+    .contenedor {
+        max-width: 980px;
+    }
+    .lista {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.25rem;
+    }
+}
+
+/* Sin banda (landing): la tarjeta ya no se monta sobre la banda azul. */
+.pagina .contenedor.sin-banda {
+    margin-top: 1.5rem;
+}
+.encabezado-seccion {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 3.5rem 1.5rem 0;
+    text-align: center;
+}
+.seccion-titulo {
+    margin: 0;
+    font-size: clamp(1.5rem, 3.5vw, 2rem);
+    font-weight: 800;
+    color: var(--mesa-azul-oscuro);
+}
+.seccion-sub {
+    margin: 0.5rem 0 0;
+    color: var(--mesa-gris);
+}

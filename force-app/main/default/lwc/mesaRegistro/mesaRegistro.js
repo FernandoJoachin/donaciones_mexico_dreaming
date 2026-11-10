@@ -1,4 +1,5 @@
-import { LightningElement, api } from 'lwc';
+import { LightningElement, api, wire } from 'lwc';
+import { CurrentPageReference } from 'lightning/navigation';
 import guardarDonativo from '@salesforce/apex/MesaRegalosController.guardarDonativo';
 import { parseMonto, formatearMonto, mensajeError, resolverUrl } from 'c/mesaUtil';
 
@@ -25,6 +26,19 @@ export default class MesaRegistro extends LightningElement {
     @api urlPagoP1000;
     @api urlPagoP3000;
     @api urlPagoP5000;
+
+    /** Campaña que viene en la dirección (?campana=<Id>), por ejemplo desde el botón Donar de su página. */
+    campanaUrl;
+
+    @wire(CurrentPageReference)
+    leerCampanaDeLaDireccion(ref) {
+        this.campanaUrl = ref && ref.state && ref.state.campana ? ref.state.campana : undefined;
+    }
+
+    /** La campaña de la dirección manda; si no viene, la que se configuró en Experience Builder. */
+    get idCampana() {
+        return this.campanaUrl || this.campaignId;
+    }
 
     paquete = '';
     montoTexto = '';
@@ -188,7 +202,7 @@ export default class MesaRegistro extends LightningElement {
         this.enviando = true;
         try {
             const r = await guardarDonativo({
-                campaignId: this.campaignId || null,
+                campaignId: this.idCampana || null,
                 datosJson: JSON.stringify({
                     paquete: this.paquete,
                     monto: this.esAbierto ? this.montoFinal : null,
