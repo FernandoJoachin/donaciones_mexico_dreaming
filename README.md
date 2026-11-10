@@ -48,11 +48,23 @@ Etapas del donativo:
 Se estará desplegando con el CLI, Salesforce CLI
 
 ```bash
-sf org login web --alias mesa-dev
-sf project deploy start --source-dir force-app --target-org mesa-dev
-sf org assign permset --name Mesa_Regalos_Admin --target-org mesa-dev
-sf apex run --file scripts/apex/crear-campana.apex --target-org mesa-dev
-sf apex run test --test-level RunLocalTests --wait 10 --target-org mesa-dev
+# LOGIN
+sf org login web --alias donation-UADY-lab
+sf org login web --alias donation-UADY-lab --instance-url [URL de la sandbox]
+
+# DEPLOY:
+sf project deploy start --dry-run --source-dir force-app --target-org donation-UADY-lab # Try, without tests
+sf project deploy start --dry-run --source-dir force-app --test-level RunSpecifiedTests --tests MesaRegalosDonativoTest --target-org donation-UADY-lab # Try, with especific tests
+sf project deploy start --dry-run --source-dir force-app --test-level RunLocalTests --target-org donation-UADY-lab # Try, with tests, local
+sf project deploy start --source-dir force-app --test-level RunLocalTests --target-org donation-UADY-lab # Deploy with tests
+sf project deploy start --source-dir force-app --test-level NoTestRun --target-org donation-UADY-lab # Deploy without tests
+
+# Assignation of PermissionSet
+sf org assign permset --name Mesa_Regalos_Admin --target-org donation-UADY-lab
+
+# Optional, just 1st time
+sf apex run --file scripts/apex/crear-campana.apex --target-org donation-UADY-lab
+sf apex run test --test-level RunLocalTests --wait 10 --target-org donation-UADY-lab
 ```
 
 Si se llegarán a crear miembros de campaña antes de desplegar el trigger; para obtener un token, ejecutamos:  
@@ -62,9 +74,9 @@ Durante el despliegue para mockear una donación se ha usado:
 
 Para re-desplegar y que no haya fallos:
 ``` bash
-sf project deploy start --dry-run --source-dir force-app --target-org mesa-dev --test-level RunLocalTests --wait 15
-sf project deploy start --source-dir force-app --target-org mesa-dev
-sf apex run test --test-level RunLocalTests --wait 10 --target-org mesa-dev
+sf project deploy start --dry-run --source-dir force-app --target-org donation-UADY-lab --test-level RunLocalTests --wait 15
+sf project deploy start --source-dir force-app --target-org donation-UADY-lab
+sf apex run test --test-level RunLocalTests --wait 10 --target-org donation-UADY-lab
 ```
 
 ## Sitio de Experience Cloud
@@ -206,4 +218,11 @@ Espero seguir un flujo como el siguiente:
 - [✅] 2 Interfaz
 - [✅] 3 Pago
 - [✅] 4 Aviso de privacidad
-- [ ] 5 Limpieza
+- [✅] 5 Limpieza
+
+1. Asignar el permission set Mesa_Regalos_Admin a tu usuario.
+2. Crear la campaña y agregar el estado Registrado en Campaign Member Statuses. Los demás estados del embudo son Redirigido a donar y Donó, más Identificado y Contactado si los usas a mano.
+3. Crear el sitio de Experience Cloud con las páginas registro, muro, aviso y baja, y configurar las propiedades de los componentes (campaignId, avisoUrl, las 4 URLs de Stripe).
+4. En el perfil del usuario invitado (guest) del sitio, dar acceso a la clase Apex MesaRegalosController.
+5. Regla de duplicados de Contact por correo.
+6. Los Flows de correo...

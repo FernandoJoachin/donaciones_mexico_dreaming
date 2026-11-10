@@ -4,6 +4,7 @@
         "Backend",
         "Frontend",
         "Doc",
-        "Clean"
+        "Clean",
+        "Readme"
     ]
 }

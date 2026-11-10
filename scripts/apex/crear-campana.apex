@@ -1,15 +1,20 @@
 // Crea la campaña "México Dreaming" con los estados del embudo.
-// Ejecutar:  sf apex run --file scripts/apex/crear-campana.apex
+// Ejecutar (desde la raíz del proyecto) 1 de estos comandos:
+//   sf apex run --file scripts/apex/crear-campana.apex
+//   sf apex run --file scripts/apex/crear-campana.apex --target-org mesa-nueva
 //
 // Nota: no se define aquí la meta. Captúrala en el campo "Ingreso esperado" de la campaña
 // cuando se confirme el monto objetivo (es lo que usa el avance del sitio).
 
-Campaign c = new Campaign(Name = 'México Dreaming', IsActive = true, Status = 'Planned');
+Campaign c = new Campaign(Name = 'México Dreamin', IsActive = true, Status = 'Planned');
 insert c;
 
+// Identificado y Contactado se marcan a mano en las campañas de correo.
+// Registrado, Redirigido a donar y Donó los avanza el sitio.
 List<String> estados = new List<String>{
-    'Identificado', 'Contactado', 'Respondió', 'Interesado', 'Redirigido a donar', 'Donó'
+    'Identificado', 'Contactado', 'Registrado', 'Redirigido a donar', 'Donó'
 };
+
 List<CampaignMemberStatus> filas = new List<CampaignMemberStatus>();
 Integer orden = 10;
 for (String e : estados) {
