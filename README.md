@@ -5,6 +5,20 @@ Proyecto base para que los ex-estudiantes de la materia de Salesforce actualicen
 **Estado:** código escrito y revisado a mano; **no se ha desplegado ni probado contra una org real**.  
 Se desplegará primero en una Developer Edition y corre las pruebas antes de usarlo con datos reales.
 
+## Backlog y avance (Entrega 1)
+
+- **Tablero (Jira):** [backlog del proyecto](https://fernandojoachinp.atlassian.net/issues?jql=project%20%3D%20SCRUM%20ORDER%20BY%20key%20ASC).
+  Cada historia (`US-xx`) tiene su descripción, sus criterios de aceptación (CA) y su estado; las historias de la entrega llevan la etiqueta `entrega-1`.
+- **Estados:** *Por hacer*, *En curso*, *En revisión* y *Finalizado*. Una historia está **cumplida** solo cuando está en *Finalizado*, es decir,
+  cuando **todos** sus criterios de aceptación se demostraron con evidencia (demo, video o captura) en el escenario de prueba y sin romper ninguno.
+  Una historia a medias cuenta como no cumplida.
+- **Cómo se calcula el avance:** `historias en Finalizado ÷ historias del backlog que cubren requisitos de la Entrega 1 × 100`.
+  Las historias descartadas (etiqueta `descartada`) no cuentan.
+- **Avance al 9 de noviembre de 2026:** **0 %**. Ninguna historia está todavía en *Finalizado*; varias están en *En revisión* con su evidencia por reunir.
+  Este número se actualiza antes de la entrega con el conteo del día.
+- **Documentos de la entrega** (en `docs/`): `seguridad.md` (prueba del visitante, permisos, datos personales y riesgos) y `bitacora_ia.md`
+  (bitácora de uso de IA). Las pestañas de contribución y de preguntas y reportes se agregan en `docs/` con su ticket.
+
 ## Qué incluye
 
 | Pieza | Para qué |
