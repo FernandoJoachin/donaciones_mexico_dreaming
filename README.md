@@ -204,6 +204,6 @@ empresa, anónimo, baja, confirmación de pago e idempotencia, y datos del muro.
 Espero seguir un flujo como el siguiente:
 - [✅] 1 Backend nuevo
 - [✅] 2 Interfaz
-- [ ] 3 Pago
-- [ ] 4 Aviso de privacidad
+- [✅] 3 Pago
+- [✅] 4 Aviso de privacidad
 - [ ] 5 Limpieza

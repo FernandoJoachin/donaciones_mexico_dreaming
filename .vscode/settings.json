@@ -2,6 +2,7 @@
     "xml.preferences.showSchemaDocumentationType": "none",
     "conventionalCommits.scopes": [
         "Backend",
-        "Frontend"
+        "Frontend",
+        "Doc"
     ]
 }
