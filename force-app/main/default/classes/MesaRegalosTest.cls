@@ -441,4 +441,73 @@ private class MesaRegalosTest {
         delete [SELECT Id FROM Campaign];
         Assert.areEqual(0, MesaRegalosController.obtenerCampanas().size());
     }
+
+    // ---------- US-02: página de presentación de una campaña ----------
+
+    @IsTest
+    static void campanaIndividualDevuelveSusDatosYAvance() {
+        Id campanaId = [SELECT Id FROM Campaign LIMIT 1].Id;
+        insert new Opportunity(
+            Name = 'Pagado', StageName = 'Closed Won', CloseDate = Date.today(),
+            Amount = 2500, CampaignId = campanaId
+        );
+        insert new Opportunity(
+            Name = 'Promesa', StageName = 'Prospecting', CloseDate = Date.today().addDays(30),
+            Amount = 9000, CampaignId = campanaId
+        );
+
+        MesaRegalosController.CampanaDTO d = MesaRegalosController.obtenerCampana(String.valueOf(campanaId));
+        Assert.isNotNull(d);
+        Assert.areEqual('México Dreaming TEST', d.nombre);
+        Assert.isTrue(d.activa);
+        Assert.isTrue(d.meta == 10000);
+        Assert.isTrue(d.total == 2500);
+        Assert.isTrue(d.porcentaje == 25);
+        Assert.areEqual(1, d.donativos);
+    }
+
+    @IsTest
+    static void campanaIndividualSinPagosTieneTotalCero() {
+        Id campanaId = [SELECT Id FROM Campaign LIMIT 1].Id;
+        MesaRegalosController.CampanaDTO d = MesaRegalosController.obtenerCampana(String.valueOf(campanaId));
+        Assert.isNotNull(d);
+        Assert.isTrue(d.total == 0);
+        Assert.isTrue(d.porcentaje == 0);
+        Assert.areEqual(0, d.donativos);
+    }
+
+    @IsTest
+    static void campanaIndividualCerradaSeDevuelveComoInactiva() {
+        Campaign c = new Campaign(
+            Name = 'Campaña 2025', IsActive = true, ExpectedRevenue = 40000,
+            StartDate = Date.today().addDays(-60), EndDate = Date.today().addDays(-1)
+        );
+        insert c;
+
+        MesaRegalosController.CampanaDTO d = MesaRegalosController.obtenerCampana(String.valueOf(c.Id));
+        Assert.isNotNull(d);
+        Assert.isFalse(d.activa);
+    }
+
+    @IsTest
+    static void campanaIndividualNoPublicadaOInvalidaDevuelveNulo() {
+        Campaign pausada = new Campaign(Name = 'Pausada', IsActive = false);
+        Campaign futura = new Campaign(
+            Name = 'Futura', IsActive = true,
+            StartDate = Date.today().addDays(5), EndDate = Date.today().addDays(30)
+        );
+        insert new List<Campaign>{ pausada, futura };
+        Id contactoId = [SELECT Id FROM Contact LIMIT 1].Id;
+
+        Assert.isNull(MesaRegalosController.obtenerCampana(String.valueOf(pausada.Id)));
+        Assert.isNull(MesaRegalosController.obtenerCampana(String.valueOf(futura.Id)));
+        Assert.isNull(MesaRegalosController.obtenerCampana(String.valueOf(contactoId)));   // Id de otro objeto
+        Assert.isNull(MesaRegalosController.obtenerCampana('no-es-un-id'));
+        Assert.isNull(MesaRegalosController.obtenerCampana(''));
+        Assert.isNull(MesaRegalosController.obtenerCampana(null));
+
+        String borrada = String.valueOf(futura.Id);
+        delete futura;
+        Assert.isNull(MesaRegalosController.obtenerCampana(borrada));
+    }
 }

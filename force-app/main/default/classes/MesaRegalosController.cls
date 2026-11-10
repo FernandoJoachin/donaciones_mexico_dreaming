@@ -434,32 +434,75 @@ public without sharing class MesaRegalosController {
 
         List<CampanaDTO> resultado = new List<CampanaDTO>();
         for (Campaign c : campanas) {
-            CampanaDTO d = new CampanaDTO();
-            d.id = c.Id;
-            d.nombre = c.Name;
-            d.descripcion = c.Description;
-            d.meta = c.ExpectedRevenue == null ? 0 : c.ExpectedRevenue;
-            d.total = 0;
-            d.donativos = 0;
-            AggregateResult ar = pagados.get(c.Id);
-            if (ar != null) {
-                d.total = (Decimal) ar.get('total');
-                d.donativos = (Integer) ar.get('donativos');
-            }
-            d.porcentaje = 0;
-            if (d.meta > 0) {
-                Decimal pct = (d.total * 100 / d.meta).setScale(0);
-                Decimal tope = 100;
-                d.porcentaje = pct > tope ? tope : pct;
-            }
-            d.fechaFin = c.EndDate;
-            d.activa = c.EndDate == null || c.EndDate >= hoy;
-            // Solo se publica si es https; cualquier otro esquema se descarta.
-            d.imagenUrl = (c.Imagen_Url__c != null && c.Imagen_Url__c.startsWithIgnoreCase('https://'))
-                ? c.Imagen_Url__c : null;
-            resultado.add(d);
+            resultado.add(armarCampanaDTO(c, pagados.get(c.Id), hoy));
         }
         return resultado;
+    }
+
+    /**
+     * Devuelve una sola campaña para su página de presentación (US-02), o null si el Id no es
+     * válido, no existe o no está publicada (pausada o aún no empieza). Una campaña que ya cerró
+     * SÍ se devuelve, con activa = false, para mostrarla en solo lectura. Recibe String para que un
+     * Id mal escrito en la dirección no provoque un error técnico.
+     */
+    @AuraEnabled(cacheable=true)
+    public static CampanaDTO obtenerCampana(String campaignId) {
+        if (String.isBlank(campaignId) || (campaignId.length() != 15 && campaignId.length() != 18)) {
+            return null;
+        }
+        Id cid;
+        try {
+            cid = Id.valueOf(campaignId);
+        } catch (Exception e) {
+            return null;
+        }
+        if (cid.getSobjectType() != Campaign.SObjectType) {
+            return null;
+        }
+        Date hoy = Date.today();
+        List<Campaign> campanas = [
+            SELECT Id, Name, Description, ExpectedRevenue, EndDate, Imagen_Url__c
+            FROM Campaign
+            WHERE Id = :cid AND IsActive = true AND (StartDate = null OR StartDate <= :hoy)
+            LIMIT 1
+        ];
+        if (campanas.isEmpty()) {
+            return null;
+        }
+        AggregateResult pagado = [
+            SELECT SUM(Amount) total, COUNT(Id) donativos
+            FROM Opportunity
+            WHERE CampaignId = :cid AND StageName = 'Closed Won'
+        ];
+        return armarCampanaDTO(campanas[0], pagado, hoy);
+    }
+
+    /** Arma el DTO público de una campaña. `pagado` puede ser nulo o traer total nulo (sin pagos). */
+    private static CampanaDTO armarCampanaDTO(Campaign c, AggregateResult pagado, Date hoy) {
+        CampanaDTO d = new CampanaDTO();
+        d.id = c.Id;
+        d.nombre = c.Name;
+        d.descripcion = c.Description;
+        d.meta = c.ExpectedRevenue == null ? 0 : c.ExpectedRevenue;
+        d.total = 0;
+        d.donativos = 0;
+        if (pagado != null) {
+            Decimal total = (Decimal) pagado.get('total');
+            d.total = total == null ? 0 : total;
+            d.donativos = (Integer) pagado.get('donativos');
+        }
+        d.porcentaje = 0;
+        if (d.meta > 0) {
+            Decimal pct = (d.total * 100 / d.meta).setScale(0);
+            Decimal tope = 100;
+            d.porcentaje = pct > tope ? tope : pct;
+        }
+        d.fechaFin = c.EndDate;
+        d.activa = c.EndDate == null || c.EndDate >= hoy;
+        // Solo se publica si es https; cualquier otro esquema se descarta.
+        d.imagenUrl = (c.Imagen_Url__c != null && c.Imagen_Url__c.startsWithIgnoreCase('https://'))
+            ? c.Imagen_Url__c : null;
+        return d;
     }
 
     // ---------- Utilidades ----------
