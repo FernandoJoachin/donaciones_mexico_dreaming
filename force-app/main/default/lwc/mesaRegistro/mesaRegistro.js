@@ -22,6 +22,9 @@ export default class MesaRegistro extends LightningElement {
      * se redirige ahí con el Id del donativo (client_reference_id) y el correo pre-rellenado.
      */
     @api urlPago;
+    @api urlPagoP1000;
+    @api urlPagoP3000;
+    @api urlPagoP5000;
 
     paquete = '';
     montoTexto = '';
@@ -102,6 +105,34 @@ export default class MesaRegistro extends LightningElement {
         return this.avisoUrl ? resolverUrl(this.avisoUrl) : undefined;
     }
 
+
+    /** Payment Link que corresponde al paquete elegido. */
+    get enlacePago() {
+        const enlaces = {
+            P1000: this.urlPagoP1000,
+            P3000: this.urlPagoP3000,
+            P5000: this.urlPagoP5000,
+            Abierto: this.urlPago
+        };
+        return enlaces[this.paquete];
+    }
+
+    /** Arma la URL de pago: Id del donativo (para conciliar), correo bloqueado y, en monto libre, el monto en centavos. */
+    armarUrlPago(donativoId) {
+        const base = this.enlacePago;
+        if (!base) {
+            return null;
+        }
+        const separador = base.includes('?') ? '&' : '?';
+        let url =
+            `${base}${separador}client_reference_id=${encodeURIComponent(donativoId)}` +
+            `&locked_prefilled_email=${encodeURIComponent(this.correo.trim())}`;
+        if (this.esAbierto) {
+            url += `&prefilled_amount=${Math.round(this.montoFinal * 100)}`;
+        }
+        return url;
+    }
+
     cambio(evento) {
         const campo = evento.target.dataset.campo;
         if (evento.target.type === 'checkbox') {
@@ -175,13 +206,19 @@ export default class MesaRegistro extends LightningElement {
                     sitioWeb: this.sitioWeb
                 })
             });
+
             this.registrado = true;
-            if (r && r.donativoId && this.urlPago) {
-                const separador = this.urlPago.includes('?') ? '&' : '?';
-                window.location.href =
-                    `${this.urlPago}${separador}client_reference_id=${encodeURIComponent(r.donativoId)}` +
-                    `&prefilled_email=${encodeURIComponent(this.correo.trim())}`;
+            const urlPago = r && r.donativoId ? this.armarUrlPago(r.donativoId) : null;
+            if (urlPago) {
+                window.location.href = urlPago;
             }
+            // this.registrado = true;
+            // if (r && r.donativoId && this.urlPago) {
+            //     const separador = this.urlPago.includes('?') ? '&' : '?';
+            //     window.location.href =
+            //         `${this.urlPago}${separador}client_reference_id=${encodeURIComponent(r.donativoId)}` +
+            //         `&prefilled_email=${encodeURIComponent(this.correo.trim())}`;
+            // }
         } catch (e) {
             this.error = mensajeError(e);
         } finally {
