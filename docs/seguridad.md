@@ -3,7 +3,8 @@
 Estado a **10 de noviembre de 2026** (Entrega 1), sobre el código **sin token** de `entrega-1` (formulario único de registro y
 donación, enlaces de pago de Stripe) más las páginas de campañas de la rama de SCRUM-8. Lo que se ejecutó se corrió contra el sitio
 publicado `https://orgfarm-ac7f623ac9-dev-ed.develop.my.site.com/mexicodreamingtest/` (Developer Edition, modo de prueba, datos
-ficticios). El aviso automático de la pasarela (webhook) aún no existe; se documenta en la Entrega 2 (sección 8).
+ficticios). El recorrido del visitante también se probó en la sandbox UADY (sección 1). El aviso automático de la pasarela (webhook)
+aún no existe; se documenta en la Entrega 2 (sección 8).
 
 ## 1. Prueba del visitante sin login (M2)
 
@@ -43,10 +44,32 @@ Salidas de `curl` y de la consola del navegador del 10 de noviembre de 2026 (có
 **Pendiente:** adjuntar capturas de pantalla en `docs/evidencia/` antes de la entrega.
 
 ### Límites de la prueba (lo que no se demostró)
-- La org de prueba **no tenía donantes con reconocimiento**, por lo que el paso 13 devuelve una lista vacía. Falta repetirlo con una
-  donación pública y una anónima ya pagadas, para comprobar que el muro muestra solo nombre (o "Anónimo"), monto y empresa.
+- En la org de esta tabla el muro se probó **sin donantes con reconocimiento** (el paso 13 devuelve una lista vacía). Con donantes sí se
+  comprobó en la sandbox UADY (ver "Prueba en la sandbox UADY" abajo), pero solo con datos de demostración.
 - No se probó el tope de registros por hora ni la reutilización de un correo existente con datos reales (solo con pruebas de Apex).
-- La prueba contra la sandbox UADY está pendiente de repetirse cuando se despliegue ahí.
+- Los pasos de la tabla (REST, SOQL, PATCH, DELETE, `apexrest`) **no se repitieron** contra la sandbox UADY; allí solo se probó el
+  recorrido del visitante en el navegador.
+
+### Prueba en la sandbox UADY (10 de noviembre de 2026)
+Sitio `https://uady--class2026e.sandbox.my.site.com/mesaregalos/s/`, abierto en un navegador **sin sesión** de Salesforce.
+
+| Qué se probó | Resultado |
+|---|---|
+| Inicio, lista de campañas y detalle de campaña | Cargan para el visitante. Se ve el avance ($37,300 de 12 donativos pagados) y el muro |
+| Formulario de donar (paquete $1,000, anónima, con consentimiento y aviso) | Registra el donativo y muestra "¡Gracias por sumarte!". Queda como `Prospecting` (pendiente) |
+| Donativo pendiente en el muro y en el total | **No aparece** en ninguno; solo se publican los pagos confirmados (`confirmarPago`) |
+| Envío sin autorización de publicación | El formulario lo rechaza y pide la autorización |
+| Acceso del guest a Apex (consulta a `SetupEntityAccess` del perfil) | Una sola clase habilitada: `MesaRegalosController` |
+
+Dos hallazgos de esa prueba:
+1. **Un trigger ajeno impedía donar.** El visitante recibía "Ocurrió un error": el trigger `PreApproveStudent` (de otro proyecto de la
+   sandbox) busca una campaña llamada `FONDOS SDU` que el usuario guest no puede ver, y al fallar cancelaba la donación. Un
+   administrador no lo notaba, por eso las pruebas de Apex no lo detectaron. Se desactivó, con respaldo del trigger y su clase.
+2. **Un dato de demostración se mostraba en el muro público.** Un reconocimiento de prueba de $99,000 ("Donación pendiente (no debe
+   verse)") salía en la página. No lo creó el código (solo `confirmarPago` crea reconocimientos, y solo para pagos confirmados): se
+   había cargado a mano. Se ocultó (`Mostrar_En_Muro__c` en falso) sin borrarlo.
+
+El donativo de prueba (correo ficticio `prueba.visitante@example.com`, $1,000, pendiente) sigue en la sandbox.
 
 ## 2. Permisos del usuario visitante (guest) y por qué
 
@@ -63,8 +86,13 @@ registros en su nombre. El riesgo se controla así: los métodos de lectura devu
 correos de otras personas) se devuelve al navegador. Cualquier método nuevo debe validar primero (está escrito en el encabezado de
 la clase).
 
-**Pendiente:** el perfil guest y el sitio (`Mexico Dreaming Test Perfil`, red y sitio) no están en el repositorio; la lista de
-permisos de esta tabla sale de lo observado en la org y de la prueba de la sección 1. Falta incluirlos en el respaldo de metadata.
+**En la sandbox UADY** el perfil del visitante es `Mesa de regalos Perfil`. El acceso público del sitio y el permiso sobre
+`MesaRegalosController` los habilitó una persona del equipo desde la configuración de la org (no se automatizó). La consulta a
+`SetupEntityAccess` confirma que la única clase habilitada es esa.
+
+**Pendiente:** el perfil guest y el sitio (`Mexico Dreaming Test Perfil` en la org de pruebas y `Mesa de regalos Perfil` en la UADY,
+con su red y sitio) no están en el repositorio; la lista de permisos de esta tabla sale de lo observado en las orgs y de la
+prueba de la sección 1. Falta incluirlos en el respaldo de metadata.
 
 ## 3. Claves y datos de la pasarela
 
@@ -113,6 +141,8 @@ Decisiones del 7 de noviembre: se piden siempre nombre, apellidos y correo; "an�
 | Imágenes de campaña desde enlaces externos | Mitigado | Solo `https`; si la imagen no carga se oculta |
 | Ids de campaña inventados en la dirección | Mitigado | `obtenerCampana` valida el formato y el tipo, y devuelve nulo si la campaña no está publicada |
 | Correo de facturas de ejemplo (`facturas@ejemplo.org`) | Abierto | Sustituirlo por el real antes de entregar |
+| Automatizaciones de otros proyectos en la sandbox UADY | Mitigado | Un trigger y una regla ajenos impedían donar. Se desactivaron `OpportunityTrigger`, un flujo, 4 reglas de validación de Campaign y `PreApproveStudent`, con respaldo y reversibles. Si alguien las usa, hay que acordarlo con el equipo |
+| Datos de demostración visibles en el muro público | Cerrado | Un reconocimiento de $99,000 cargado a mano se mostraba. Se ocultó. Antes de la entrega, revisar el muro de cada campaña y quitar los datos de prueba |
 | Datos personales en los registros de depuración | **Cerrado** | Los `System.debug` con datos de personas ya no existen en `entrega-1` |
 
 ## 6. Cómo comprobar que no hay claves en el código
