@@ -117,12 +117,68 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué se corrigió:** se desplegó el código completo de `entrega-1`, se desactivó `PreApproveStudent` (con respaldo y con la aprobación del autor) y se documentó en `docs/seguridad.md`. Lección: una prueba con permisos de administrador no demuestra lo que puede hacer el visitante.
 - **Aceleración estimada:** ~2 h (la depuración con el registro del guest habría llevado más sin la IA).
 
+### 10. Muro de agradecimiento: consulta, agrupación y estados
+- **Fecha:** 2026-11-10
+- **Autor:** Fernando Joachín
+- **Herramienta:** GitHub Copilot (Copilot SDK en VS Code; modelo no identificado en el historial)
+- **Historia:** US-09 / SCRUM-49 (criterios SCRUM-50 a SCRUM-58)
+- **Qué se pidió:** implementar el muro con donaciones pagadas, anonimato, agrupación de aportes, ordenamiento, podio, carga, error y estado vacío.
+- **Qué se obtuvo:** cambios en `MesaRegalosController`, `MesaRegalosDonativoTest` y el componente `mesaMuro`; el muro consulta reconocimientos públicos de la campaña, excluye oportunidades no pagadas, agrupa por contacto y suma sus montos. Se agregaron datos de prueba y pruebas para el muro y el avance.
+- **Qué se verificó y cómo:** las pruebas Apex pasaron en `mesa-dev` (17 pruebas). En `donation-UADY-lab`, la ejecución de pruebas se bloqueó por la automatización preexistente `PreApproveStudent`, que espera una campaña `FONDOS SDU`; el despliegue autorizado se hizo sin ejecutar pruebas. La compilación de los cambios del componente se validó con un dry-run.
+- **Qué se corrigió:** se agregó tratamiento explícito de error y estado vacío y una alternativa a `ResizeObserver` para el entorno de Live Preview. El funcionamiento visual del spinner y el auto-scroll en Live Preview no quedó confirmado por esa validación.
+- **Aceleración estimada:** ~4 h (análisis de criterios, cambios de Apex y LWC, y pruebas).
+
+### 11. ⚠ Error de la IA — "datos de prueba en la org equivocada"
+- **Fecha:** 2026-11-10
+- **Autor:** Fernando Joachín
+- **Herramienta:** GitHub Copilot (Copilot SDK en VS Code; modelo no identificado en el historial)
+- **Historia:** US-09 / SCRUM-49 (muro de agradecimiento)
+- **Qué se pidió:** preparar datos de prueba para revisar el muro y consultar la información cargada.
+- **Qué se obtuvo:** los datos de demostración y el permiso requerido se aplicaron inicialmente en `mesa-dev`, aunque no era la org que el autor quería usar.
+- **Qué se verificó y cómo:** el autor señaló que esa no era la org correcta. Después se identificó en `donation-UADY-lab` la campaña activa México Dreamin y se consultaron los registros de prueba.
+- **Qué se corrigió:** se limpiaron los registros de demostración y se revocó el permiso aplicado en `mesa-dev`; luego se prepararon en `donation-UADY-lab` 12 donaciones pagadas y una pendiente. La consulta confirmó un total pagado de $37,300 MXN. Aprendizaje: confirmar la org destino antes de ejecutar cambios de datos o permisos.
+- **Aceleración estimada:** ~1 h (preparar, limpiar y comprobar datos en ambas orgs).
+
+### 12. Podio y avance configurable de la campaña
+- **Fecha:** 2026-11-10
+- **Autor:** Fernando Joachín
+- **Herramienta:** GitHub Copilot (Copilot SDK en VS Code; modelo no identificado en el historial)
+- **Historia:** US-09 / SCRUM-49; criterio del porcentaje de avance (identificador específico pendiente)
+- **Qué se pidió:** acercar el podio al diseño de referencia y mostrar el porcentaje de la meta alcanzada.
+- **Qué se obtuvo:** actualización del podio y del panel de avance en `mesaMuro`; la meta se configura mediante la propiedad `metaCampana` de la página, con valor predeterminado de $50,000 MXN, sin agregar un campo a Campaign.
+- **Qué se verificó y cómo:** Salesforce rechazó actualizar `Campaign.ExpectedRevenue`; se comprobó así que no era una opción editable en esa org. El componente con la propiedad configurable pasó el dry-run y se desplegó en `donation-UADY-lab`. Con los datos de prueba, $37,300 frente a $50,000 equivale a 75% redondeado.
+- **Qué se corrigió:** se dejó de depender de `ExpectedRevenue` y se usó la propiedad de página elegida por el autor. La apariencia final y el valor mostrado en la página no quedaron verificados visualmente en esta actividad.
+- **Aceleración estimada:** ~2 h (ajuste del podio, configuración de la meta y validación en Salesforce).
+
+### 13. ⚠ Error de la IA — "el auto-scroll no cumplía CA8 y reiniciaba al principio"
+- **Fecha:** 2026-11-10
+- **Autor:** Fernando Joachín
+- **Herramienta:** GitHub Copilot (Copilot SDK en VS Code; modelo no identificado en el historial)
+- **Historia:** US-09 / SCRUM-57 (CA8) y SCRUM-58 (CA9)
+- **Qué se pidió:** hacer que la lista más larga que el área visible se desplazara sola hacia abajo mientras se permanece en el muro.
+- **Qué se obtuvo:** varias versiones de la animación. Una reiniciaba el scroll al principio al llegar al final y otra no produjo el auto-scroll observado por el autor.
+- **Qué se verificó y cómo:** el autor reportó que ya no podía bajar hasta el final y, tras la corrección siguiente, que el auto-scroll seguía sin ocurrir. El dry-run y los despliegues comprobaron compilación, no el comportamiento en la página.
+- **Qué se corrigió:** se eliminó el salto automático al inicio, se cambió la animación por pasos temporizados y se redujo la altura máxima del contenedor para hacer visible el desbordamiento; la interacción permite scroll manual. La última versión se desplegó, pero su funcionamiento visual aún requiere confirmación. Aprendizaje: compilar y desplegar no sustituye comprobar el desplazamiento real y el acceso manual al final de la lista.
+- **Aceleración estimada:** ~1.5 h (depurar la interacción entre dimensiones del contenedor, temporizador y scroll manual).
+
+### 14. Elaboración de prompt para documentar el uso de IA en la bitácora
+- **Fecha:** 2026-11-10
+- **Autor:** Fernando Joachín
+- **Herramienta:** ChatGPT (GPT-6)
+- **Historia:** Documentación del uso de IA en el proyecto; historia específica no identificada.
+- **Qué se pidió:** elaborar un prompt para que GitHub Copilot analizara su historial de conversación, identificara las actividades realizadas por Fernando y generara las entradas correspondientes para `bitacora_ia.md`, siguiendo el formato utilizado por los demás integrantes.
+- **Qué se obtuvo:** un prompt estructurado con instrucciones para identificar actividades reales, documentar solicitudes y resultados, registrar verificaciones y correcciones, estimar el tiempo ahorrado y actualizar la tabla de resumen de integrantes.
+- **Qué se verificó y cómo:** se revisó la estructura de las entradas existentes en la bitácora y se adaptó el prompt para conservar el formato, la numeración y los criterios de documentación del equipo.
+- **Qué se corrigió:** se ajustó el prompt para evitar información inventada, distinguir los errores reales de IA de las simples iteraciones y solicitar aprobación antes de modificar el archivo.
+- **Aceleración estimada:** ~30 min (elaboración y ajuste de las instrucciones para documentar el uso de IA).
+:::
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
 | José Carlos Leo Fernández | 9 | 5 (entradas 1, 4, 5, 8 y 9) |
 | Daniel Amaya | por completar | por completar |
-| Fernando Joachín | por completar | por completar |
+| Fernando Joachín | 5 (entradas 10–14) | 2 (entradas 11 y 13) |
 
 Requisito de la rúbrica: mínimo 3 entradas con error de la IA, incluyendo a los tres integrantes.
