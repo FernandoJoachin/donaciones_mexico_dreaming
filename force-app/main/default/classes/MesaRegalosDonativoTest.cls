@@ -282,8 +282,51 @@ private class MesaRegalosDonativoTest {
         Assert.areEqual(2, muro.size());
         for (MesaRegalosController.MuroItem m : muro) {
             Assert.isTrue(m.monto == 3000); // el monto se muestra siempre, también en Anónimo
-            Assert.areEqual(m.nombre == 'Acme SA', m.esEmpresa);
+            Assert.isNotNull(m.fecha);
         }
+    }
+
+    @IsTest
+    static void muroConsolidaPorDonanteOcultaAnonimosYExcluyePendientes() {
+        Map<String, Object> primera = base();
+        primera.put('paquete', 'P1000');
+        primera.put('correo', 'mismo@example.com');
+        Id primeraId = enviar(primera).donativoId;
+
+        Map<String, Object> anonima = base();
+        anonima.put('visibilidad', 'Anonima');
+        anonima.put('correo', 'mismo@example.com');
+        Id anonimaId = enviar(anonima).donativoId;
+
+        Map<String, Object> mayor = base();
+        mayor.put('paquete', 'P5000');
+        mayor.put('correo', 'mayor@example.com');
+        Id mayorId = enviar(mayor).donativoId;
+
+        Map<String, Object> pendiente = base();
+        pendiente.put('paquete', 'P5000');
+        pendiente.put('correo', 'pendiente@example.com');
+        enviar(pendiente);
+
+        MesaRegalosService.confirmarPago(new List<Id>{ primeraId, anonimaId, mayorId });
+
+        List<MesaRegalosController.MuroItem> muro = MesaRegalosController.obtenerMuro(campana());
+        Assert.areEqual(2, muro.size());
+        Boolean encontroAnonimoAgregado = false;
+        Boolean encontroMayor = false;
+        for (MesaRegalosController.MuroItem item : muro) {
+            if (item.nombre == 'Anónimo') {
+                encontroAnonimoAgregado = true;
+                Assert.isTrue(item.monto == 4000);
+            } else if (item.nombre == 'Luz Prueba') {
+                encontroMayor = true;
+                Assert.isTrue(item.monto == 5000);
+            }
+            Assert.isNotNull(item.fecha);
+        }
+        Assert.isTrue(encontroAnonimoAgregado);
+        Assert.isTrue(encontroMayor);
+        Assert.areEqual(1, [SELECT COUNT() FROM Opportunity WHERE StageName != 'Closed Won']);
     }
 
     // ---------- Baja ----------

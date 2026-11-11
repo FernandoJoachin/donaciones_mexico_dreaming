@@ -9,27 +9,89 @@
             </div>
         </header>
         <div class="contenedor">
-            <template lwc:if={hayMeta}>
-                <div class="avance">
-                    <p class="avance-texto">Llevamos {porcentaje}% de la meta</p>
-                    <lightning-progress-bar value={porcentaje} size="large"></lightning-progress-bar>
-                </div>
+            <template lwc:if={mostrarPanelAvance}>
+                <section class="avance" aria-label="Avance de la campaña">
+                    <div class="avance-encabezado">
+                        <div>
+                            <p class="avance-texto">Avance de la meta</p>
+                            <p class="avance-montos">{totalFormateado}<span> recaudados</span></p>
+                        </div>
+                        <template lwc:if={hayMeta}>
+                            <strong class="avance-porcentaje">{porcentaje}%</strong>
+                        </template>
+                    </div>
+                    <template lwc:if={hayMeta}>
+                        <lightning-progress-bar value={porcentaje} size="large"></lightning-progress-bar>
+                        <p class="avance-meta">Meta: {metaFormateada}</p>
+                    </template>
+                    <template lwc:if={metaSinConfigurar}>
+                        <p class="avance-sin-meta">Configura una meta mayor que $0 en las propiedades de la página para mostrar el porcentaje.</p>
+                    </template>
+                </section>
+            </template>
+            <template lwc:if={errorAvance}>
+                <p class="error" role="alert">{errorAvance}</p>
             </template>
 
             <h2 class="titulo">Gracias por sumarse</h2>
 
-            <template lwc:if={sinItems}>
-                                <p class="vacio">Pronto aparecerán aquí quienes se sumen.</p>
+            <template lwc:if={isLoading}>
+                <lightning-spinner alternative-text="Cargando donantes" size="small"></lightning-spinner>
             </template>
 
-            <ul class="lista">
-                <template for:each={items} for:item="item">
-                    <li key={item.clave} class="item">
-                        <span class="nombre">{item.nombre}</span>
-                        <span class="detalle">{item.detalle}</span>
-                    </li>
-                </template>
-            </ul>
+            <template lwc:if={errorCarga}>
+                <p class="error" role="alert">{errorCarga}</p>
+            </template>
+
+            <template lwc:if={sinItems}>
+                <p class="vacio">Aún no hay agradecimientos. Pronto aparecerán aquí quienes se sumen.</p>
+            </template>
+
+            <template lwc:if={hayPodio}>
+                <section class="seccion-podio" aria-labelledby="titulo-podio">
+                    <h3 id="titulo-podio" class="subtitulo">Principales donantes</h3>
+                    <ol class="podio">
+                        <template for:each={podio} for:item="item">
+                            <li key={item.clave} class={item.clase}>
+                                <span class="podio-avatar" aria-hidden="true">{item.inicial}</span>
+                                <span class="podio-nombre">{item.nombre}</span>
+                                <span class="podio-monto">{item.monto}</span>
+                                <span class="podio-base" aria-label={item.posicionLabel}>
+                                    <span>{item.posicion}</span>
+                                </span>
+                            </li>
+                        </template>
+                    </ol>
+                </section>
+            </template>
+
+            <template lwc:if={hayDatos}>
+                <lightning-combobox
+                    label="Ordenar por"
+                    value={orden}
+                    options={opcionesOrden}
+                    onchange={cambiarOrden}>
+                </lightning-combobox>
+
+                <div
+                    class="lista-ventana"
+                    role="region"
+                    aria-label="Donantes de la campaña"
+                    tabindex="0"
+                    onwheel={pausarPorInteraccion}
+                    ontouchstart={pausarPorInteraccion}
+                    onpointerdown={pausarPorInteraccion}
+                    onkeydown={pausarPorInteraccion}>
+                    <ul class="lista">
+                        <template for:each={items} for:item="item">
+                            <li key={item.clave} class="item">
+                                <span class="nombre">{item.nombre}</span>
+                                <span class="detalle">{item.monto}</span>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </template>
         </div>
     </div>
 </template>
