@@ -173,12 +173,24 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Aceleración estimada:** ~30 min (elaboración y ajuste de las instrucciones para documentar el uso de IA).
 :::
 
+### 15. Elaboración del documento de preguntas y reportes (sección 12)
+- **Fecha:** 2026-11-10
+- **Autor:** Fernando Joachín
+- **Herramienta:** Claude (Sonnet 5.5)
+- **Historia:** Documentación de las preguntas del equipo y los reportes de bloqueos (sección 12, "Cómo pedir ayuda");
+- **Qué se pidió:** generar `preguntas_y_reportes.md` a partir de capturas de Slack con las preguntas hechas al cliente y sus respuestas. Cada entrada debía llevar autor, fecha y las cinco partes de un buen reporte: qué intentaban lograr, qué hicieron, qué esperaban que pasara, qué pasó y qué consultaron con la IA o la documentación. Después se pidió agregar tres preguntas propias que faltaban.
+- **Qué se obtuvo:** un documento con 12 entradas (9 preguntas de Daniel y 3 de Fernando), un campo "Después" para registrar el seguimiento y una tabla de estado por pregunta, autor y resolución.
+- **Qué se verificó y cómo:** se contrastó el documento con las capturas de Slack. Eso permitió detectar que faltaban las preguntas propias sobre el log de preguntas y reportes, el acceso al tablero de Jira y la bitácora de contribuciones. También se revisó que las respuestas del cliente estuvieran bien resumidas.
+- **Qué se corrigió:** Los datos que no se podían confirmar con las capturas (fecha de las respuestas, fecha exacta de algunas preguntas, qué se consultó con la IA o la documentación) se dejaron marcados como "Por confirmar" o "Por completar" en lugar de inventarlos.
+- **Aceleración estimada:** ~40 min (lectura de las capturas, redacción de las 12 entradas en el formato de cinco partes y armado de la tabla de estado).
+
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
 | José Carlos Leo Fernández | 9 | 5 (entradas 1, 4, 5, 8 y 9) |
 | Daniel Amaya | por completar | por completar |
-| Fernando Joachín | 5 (entradas 10–14) | 2 (entradas 11 y 13) |
+| Fernando Joachín | 5 (entradas 10–15) | 2 (entradas 11 y 13) |
 
 Requisito de la rúbrica: mínimo 3 entradas con error de la IA, incluyendo a los tres integrantes.

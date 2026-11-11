@@ -51,12 +51,11 @@ Estado a **10 de noviembre de 2026**. Los hashes son de commits del repositorio;
 | Pruebas del flujo de trabajo (rama, PR y Jira) | SCRUM-13, SCRUM-15 | PR 1 y PR 2 del fork (cerrados) |
 | Redacción de las historias de usuario del proyecto () | Historias de usuario del proyecto | Trabajo en Jira, US-01 al US-10 |
 | Creación de la historia de usuario del Muro de agradecimiento | SCRUM-49 (US-09) | [Ticket SCRUM-49](https://fernandojoachinp.atlassian.net/browse/SCRUM-49); confirmado por Fernando |
-| Rama para implementar el Muro de agradecimiento y sus criterios | SCRUM-49 (US-09) | `feature/SCRUM-49-US-09-Muro-de-agradecimiento-de-la-campaña`; commits `b6ba03d`, `5884a25` |
+| Rama para implementar el Muro de agradecimiento y sus criterios | SCRUM-49 (US-09) | `feature/SCRUM-49-US-09-Muro-de-agradecimiento-de-la-campaña` |
+| Rama para implementar el doc de preguntas y respuestas | SCRUM-89 | `SCRUM-89-docs-preguntas-y-reportes` |
 | Automatizaciones de Jira para avanzar historias de usuario en el flujo del tablero | SCRUM-49 (US-09) | Configuración del proyecto Jira, confirmada por Fernando; no hay cambios de esa configuración en Git |
-| Implementación del muro, datos de prueba y ajuste del CA8 | SCRUM-49 (US-09) | `b6ba03d`, `5884a25` |
 | Aportación de Fernando a `docs/bitacora_ia.md` | SCRUM-87 | Entradas 10–14 y actualización de la fila de Fernando en la tabla |
 
-*La redacción de las historias, las automatizaciones de Jira y la creación del ticket se documentan con base en la confirmación de Fernando; estos cambios de Jira no quedan registrados en commits del repositorio.*
 
 ## Entrega 2 (martes 17 de noviembre)
 
