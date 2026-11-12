@@ -128,6 +128,13 @@ sf project deploy start --source-dir force-app --target-org donation-UADY-lab
 sf apex run test --test-level RunLocalTests --wait 10 --target-org donation-UADY-lab
 ```
 
+Para asignar permisos
+``` bash
+sf org assign permset --name Moderador_Muro --on-behalf-of correo@usuario.com
+sf org assign permset --name Gestor_Campanas --on-behalf-of correo@usuario.com
+sf org assign permset --name Tesoreria --on-behalf-of correo@usuario.com
+```
+
 Scripts de apoyo (`scripts/apex/`, no se despliegan):
 * `crear-campana.apex`: crea la campaña con los estados del embudo (incluye `Registrado`). **El usuario que lo ejecute necesita la casilla *Marketing User***. Imprime el Id de la campaña que se pega en el sitio.
 * `simulador-donativo.apex`: simula un donativo completo (registro y pago) para pruebas.

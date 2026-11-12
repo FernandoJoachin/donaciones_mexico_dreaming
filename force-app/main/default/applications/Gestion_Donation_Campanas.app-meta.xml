@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Gestión de Campañas de Donación</label>
+    <description>Panel interno para administrar campañas, donaciones y el muro</description>
+    <formFactors>Large</formFactors>
+    <navType>Standard</navType>
+    <uiType>Lightning</uiType>
+    <tabs>standard-home</tabs>
+    <tabs>standard-Campaign</tabs>
+    <tabs>standard-Opportunity</tabs>
+    <tabs>Reconocimiento_Publico__c</tabs>
+    <tabs>standard-report</tabs>
+    <tabs>standard-Dashboard</tabs>
+</CustomApplication>
