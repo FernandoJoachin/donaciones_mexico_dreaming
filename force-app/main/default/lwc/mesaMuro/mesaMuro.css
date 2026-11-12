@@ -197,3 +197,19 @@
         max-height: min(12rem, 35vh);
     }
 }
+
+.gracias {
+    padding: 1rem 1.2rem;
+    background: #e8f7ee;
+    border-left: 6px solid #2e844a;
+    border-radius: 14px;
+}
+.gracias-titulo {
+    margin: 0 0 0.3rem;
+    font-size: 1.25rem;
+    color: #194e2c;
+}
+.gracias-texto {
+    margin: 0;
+    color: #194e2c;
+}

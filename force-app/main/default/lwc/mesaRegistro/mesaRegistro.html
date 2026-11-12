@@ -18,8 +18,38 @@
             </template>
 
             <template lwc:if={registrado}>
-                <h2 class="titulo">¡Gracias por sumarte!</h2>
+                <h2 class="titulo">Te llevamos al pago</h2>
                 <p class="intro">Registramos tu intención de donar. Tu donativo quedará confirmado cuando se reciba el pago.</p>
+            </template>
+
+            <template lwc:if={pagoSimulado}>
+                <h2 class="titulo">Paga tu donativo</h2>
+                <p class="info">Maqueta de la pasarela de pago en modo de prueba: así se verá con Stripe. Todavía no está conectada y no se cobra nada.</p>
+                <section class="pasarela" aria-label="Maqueta de la pasarela de pago">
+                    <p class="pasarela-marca">Pasarela de pago · modo de prueba</p>
+                    <p class="pasarela-monto">{totalPago} <span>MXN</span></p>
+                    <dl class="pasarela-datos">
+                        <dt>Correo</dt>
+                        <dd>{correoPago}</dd>
+                        <dt>Referencia</dt>
+                        <dd>{referenciaPago}</dd>
+                    </dl>
+                    <lightning-input label="Número de tarjeta de prueba" value="4242 4242 4242 4242" disabled></lightning-input>
+                    <div class="pasarela-fila">
+                        <lightning-input label="Vence" value="12/34" disabled></lightning-input>
+                        <lightning-input label="CVC" value="123" disabled></lightning-input>
+                    </div>
+                    <div class="pasarela-botones">
+                        <button type="button" class="btn btn-primario" onclick={pagarSimulado}>Pagar {totalPago}</button>
+                        <button type="button" class="btn btn-secundario" onclick={cancelarSimulado}>Cancelar</button>
+                    </div>
+                </section>
+            </template>
+
+            <template lwc:if={pagoCancelado}>
+                <h2 class="titulo">Pago no completado</h2>
+                <p class="error" role="alert">No se completó el pago. Tu donativo sigue pendiente y no se te cobró nada.</p>
+                <button type="button" class="btn btn-primario" onclick={reintentarPago}>Intentar de nuevo</button>
             </template>
 
             <template lwc:if={mostrarFormulario}>
