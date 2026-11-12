@@ -41,7 +41,6 @@ Estado a **10 de noviembre de 2026**. Los hashes son de commits del repositorio;
 | Enlaces de pago de Stripe | — | `03788be` |
 | Limpieza de campos, pruebas, componentes y metadatos de la versión 1 | — | `9ff15f9` |
 
-*Daniel: completa la columna de tickets y agrega lo que hiciste fuera de Git.*
 
 ### Fernando Joachín
 

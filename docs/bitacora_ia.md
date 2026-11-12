@@ -4,10 +4,6 @@ Una entrada por uso relevante de la IA. Cada entrada lleva fecha, autor, herrami
 qué se obtuvo y se verificó, qué se corrigió y cuánto aceleró (estimación de cuánto habría tomado sin IA).
 Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**.
 
-> **Estado:** el autor de esta versión es José Carlos Leo Fernández. Las entradas de Daniel Amaya y Fernando Joachín
-> las completa cada quien (ver la sección "Pendiente por integrante"); no se redactan por ellos.
-> Las aceleraciones son **estimaciones** del autor.
-
 ## Entradas
 
 ### 1. ⚠ Error de la IA — "anónimo = solo correo"
@@ -184,13 +180,120 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué se corrigió:** Los datos que no se podían confirmar con las capturas (fecha de las respuestas, fecha exacta de algunas preguntas, qué se consultó con la IA o la documentación) se dejaron marcados como "Por confirmar" o "Por completar" en lugar de inventarlos.
 - **Aceleración estimada:** ~40 min (lectura de las capturas, redacción de las 12 entradas en el formato de cinco partes y armado de la tabla de estado).
 
+### 16. ⚠ Error de la IA — "CSS duplicado en el aviso de privacidad"
+- **Fecha:** 2026-10-28
+- **Autor:** Daniel Salvador Amaya Tapia
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** US-03 (aviso de privacidad)
+- **Qué se pidió:** una página de aviso de privacidad para el sitio, con el responsable, el domicilio y el correo de contacto editables sin desplegar.
+- **Qué se obtuvo:** el componente `mesaAviso` (HTML, JS, CSS y meta) con el texto en secciones. Las propiedades de responsable,
+  domicilio, correo, plazo, versión y fecha se editan en Experience Builder.
+- **Qué se verificó y cómo:** la IA revisó que el XML y el JS fueran válidos, sin desplegar. El autor lo desplegó en la org.
+  La vista previa local marcó el error LWR3009, que se atribuyó al `@import` del CSS; esa causa no se confirmó.
+- **Qué se corrigió:** el CSS repetía estilos que ya existen en `mesaEstilos` (banda, burbujas, título, tarjeta). El autor lo
+  detectó y pidió reutilizarlos. Quedó solo el `@import` más las reglas propias de esa página.
+- **Aceleración estimada:** ~3 h (redactar el aviso por secciones y armar el componente configurable).
+
+### 17. ⚠ Error de la IA — "import faltante de resolverUrl en mesaDonacion"
+- **Fecha:** 2026-10-28 (cambio) y 2026-10-30 (corrección)
+- **Autor:** Daniel Salvador Amaya Tapia
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** US-03 (aviso de privacidad)
+- **Qué se pidió:** revisar por qué el enlace "Ver aviso de privacidad" no redirigía.
+- **Qué se obtuvo:** el enlace se arma con `resolverUrl` (getter `avisoHref`) en `mesaRegistro`, `mesaReencuentro` y
+  `mesaDonacion`, para respetar el prefijo del sitio.
+- **Qué se verificó y cómo:** el autor reprodujo el síntoma: sin token la donación abría bien; con token el componente no se
+  dibujaba, aunque el navbar sí aparecía. La IA comparó los archivos de su carpeta y dedujo la causa. El autor confirmó que era esa.
+- **Qué se corrigió:** `mesaDonacion` usaba `resolverUrl` sin importarlo. La instrucción original se dio como si los tres
+  componentes importaran igual. Se agregó el import en `mesaDonacion`.
+- **Aceleración estimada:** ~1.5 h (rastrear un componente que falla sin error visible).
+
+### 18. Análisis para enviar correos: Flow o Apex
+- **Fecha:** 2026-10-30
+- **Autor:** Daniel Salvador Amaya Tapia
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** US-pendiente (correos de campaña)
+- **Qué se pidió:** saber si los correos automáticos solo se pueden hacer con Flows o también con Apex, y revisar el plan de
+  envío a unas 120 personas.
+- **Qué se obtuvo:** una comparación Flow vs Apex (`Send Email` frente a `Messaging.sendEmail`, y un Flow que llama a un
+  `@InvocableMethod`). Recomendaciones: el enlace de donar va en todas las campañas; el de reencuentro solo si la persona no
+  lo ha llenado o cambió la versión del aviso; la baja se filtra con `HasOptedOutOfEmail`, sin depender de
+  `Consentimiento_Contacto__c`.
+- **Qué se verificó y cómo:** fue un análisis sin cambios al repo. La IA marcó que no tenía certeza de que la acción de correo
+  respete la baja por sí sola, y recomendó probarlo con un contacto dado de baja. Esa prueba sigue pendiente porque los Flows
+  están pausados.
+- **Qué se corrigió:** nada. El tema de si el reencuentro va en cada campaña se retomó en el rediseño del 9 de noviembre (entrada 5).
+- **Aceleración estimada:** ~2 h (leer documentación y comparar opciones).
+
+### 19. ⚠ Error de la IA — "lógica de empresa mal interpretada"
+- **Fecha:** 2026-11-09
+- **Autor:** Daniel Salvador Amaya Tapia
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** Varias (US02,03,05,06,09,11,15,19 ) (rediseño: sin token, registro y donación unificados)
+- **Qué se pidió:** primero un inventario de lo creado (campos, funciones), y luego el impacto de los cambios en el controlador,
+  la interfaz y las pruebas, sin modificar nada.
+- **Qué se obtuvo:** el inventario, una tabla de impacto y la especificación final tras varias rondas de feedback: visibilidad
+  Pública/Anónima, consentimiento Sí/No obligatorio, monto siempre público, donación de empresa y campos a eliminar.
+- **Qué se verificó y cómo:** no se tocó código hasta que el autor confirmó cada decisión por escrito. Las propuestas se
+  contrastaron con el código y las pruebas existentes.
+- **Qué se corrigió:** la IA interpretó mal el apartado de empresa. El autor lo aclaró: un checkbox que oculta nombre y
+  apellidos, un solo input cuyo valor se copia a ambos campos, y sin crear ni buscar Accounts.
+- **Aceleración estimada:** ~6 h (mapear cada campo, método y prueba afectado, y documentar el plan).
+
+### 20. ⚠ Error de la IA — "falta el .cls-meta.xml de la clase de pruebas"
+- **Fecha:** 2026-11-09
+- **Autor:** Daniel Salvador Amaya Tapia
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** Del plan anterior #19 {continuación} (registro y donación sin token)
+- **Qué se pidió:** la parte de servidor del rediseño, sin romper lo existente.
+- **Qué se obtuvo:** campos nuevos y permission set actualizado; `guardarDonativo` con validaciones, campo trampa y tope por
+  hora; `darseDeBaja`; `confirmarPago` con reconocimiento público o anónimo; y `MesaRegalosDonativoTest` con 12 pruebas.
+- **Qué se verificó y cómo:** el autor corrió `--dry-run` con `RunLocalTests` en la org, y pasó tras el ajuste.
+- **Qué se corrigió:** la clase de pruebas nueva no traía su `.cls-meta.xml` y el despliegue marcó `ConversionError`. Se
+  entregó el archivo faltante.
+- **Aceleración estimada:** ~8 h (más de 700 líneas de Apex, validaciones y pruebas).
+
+### 21. ⚠ Error de la IA — "propiedad paginaDonar eliminada del meta"
+- **Fecha:** 2026-11-09
+- **Autor:** Daniel Salvador Amaya Tapia
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** [completar con el SCRUM de Jira] (formulario único y baja)
+- **Qué se pidió:** la interfaz del rediseño.
+- **Qué se obtuvo:** `mesaRegistro` reescrito como formulario único, el componente nuevo `mesaBaja`, y cambios en `mesaInicio`
+  y `mesaMuro`.
+- **Qué se verificó y cómo:** `--dry-run` en la org, con una lista de pruebas manuales sugerida.
+- **Qué se corrigió:** la IA quitó la propiedad `paginaDonar` del `js-meta.xml`. Salesforce no permite quitar propiedades de
+  componentes en uso en un sitio, y el despliegue falló. El autor quitó los componentes del Builder y el despliegue pasó. La
+  IA propuso además dejar la propiedad obsoleta hasta el paso 5.
+- **Aceleración estimada:** ~6 h.
+
+### 22. ⚠ Error de la IA — "scripts de apoyo sin actualizar en el paso 5"
+- **Fecha:** 2026-11-09 y 2026-11-10
+- **Autor:** Daniel Salvador Amaya Tapia
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** (limpieza técnica y despliegue)
+- **Qué se pidió:** eliminar lo obsoleto (token, Reencuentro, campos y pruebas viejas) y desplegar en una org nueva.
+- **Qué se obtuvo:** controlador y servicio reescritos solo con el flujo nuevo; borrado de 13 campos, un trigger, 2
+  componentes y la clase de pruebas vieja; limpieza del permission set; manifiestos de borrado y un checklist de la org nueva.
+  Luego un diagnóstico de los fallos, a partir de los logs que pegó el autor: las 110 pruebas fallaron por
+  `CampaignTriggerHandler` de otro proyecto de esa sandbox; 16 fallos vinieron de una regla de validación sobre Campaign
+  (`Visibility_Start_Date__c`) que tampoco es de este proyecto; y `crear-campana.apex` falló porque el usuario no tenía
+  Marketing User.
+- **Qué se verificó y cómo:** el autor corrió los dry-run. Los 38 componentes validaron sin errores
+  (`numberComponentErrors: 0`); los fallos eran de pruebas y de otro código. La conclusión fue validar en una org limpia
+  (Developer Edition).
+- **Qué se corrigió:** el paso 5 no incluyó actualizar los scripts de apoyo. `crear-campana.apex` no creaba el estado
+  «Registrado», y `simulador-donativo.apex` y `tokens-faltantes.apex` usaban métodos ya eliminados. Se detectó cuando el autor
+  preguntó. También se corrigió un comando de exclusión de git pensado para otro shell, porque en PowerShell podía guardar el
+  archivo con una codificación incorrecta.
+- **Aceleración estimada:** ~5 h.
 
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
 | José Carlos Leo Fernández | 9 | 5 (entradas 1, 4, 5, 8 y 9) |
-| Daniel Amaya | por completar | por completar |
 | Fernando Joachín | 5 (entradas 10–15) | 2 (entradas 11 y 13) |
+| Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 
 Requisito de la rúbrica: mínimo 3 entradas con error de la IA, incluyendo a los tres integrantes.
