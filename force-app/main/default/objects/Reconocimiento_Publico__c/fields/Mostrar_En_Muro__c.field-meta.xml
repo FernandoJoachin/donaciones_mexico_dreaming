@@ -3,6 +3,7 @@
     <fullName>Mostrar_En_Muro__c</fullName>
     <label>Mostrar en el muro</label>
     <defaultValue>true</defaultValue>
+    <description>El moderador lo desactiva si el nombre es ofensivo</description>
     <required>false</required>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>

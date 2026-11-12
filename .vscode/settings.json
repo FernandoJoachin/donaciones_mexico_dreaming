@@ -1,3 +1,11 @@
 {
-    "xml.preferences.showSchemaDocumentationType": "none"
+    "xml.preferences.showSchemaDocumentationType": "none",
+    "conventionalCommits.scopes": [
+        "Backend",
+        "Frontend",
+        "Doc",
+        "Clean",
+        "Readme",
+        "US"
+    ]
 }
