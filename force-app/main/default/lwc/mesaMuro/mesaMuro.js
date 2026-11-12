@@ -1,6 +1,7 @@
 import { LightningElement, api, wire } from 'lwc';
 import obtenerMuro from '@salesforce/apex/MesaRegalosController.obtenerMuro';
 import obtenerAvance from '@salesforce/apex/MesaRegalosController.obtenerAvance';
+import { leerRetornoPago } from 'c/mesaUtil';
 
 const OPCIONES_ORDEN = [
     { label: 'Mayor monto', value: 'monto' },
@@ -192,6 +193,13 @@ export default class MesaMuro extends LightningElement {
 
     formatearMonto(monto) {
         return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(monto || 0);
+    }
+
+    /** Solo es verdadero si la persona llega desde el flujo de pago; abrir el muro directo no muestra nada (SCRUM-99). */
+    mostrarGracias = false;
+
+    connectedCallback() {
+        this.mostrarGracias = leerRetornoPago() === 'exito';
     }
 
     renderedCallback() {

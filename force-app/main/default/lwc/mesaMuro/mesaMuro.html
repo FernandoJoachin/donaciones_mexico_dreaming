@@ -9,6 +9,12 @@
             </div>
         </header>
         <div class="contenedor">
+            <template lwc:if={mostrarGracias}>
+                <section class="gracias" role="status" aria-live="polite">
+                    <h2 class="gracias-titulo">¡Gracias por tu donación!</h2>
+                    <p class="gracias-texto">Confirmando tu pago. En cuanto se confirme, tu aportación aparecerá en el muro como la elegiste.</p>
+                </section>
+            </template>
             <template lwc:if={mostrarPanelAvance}>
                 <section class="avance" aria-label="Avance de la campaña">
                     <div class="avance-encabezado">

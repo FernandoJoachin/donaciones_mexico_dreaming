@@ -1,7 +1,7 @@
 import { LightningElement, api, wire } from 'lwc';
 import { CurrentPageReference } from 'lightning/navigation';
 import guardarDonativo from '@salesforce/apex/MesaRegalosController.guardarDonativo';
-import { parseMonto, formatearMonto, mensajeError, resolverUrl } from 'c/mesaUtil';
+import { parseMonto, formatearMonto, mensajeError, resolverUrl, irA, guardarRetornoPago } from 'c/mesaUtil';
 
 // Deben coincidir con MesaRegalosController (el servidor es quien manda).
 const MONTO_MINIMO = 100;
@@ -26,6 +26,8 @@ export default class MesaRegistro extends LightningElement {
     @api urlPagoP1000;
     @api urlPagoP3000;
     @api urlPagoP5000;
+    /** Página del muro (donde se muestra el agradecimiento al terminar de pagar). */
+    @api paginaMuro = 'muro';
 
     /** Campaña que viene en la dirección (?campana=<Id>), por ejemplo desde el botón Donar de su página. */
     campanaUrl;
@@ -56,6 +58,10 @@ export default class MesaRegistro extends LightningElement {
 
     enviando = false;
     registrado = false;
+    /** Maqueta de la pasarela: se usa mientras no haya Payment Link configurado. */
+    pagoSimulado = false;
+    pagoCancelado = false;
+    donativoId;
     error;
 
     opcionesPaquete = [
@@ -76,7 +82,19 @@ export default class MesaRegistro extends LightningElement {
     ];
 
     get mostrarFormulario() {
-        return !this.registrado;
+        return !this.registrado && !this.pagoSimulado && !this.pagoCancelado;
+    }
+
+    get totalPago() {
+        return this.montoValido ? formatearMonto(this.montoFinal) : '';
+    }
+
+    get correoPago() {
+        return this.correo.trim();
+    }
+
+    get referenciaPago() {
+        return this.donativoId ? String(this.donativoId).slice(-8).toUpperCase() : '';
     }
 
     get esPublico() {
@@ -193,6 +211,23 @@ export default class MesaRegistro extends LightningElement {
         return undefined;
     }
 
+    /** Maqueta: "pagar" no cobra ni confirma nada; solo lleva al muro con el mensaje "Confirmando tu pago". */
+    pagarSimulado() {
+        guardarRetornoPago('exito');
+        irA(resolverUrl(this.paginaMuro, null, false));
+    }
+
+    /** Maqueta: cancelar deja el donativo pendiente y ofrece intentar de nuevo (sin crear otro registro). */
+    cancelarSimulado() {
+        this.pagoSimulado = false;
+        this.pagoCancelado = true;
+    }
+
+    reintentarPago() {
+        this.pagoCancelado = false;
+        this.pagoSimulado = true;
+    }
+
     async enviar() {
         this.error = this.validar();
         if (this.error) {
@@ -221,18 +256,16 @@ export default class MesaRegistro extends LightningElement {
                 })
             });
 
-            this.registrado = true;
-            const urlPago = r && r.donativoId ? this.armarUrlPago(r.donativoId) : null;
+            this.donativoId = r && r.donativoId;
+            const urlPago = this.donativoId ? this.armarUrlPago(this.donativoId) : null;
             if (urlPago) {
+                // Con Payment Link configurado: pago real (modo de prueba de Stripe).
+                this.registrado = true;
                 window.location.href = urlPago;
+            } else {
+                // Sin Payment Link todavía: maqueta de la pasarela para no dejar al donante en una página sin salida.
+                this.pagoSimulado = true;
             }
-            // this.registrado = true;
-            // if (r && r.donativoId && this.urlPago) {
-            //     const separador = this.urlPago.includes('?') ? '&' : '?';
-            //     window.location.href =
-            //         `${this.urlPago}${separador}client_reference_id=${encodeURIComponent(r.donativoId)}` +
-            //         `&prefilled_email=${encodeURIComponent(this.correo.trim())}`;
-            // }
         } catch (e) {
             this.error = mensajeError(e);
         } finally {
