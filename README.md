@@ -14,7 +14,7 @@ Proyecto base para que las personas se registren en un solo formulario y hagan u
   Una historia a medias cuenta como no cumplida.
 - **Cómo se calcula el avance:** `historias en Finalizado ÷ historias del backlog que cubren requisitos de la Entrega 1 × 100`.
   Las historias descartadas (etiqueta `descartada`) no cuentan.
-- **Avance al 10 de noviembre de 2026:** **20 %** (3 de 15 historias de la Entrega 1 en *Finalizado*: US-01, US-02 y US-20; el cálculo está en `docs/backlog.md`).
+- **Avance al 11 de noviembre de 2026:** **27 %** (4 de 15 historias de la Entrega 1 en *Finalizado*: US-01, US-02, US-09 y US-20; el cálculo está en `docs/backlog.md`).
   Es provisional hasta reunir las capturas de evidencia. Este número se actualiza antes de la entrega con el conteo del día.
 - **Documentos de la entrega** (en `docs/`): `seguridad.md` (prueba del visitante, permisos, datos personales y riesgos) y `bitacora_ia.md`
   (bitácora de uso de IA). Las pestañas de contribución y de preguntas y reportes se agregan en `docs/` con su ticket.
