@@ -71,6 +71,19 @@ Dos hallazgos de esa prueba:
 
 El donativo de prueba (correo ficticio `prueba.visitante@example.com`, $1,000, pendiente) sigue en la sandbox.
 
+#### Datos de demostración del muro y repetición de la prueba (11 de noviembre de 2026)
+
+- **Qué hay en la sandbox UADY:** 12 donativos de demostración (10 con nombre ficticio y 2 anónimos, $37,300 en total) más una donación
+  pendiente de $99,000 ("Donación pendiente (no debe verse)"). Los cargó el script `scripts/apex/datos-prueba-muro.apex`: son nombres
+  inventados (Alicia Torres, Bruno Vega…), correos `@example.com` y el nombre `DEMO MURO | …`. Aclaración sobre el hallazgo 2: el
+  reconocimiento de $99,000 venía de ese script, no de una carga a mano sin origen.
+- **Por qué se dejan:** para que el muro y el avance se vean con contenido en la demostración. No son personas reales.
+- **Cómo se quitan:** `scripts/apex/limpiar-datos-prueba-muro.apex`. Antes de usar el sitio con donantes reales hay que ejecutarlo.
+- **Prueba repetida como visitante, con el controlador nuevo del muro (SCRUM-49):** el muro carga sin login, el total sigue en $37,300 y la
+  donación pendiente de $99,000 **no aparece**, porque el muro solo muestra donaciones en `Closed Won`. Un donativo nuevo de $1,000 enviado
+  por el formulario quedó `Prospecting` y tampoco apareció en el muro ni en el total.
+- **No repetido todavía:** la prueba por REST y SOQL como visitante en la sandbox UADY.
+
 ## 2. Permisos del usuario visitante (guest) y por qué
 
 | Elemento | Permiso | Por qué |
@@ -142,7 +155,7 @@ Decisiones del 7 de noviembre: se piden siempre nombre, apellidos y correo; "an�
 | Ids de campaña inventados en la dirección | Mitigado | `obtenerCampana` valida el formato y el tipo, y devuelve nulo si la campaña no está publicada |
 | Correo de facturas de ejemplo (`facturas@ejemplo.org`) | Abierto | Sustituirlo por el real antes de entregar |
 | Automatizaciones de otros proyectos en la sandbox UADY | Mitigado | Un trigger y una regla ajenos impedían donar. Se desactivaron `OpportunityTrigger`, un flujo, 4 reglas de validación de Campaign y `PreApproveStudent`, con respaldo y reversibles. Si alguien las usa, hay que acordarlo con el equipo |
-| Datos de demostración visibles en el muro público | Cerrado | Un reconocimiento de $99,000 cargado a mano se mostraba. Se ocultó. Antes de la entrega, revisar el muro de cada campaña y quitar los datos de prueba |
+| Datos de demostración visibles en el muro público | Aceptado | Los donativos de demostración se dejan a propósito (nombres ficticios, `DEMO MURO | …`) para la demostración. La donación pendiente de $99,000 no se muestra porque el muro solo lista `Closed Won`. Se quitan con `limpiar-datos-prueba-muro.apex` antes de usar el sitio con donantes reales |
 | Datos personales en los registros de depuración | **Cerrado** | Los `System.debug` con datos de personas ya no existen en `entrega-1` |
 
 ## 6. Cómo comprobar que no hay claves en el código
