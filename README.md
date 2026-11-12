@@ -4,6 +4,11 @@ Proyecto base para que las personas se registren en un solo formulario y hagan u
 
 **Estado:** los componentes validan con `--dry-run` sin errores. Las pruebas Apex (16) se validan en una Developer Edition limpia. Falta probar el pago de punta a punta con Stripe y construir el webhook de confirmación de pagos, como también una pantalla para que los admins puedan gestionar las campañas (CRUD).
 
+## Video demo (Entrega 1)
+
+- **Video de 3 min 25 s** (subtítulos, sin voz): [demo-video/entrega-1-demo.mp4](demo-video/entrega-1-demo.mp4). Recorre como visitante sin login el sitio central, la campaña, el formulario, la maqueta del pago de prueba, el muro, la factura por correo, la seguridad y el backlog con su avance.
+- El pago con Stripe es todavía una maqueta (modo de prueba, sin cobros) y todos los datos son ficticios.
+
 ## Backlog y avance (Entrega 1)
 
 - **Backlog en el repo:** [docs/backlog.md](docs/backlog.md) (ID, RF que cubre, hito, historia, criterios, estado y evidencia).
