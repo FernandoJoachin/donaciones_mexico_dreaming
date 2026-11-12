@@ -111,3 +111,97 @@ Cada entrada sigue las cinco partes de un buen reporte, más un campo "Después"
 - **Después:** Se decidió crear una bitácora para atributir tareas fuera de Jira. Igualmente se mantiene Jira como fuente de verdad.
 
 ---
+
+## Entradas de José Carlos Leo Fernández
+
+Semanas: S1 = 2 a 8 de noviembre; S2 = 9 a 15 de noviembre. Mismo formato de cinco partes.
+
+## Entrada 11 — ¿El anónimo pide solo el correo o siempre nombre y correo? (mockup contra la reunión)
+
+- **Autor:** José Carlos Leo Fernández · **Fecha:** 2026-11-08 **Dónde** En un chat con la IA (Claude Code) y la transcripción de la reunión del 7 de noviembre
+1. **Qué intentaban lograr:** que el mockup de Donar y las historias reflejaran lo acordado en la reunión.
+2. **Qué hicieron:** pidieron a la IA actualizar el mockup y el mensaje al equipo; la IA dijo que la donación anónima pide solo el correo. Contrastaron eso con la transcripción.
+3. **Qué esperaban que pasara:** que el mockup coincidiera con la reunión.
+4. **Qué pasó:** en la reunión (min 20:27 a 21:13) se acordó pedir siempre nombre, apellidos y correo y filtrar lo anónimo en código al mostrar el muro; la IA se había equivocado.
+5. **Qué consultaron con la IA o la documentación y qué resultó:** Transcripción local de la reunión (Whisper). Bitácora de IA, entradas 1 y 2.
+- **Después:** se corrigió el mockup de Donar y se revisaron las historias de Jira contra la reunión. **Resuelto.**
+
+## Entrada 12 — Falló el despliegue de la landing: `LWC1503` en una propiedad booleana
+
+- **Autor:** José Carlos Leo Fernández · **Fecha:** 2026-11-09 **Dónde** Despliegue a la org de desarrollo
+1. **Qué intentaban lograr:** que el componente de campañas incluyera la portada del inicio y se pudiera apagar desde Experience Builder.
+2. **Qué hicieron:** desplegaron la propiedad `incluirPortada = true` que propuso la IA y leyeron el error del compilador.
+3. **Qué esperaban que pasara:** que desplegara sin errores.
+4. **Qué pasó:** Salesforce rechazó el despliegue: una propiedad pública booleana no puede inicializarse en `true`.
+5. **Qué consultaron con la IA o la documentación y qué resultó:** El mensaje del compilador. Bitácora de IA, entrada 4.
+- **Después:** se invirtió a `sinPortada = false` con un getter `incluirPortada`. **Resuelto.**
+
+## Entrada 13 — El inicio conservaba el título "México Dreaming" y paquetes fijos que ya no iban
+
+- **Autor:** José Carlos Leo Fernández · **Fecha:** 2026-11-09 **Dónde** En un chat con la IA (Claude Code)
+1. **Qué intentaban lograr:** reconstruir el inicio como una landing con lo acordado en la reunión.
+2. **Qué hicieron:** pidieron la landing a la IA tomando como base el inicio anterior y la compararon con las decisiones de la reunión.
+3. **Qué esperaban que pasara:** que reflejara que ahora siempre se piden nombre y correo y que los paquetes son por campaña.
+4. **Qué pasó:** la propuesta traía paquetes de $1,000, $3,000 y $5,000, un paso 2 que hablaba de "Anónimo" sin pedir datos y el título del evento.
+5. **Qué consultaron con la IA o la documentación y qué resultó:** Decisiones de la reunión. Bitácora de IA, entrada 5.
+- **Después:** se quitaron los paquetes, se reescribieron los pasos y el título pasó a "Apoya a la comunidad". **Resuelto.**
+
+## Entrada 14 — Al abrir el sitio desde el celular sale el inicio de sesión, aunque las páginas daban 200
+
+- **Autor:** José Carlos Leo Fernández · **Fecha:** 2026-11-10 **Dónde** Celular y chat con la IA
+1. **Qué intentaban lograr:** que el sitio de la sandbox UADY fuera público y abriera sin login.
+2. **Qué hicieron:** la IA reportó que las 5 páginas respondían 200; el autor abrió el sitio en el celular y vio el login. Comprobaron con `curl` a dónde redirigía la respuesta.
+3. **Qué esperaban que pasara:** que el sitio abriera para cualquier visitante.
+4. **Qué pasó:** el 200 era de la página de login. Faltaba activar el sitio, hacerlo público y dar al usuario guest acceso a `MesaRegalosController`.
+5. **Qué consultaron con la IA o la documentación y qué resultó:** `curl` y consultas a la org. Bitácora de IA, entrada 8.
+- **Después:** esos pasos de seguridad los hizo el dueño de la cuenta desde la interfaz y se verificó por consulta que el sitio está activo y público y que el guest solo tiene una clase de Apex. **Resuelto.**
+
+## Entrada 15 — ¿Por qué el asistente no podía hacer público el sitio ni dar el permiso al guest?
+
+- **Autor:** José Carlos Leo Fernández · **Fecha:** 2026-11-10 **Dónde** En un chat con la IA (Claude Code)
+1. **Qué intentaban lograr:** publicar el sitio sin esperar a otra persona.
+2. **Qué hicieron:** pidieron a la IA hacerlo y, al negarse, pidieron el paso a paso para Salesforce Classic.
+3. **Qué esperaban que pasara:** que la IA lo hiciera directamente.
+4. **Qué pasó:** la IA no cambia ajustes de seguridad ni de acceso público aunque se lo pidan; dio los pasos y el cambio se hizo a mano.
+5. **Qué consultaron con la IA o la documentación y qué resultó:** Los pasos de la IA y la propia interfaz de la sandbox.
+- **Después:** el sitio quedó activo y público y el permiso del guest quedó aplicado. **Resuelto.**
+
+## Entrada 16 — Al donar como visitante sale "Ocurrió un error", aunque la prueba de Apex como administrador pasaba
+
+- **Autor:** José Carlos Leo Fernández · **Fecha:** 2026-11-10 **Dónde** Sitio publicado en la sandbox UADY, como visitante
+1. **Qué intentaban lograr:** comprobar que un visitante sin login puede registrar un donativo.
+2. **Qué hicieron:** enviaron el formulario en un navegador sin sesión y activaron el registro de depuración del usuario guest.
+3. **Qué esperaban que pasara:** que el donativo se registrara como pendiente.
+4. **Qué pasó:** un trigger de otro proyecto de la sandbox (`PreApproveStudent`) busca la campaña `FONDOS SDU`, que el guest no puede ver, y cancelaba la donación.
+5. **Qué consultaron con la IA o la documentación y qué resultó:** Registro de depuración del guest. Bitácora de IA, entrada 9 y `docs/seguridad.md`.
+- **Después:** se desactivó el trigger con respaldo y con aprobación del autor; el donativo quedó `Prospecting` y fuera del muro y del total. **Resuelto.**
+
+## Entrada 17 — ¿De dónde sale un reconocimiento de $99,000 en el muro público de la UADY?
+
+- **Autor:** José Carlos Leo Fernández · **Fecha:** 2026-11-10 **Dónde** Sitio publicado en la sandbox UADY, como visitante
+1. **Qué intentaban lograr:** que el muro público solo mostrara reconocimientos creados por el código a partir de pagos confirmados.
+2. **Qué hicieron:** revisaron el muro como visitante y consultaron el registro.
+3. **Qué esperaban que pasara:** que el muro estuviera vacío.
+4. **Qué pasó:** era un dato de demostración que no creó el código.
+5. **Qué consultaron con la IA o la documentación y qué resultó:** Consultas a la org. `docs/seguridad.md`.
+- **Después:** se ocultó con `Mostrar_En_Muro__c` en falso, sin borrarlo. **Resuelto.**
+
+## Entrada 18 — Las donaciones no tienen precio fijo: ¿cómo se manejan en Stripe?
+
+- **Autor:** José Carlos Leo Fernández · **Fecha:** 2026-11-10 **Dónde** En un chat con la IA (Claude Code) y documentación de Stripe
+1. **Qué intentaban lograr:** definir cómo cobrar un monto libre en la pasarela.
+2. **Qué hicieron:** investigaron en la documentación de Stripe.
+3. **Qué esperaban que pasara:** que existiera una forma de cobrar sin precio fijo.
+4. **Qué pasó:** un Payment Link con "los clientes eligen cuánto pagar" lo permite, con monto sugerido, mínimo y máximo opcionales.
+5. **Qué consultaron con la IA o la documentación y qué resultó:** Documentación de Stripe sobre Payment Links y monedas.
+- **Después:** **[Pendiente]** Daniel crea el link de prueba y se comprueba el mínimo en pesos.
+
+## Entrada 19 — ¿Cómo pasar a Stripe el monto que el donante ya eligió en nuestro formulario?
+
+- **Autor:** José Carlos Leo Fernández · **Fecha:** 2026-11-10 **Dónde** En un chat con la IA (Claude Code) y documentación de Stripe
+1. **Qué intentaban lograr:** que el donante no tuviera que escribir el monto dos veces.
+2. **Qué hicieron:** revisaron qué parámetros acepta un Payment Link y cómo crear una sesión de pago por API.
+3. **Qué esperaban que pasara:** que el monto se pudiera pasar por la URL.
+4. **Qué pasó:** solo confirmaron el correo pre-llenado y el `client_reference_id`; el monto en la URL no se pudo confirmar.
+5. **Qué consultaron con la IA o la documentación y qué resultó:** Documentación de Stripe (parte de la información es de guías de la comunidad).
+- **Después:** **[Pendiente]** opciones: 9 links (8 montos fijos y uno libre) para la Entrega 1, o crear la sesión desde Salesforce en la Entrega 2; falta decidirlo con Daniel.
