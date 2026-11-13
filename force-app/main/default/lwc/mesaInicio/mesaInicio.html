@@ -5,7 +5,9 @@
             <span class="burbuja burbuja-b" aria-hidden="true"></span>
             <span class="burbuja burbuja-c" aria-hidden="true"></span>
             <div class="hero-contenido">
-                <span class="etiqueta">{etiqueta}</span>
+                <template lwc:if={etiqueta}>
+                    <span class="etiqueta">{etiqueta}</span>
+                </template>
                 <h1 class="titulo">{titulo}</h1>
                 <p class="descripcion">{descripcion}</p>
                 <div class="acciones">
