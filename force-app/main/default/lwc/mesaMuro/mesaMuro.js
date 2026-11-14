@@ -1,7 +1,7 @@
 import { LightningElement, api, wire } from 'lwc';
 import obtenerMuro from '@salesforce/apex/MesaRegalosController.obtenerMuro';
 import obtenerAvance from '@salesforce/apex/MesaRegalosController.obtenerAvance';
-import { leerRetornoPago } from 'c/mesaUtil';
+import { leerRetornoPago, formatearMonto } from 'c/mesaUtil';
 
 const OPCIONES_ORDEN = [
     { label: 'Mayor monto', value: 'monto' },
@@ -10,10 +10,56 @@ const OPCIONES_ORDEN = [
 const INTERVALO_DESPLAZAMIENTO_MS = 80;
 const PAUSA_POR_INTERACCION_MS = 3000;
 const TIEMPO_LIMITE_CARGA_MS = 30000;
+const TAMANO_PODIO = 3;
+const SIN_CAMPANA = 'No se configuró el Id de campaña para este componente.';
+
+/**
+ * Ordena donantes por el criterio elegido ('monto' o 'fecha'). Los empates se resuelven
+ * siempre igual (más reciente y luego por nombre) para que la lista no "salte" entre cargas.
+ */
+function compararDonantes(a, b, criterio) {
+    const diferencia = criterio === 'fecha'
+        ? (b.fecha || '').localeCompare(a.fecha || '')
+        : Number(b.monto) - Number(a.monto);
+    return diferencia ||
+        (b.fecha || '').localeCompare(a.fecha || '') ||
+        (a.nombre || '').localeCompare(b.nombre || '', 'es-MX');
+}
+
+/** Hasta dos iniciales del nombre, para el avatar del podio. */
+function iniciales(nombre) {
+    return (nombre || '')
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((parte) => parte[0])
+        .join('')
+        .toUpperCase();
+}
 
 export default class MesaMuro extends LightningElement {
+    @api mostrarAvance;
+    @api metaCampana = 50000;
+
+    muro;
+    avance;
+    isLoading = false;
+    errorCarga = SIN_CAMPANA;
+    errorAvance;
+    orden = 'monto';
+    opcionesOrden = OPCIONES_ORDEN;
+    /** Solo es verdadero si la persona llega desde el flujo de pago; abrir el muro directo no muestra nada (SCRUM-99). */
+    mostrarGracias = false;
+
     _campaignId;
     _loadTimeout;
+    _needsScrollSetup = false;
+    _scrollInterval;
+    _scrollPaused = false;
+    _resizeObserver;
+    _resizeHandler;
+    _scrollContainer;
+    _scrollResumeTimeout;
 
     @api
     get campaignId() {
@@ -27,7 +73,7 @@ export default class MesaMuro extends LightningElement {
 
         if (!this._campaignId) {
             this.isLoading = false;
-            this.errorCarga = 'No se configuró el Id de campaña para este componente.';
+            this.errorCarga = SIN_CAMPANA;
             return;
         }
 
@@ -47,14 +93,6 @@ export default class MesaMuro extends LightningElement {
         }, TIEMPO_LIMITE_CARGA_MS);
     }
 
-    @api mostrarAvance;
-    @api metaCampana = 50000;
-
-    muro;
-    isLoading = false;
-    errorCarga = 'No se configuró el Id de campaña para este componente.';
-    errorAvance;
-
     @wire(obtenerAvance, { campaignId: '$campaignId' })
     recibirAvance(valor) {
         this.avance = valor;
@@ -65,8 +103,6 @@ export default class MesaMuro extends LightningElement {
             this.errorAvance = undefined;
         }
     }
-
-    avance;
 
     @wire(obtenerMuro, { campaignId: '$campaignId' })
     recibirMuro(valor) {
@@ -84,22 +120,14 @@ export default class MesaMuro extends LightningElement {
         }
     }
 
-    orden = 'monto';
-    opcionesOrden = OPCIONES_ORDEN;
-    _needsScrollSetup = false;
-    _scrollInterval;
-    _scrollPaused = false;
-    _resizeObserver;
-    _resizeHandler;
-    _scrollContainer;
-    _scrollResumeTimeout;
-
-    get hayMeta() {
-        return this.mostrarAvanceActivo && this.avance && this.avance.data && this.metaObjetivo > 0;
-    }
+    // ---------- Avance de la meta ----------
 
     get mostrarAvanceActivo() {
         return this.mostrarAvance !== false;
+    }
+
+    get mostrarPanelAvance() {
+        return this.mostrarAvanceActivo && !!(this.avance && this.avance.data);
     }
 
     get metaObjetivo() {
@@ -107,60 +135,66 @@ export default class MesaMuro extends LightningElement {
         return Number.isFinite(meta) && meta > 0 ? meta : 0;
     }
 
-    get mostrarPanelAvance() {
-        return this.mostrarAvanceActivo && this.avance && this.avance.data;
+    get hayMeta() {
+        return this.mostrarPanelAvance && this.metaObjetivo > 0;
     }
 
     get metaSinConfigurar() {
         return this.mostrarPanelAvance && this.metaObjetivo === 0;
     }
 
+    get totalRecaudado() {
+        const total = this.avance && this.avance.data ? Number(this.avance.data.total) : 0;
+        return Number.isFinite(total) && total > 0 ? total : 0;
+    }
+
     get porcentaje() {
-        if (!this.avance || !this.avance.data || this.metaObjetivo === 0) {
+        if (this.metaObjetivo === 0) {
             return 0;
         }
-        const total = Number(this.avance.data.total);
-        if (!Number.isFinite(total) || total <= 0) {
-            return 0;
-        }
-        return Math.min(Math.round((total / this.metaObjetivo) * 100), 100);
+        return Math.min(Math.round((this.totalRecaudado / this.metaObjetivo) * 100), 100);
     }
 
     get totalFormateado() {
-        const total = this.avance && this.avance.data ? this.avance.data.total : 0;
-        return this.formatearMonto(total);
+        return formatearMonto(this.totalRecaudado);
     }
 
     get metaFormateada() {
-        return this.formatearMonto(this.metaObjetivo);
+        return formatearMonto(this.metaObjetivo);
     }
 
-    get ordenados() {
-        const datos = this.muro && this.muro.data ? [...this.muro.data] : [];
-        return datos.sort((a, b) => {
-            const diferencia = this.orden === 'fecha'
-                ? (b.fecha || '').localeCompare(a.fecha || '')
-                : Number(b.monto) - Number(a.monto);
-            return diferencia || (b.fecha || '').localeCompare(a.fecha || '') ||
-                (a.nombre || '').localeCompare(b.nombre || '', 'es-MX');
-        });
+    // ---------- Donantes ----------
+
+    /** Datos del muro solo cuando ya cargaron sin error; antes de eso no se muestra nada. */
+    get datosMuro() {
+        return !this.isLoading && !this.errorCarga && this.muro ? this.muro.data : undefined;
+    }
+
+    get donantes() {
+        return this.datosMuro && Array.isArray(this.datosMuro.donantes) ? this.datosMuro.donantes : [];
+    }
+
+    get totalAnonimo() {
+        const total = this.datosMuro ? Number(this.datosMuro.totalAnonimo) : 0;
+        return Number.isFinite(total) && total > 0 ? total : 0;
     }
 
     get items() {
-        return this.ordenados.map((donante, index) => ({
-            clave: `${index}-${donante.nombre}-${donante.fecha || ''}`,
-            nombre: donante.nombre,
-            monto: new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(donante.monto)
-        }));
+        return [...this.donantes]
+            .sort((a, b) => compararDonantes(a, b, this.orden))
+            .map((donante, index) => ({
+                clave: `${index}-${donante.nombre}-${donante.fecha || ''}`,
+                nombre: donante.nombre,
+                monto: formatearMonto(donante.monto || 0)
+            }));
     }
 
     get podio() {
-        const primeros = [...(this.muro && this.muro.data ? this.muro.data : [])]
-            .sort((a, b) => Number(b.monto) - Number(a.monto) ||
-                (b.fecha || '').localeCompare(a.fecha || '') ||
-                (a.nombre || '').localeCompare(b.nombre || '', 'es-MX'))
-            .slice(0, 3);
-        const ordenPodio = primeros.length === 3
+        const primeros = [...this.donantes]
+            .sort((a, b) => compararDonantes(a, b, 'monto'))
+            .slice(0, TAMANO_PODIO);
+        // En pantalla el primer lugar va al centro: 2.º, 1.º, 3.º.
+        const ordenPodio = primeros.length === TAMANO_PODIO
             ? [primeros[1], primeros[0], primeros[2]]
             : primeros;
         return ordenPodio.map((donante) => {
@@ -168,42 +202,35 @@ export default class MesaMuro extends LightningElement {
             return {
                 clave: `${posicion}-${donante.nombre}-${donante.fecha || ''}`,
                 nombre: donante.nombre,
-                inicial: donante.nombre.split(/\s+/).map((parte) => parte[0]).slice(0, 2).join('').toUpperCase(),
+                inicial: iniciales(donante.nombre),
                 posicion,
                 posicionLabel: `Lugar ${posicion}`,
                 clase: `podio-item podio-item-${posicion}`,
-                monto: this.formatearMonto(donante.monto)
+                monto: formatearMonto(donante.monto || 0)
             };
         });
     }
 
-    get sinItems() {
-        return !this.isLoading && !this.errorCarga &&
-            this.muro && Array.isArray(this.muro.data) && this.muro.data.length === 0;
-    }
-
     get hayDatos() {
-        return !this.isLoading && !this.errorCarga &&
-            this.muro && Array.isArray(this.muro.data) && this.muro.data.length > 0;
+        return this.donantes.length > 0;
     }
 
-    get hayPodio() {
-        return this.podio.length > 0;
+    get hayTotalAnonimo() {
+        return this.totalAnonimo > 0;
     }
 
-    formatearMonto(monto) {
-        return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(monto || 0);
+    get sinItems() {
+        return !!this.datosMuro && !this.hayDatos && !this.hayTotalAnonimo;
     }
 
-    /** Solo es verdadero si la persona llega desde el flujo de pago; abrir el muro directo no muestra nada (SCRUM-99). */
-    mostrarGracias = false;
+    // ---------- Ciclo de vida ----------
 
     connectedCallback() {
         this.mostrarGracias = leerRetornoPago() === 'exito';
     }
 
     renderedCallback() {
-        if (!this.muro || !Array.isArray(this.muro.data) || !this._needsScrollSetup) {
+        if (!this._needsScrollSetup || !this.hayDatos) {
             return;
         }
         this._needsScrollSetup = false;
@@ -214,14 +241,7 @@ export default class MesaMuro extends LightningElement {
         this.limpiarTiempoLimite();
         this.detenerDesplazamiento();
         this.limpiarReanudacionDesplazamiento();
-        if (this._resizeObserver) {
-            this._resizeObserver.disconnect();
-            this._resizeObserver = null;
-        }
-        if (this._resizeHandler) {
-            window.removeEventListener('resize', this._resizeHandler);
-            this._resizeHandler = null;
-        }
+        this.desconectarObservadorTamano();
     }
 
     limpiarTiempoLimite() {
@@ -230,6 +250,8 @@ export default class MesaMuro extends LightningElement {
             this._loadTimeout = undefined;
         }
     }
+
+    // ---------- Orden y desplazamiento automático ----------
 
     cambiarOrden(event) {
         this.orden = event.detail.value;
@@ -259,14 +281,7 @@ export default class MesaMuro extends LightningElement {
         if (!contenedor) {
             return;
         }
-        if (this._resizeObserver) {
-            this._resizeObserver.disconnect();
-            this._resizeObserver = null;
-        }
-        if (this._resizeHandler) {
-            window.removeEventListener('resize', this._resizeHandler);
-            this._resizeHandler = null;
-        }
+        this.desconectarObservadorTamano();
         this._scrollContainer = contenedor;
         if (typeof ResizeObserver === 'function') {
             this._resizeObserver = new ResizeObserver(() => this.iniciarDesplazamiento());
@@ -278,29 +293,34 @@ export default class MesaMuro extends LightningElement {
         this.iniciarDesplazamiento();
     }
 
+    desconectarObservadorTamano() {
+        if (this._resizeObserver) {
+            this._resizeObserver.disconnect();
+            this._resizeObserver = null;
+        }
+        if (this._resizeHandler) {
+            window.removeEventListener('resize', this._resizeHandler);
+            this._resizeHandler = null;
+        }
+    }
+
+    /** Verdadero si el contenedor ya llegó al final o no tiene nada que desplazar. */
+    llegoAlFinal(contenedor) {
+        return contenedor.scrollTop + contenedor.clientHeight >= contenedor.scrollHeight - 1;
+    }
+
     iniciarDesplazamiento() {
         this.detenerDesplazamiento();
         const contenedor = this._scrollContainer;
-        if (this._scrollPaused || !contenedor ||
-            contenedor.scrollHeight <= contenedor.clientHeight + 1) {
+        if (this._scrollPaused || !contenedor || this.llegoAlFinal(contenedor)) {
             return;
         }
-        if (contenedor.scrollTop + contenedor.clientHeight >= contenedor.scrollHeight - 1) {
-            return;
-        }
-        this._scrollInterval = setInterval(
-            () => this.desplazar(),
-            INTERVALO_DESPLAZAMIENTO_MS
-        );
+        this._scrollInterval = setInterval(() => this.desplazar(), INTERVALO_DESPLAZAMIENTO_MS);
     }
 
     desplazar() {
         const contenedor = this._scrollContainer;
-        if (!contenedor) {
-            this.detenerDesplazamiento();
-            return;
-        }
-        if (contenedor.scrollTop + contenedor.clientHeight >= contenedor.scrollHeight - 1) {
+        if (!contenedor || this.llegoAlFinal(contenedor)) {
             this.detenerDesplazamiento();
             return;
         }
@@ -310,14 +330,14 @@ export default class MesaMuro extends LightningElement {
     }
 
     limpiarReanudacionDesplazamiento() {
-        if (this._scrollResumeTimeout !== undefined && this._scrollResumeTimeout !== null) {
+        if (this._scrollResumeTimeout != null) {
             clearTimeout(this._scrollResumeTimeout);
             this._scrollResumeTimeout = null;
         }
     }
 
     detenerDesplazamiento() {
-        if (this._scrollInterval !== undefined && this._scrollInterval !== null) {
+        if (this._scrollInterval != null) {
             clearInterval(this._scrollInterval);
             this._scrollInterval = null;
         }

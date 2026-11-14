@@ -38,6 +38,7 @@ Proyecto base para que las personas se registren en un solo formulario y hagan u
 | `MesaRegalosDonativoTest` | 16 pruebas Apex del flujo. |
 | LWC `mesaInicio`, `mesaRegistro`, `mesaBaja`, `mesaAviso`, `mesaMuro` | Páginas del sitio de Experience Cloud (inicio, registro y donación en un solo formulario, baja de avisos, aviso de privacidad, muro). |
 | LWC `mesaUtil` y `mesaEstilos` | Funciones y estilos compartidos (no son visuales). |
+| LWC `mesaTotalAnonimo` | Tarjeta «Aportaciones anónimas» que usan `mesaCampanaDetalle` y `mesaMuro` (no se arrastra en Builder). |
 | Permission set `Mesa_Regalos_Admin` | Permisos para el equipo que administra. |
 
 ## Cómo funciona
@@ -50,7 +51,7 @@ Proyecto base para que las personas se registren en un solo formulario y hagan u
    - crea la **promesa** de donativo (Opportunity en *Prospecting*) y pasa el miembro a `Redirigido a donar`;
    - redirige al **Payment Link de Stripe** con el Id de la Opportunity (`client_reference_id`), el correo bloqueado y, en «otro monto», el monto prellenado.
 4. Cuando se confirma el pago, `MesaRegalosService.confirmarPago` marca *Closed Won*, el estado `Donó` y crea el **Reconocimiento público**. Hoy se invoca a mano (ver *Pagos con Stripe*); el siguiente paso es el webhook.
-5. El muro del sitio lee únicamente Reconocimientos públicos. **El monto siempre se muestra**, también en Anónimo («Anónimo $1,000»). Las empresas se marcan como tales.
+5. El muro del sitio lee únicamente Reconocimientos públicos. Las donaciones **Públicas** aparecen con nombre y monto; las **Anónimas** no aparecen como renglón: debajo de la lista, la tarjeta «Aportaciones anónimas» (componente `mesaTotalAnonimo`) muestra solo la suma de las anónimas pagadas de la campaña y qué porcentaje representa del total recaudado, y solo aparece si la suma es mayor que cero. Las empresas se marcan como tales.
 6. LinkedIn: al final de la campaña se hará una sola publicación de agradecimiento con las personas que dejaron su enlace.
 7. Quien quiera dejar de recibir avisos usa `/baja`, que escribe su correo. La respuesta es la misma exista o no el correo, para no revelar quién está registrado.
 
@@ -91,7 +92,7 @@ MesaRegalosService.confirmarPago(new List<Id>{ o.Id });
 1. **Monto:** elige «Otro monto» y escribe `1,500`; debe aceptarlo. Prueba `99` (debe rechazar) y cada paquete (por ejemplo, P3000 deja el donativo en $3,000).
 2. **Pública con persona:** nombre, apellidos y correo nuevo. Se crea el Contacto, el miembro en `Registrado` y la Opportunity en *Prospecting* con `Nombre_Visible__c`.
 3. **Pública como empresa:** marca «Dono en nombre de una empresa». Los campos nombre y apellidos del Contacto llevan el nombre de la empresa y no se crea ninguna Account.
-4. **Anónima:** el Contacto se crea como «Anónimo», sin LinkedIn, y el muro muestra «Anónimo» con el monto.
+4. **Anónima:** el Contacto se crea como «Anónimo», sin LinkedIn, no aparece como renglón en el muro y su monto se suma a «Donaciones anónimas».
 5. **Correo repetido:** vuelve a donar con el mismo correo. Se reutiliza el Contacto sin cambiar sus datos y un «No» previo de avisos no se modifica.
 6. **Pago:** completa un pago de prueba en Stripe, verifica que el *Client reference ID* sea el Id de la Opportunity, ejecuta la conciliación y comprueba el estado `Donó` y la aparición en el muro.
 7. **Baja:** en `/baja` escribe un correo registrado y uno inexistente; el mensaje debe ser el mismo. El primero queda con *Email Opt Out* y `Consentimiento_Avisos__c = No`.
@@ -185,7 +186,7 @@ Construida con Experience Cloud (LWR), Lightning Web Components y Apex.
 1. La persona entra al sitio y elige un monto (paquetes de $1,000, $3,000 y $5,000, o monto
    abierto desde $100 MXN) (cantidades de ejemplo).
 2. Elige cómo aparecerá en el muro: **Pública** (nombre y, si quiere, enlace de LinkedIn) o
-   **Anónima** ("Anónimo"). El monto se muestra en ambos casos.
+   **Anónima** (no aparece en la lista; su monto se suma al total de donaciones anónimas).
 3. Escribe nombre y apellido, o marca "Donar en nombre de una empresa" y escribe solo el
    nombre de la empresa. Escribe su correo y responde si quiere recibir avisos de futuros
    eventos y donaciones. Acepta el aviso de privacidad.

@@ -57,6 +57,12 @@ public without sharing class MesaRegalosController {
         @AuraEnabled public Date fecha;
     }
 
+    /** Muro público: donantes con crédito y, aparte, solo la suma de las donaciones anónimas. */
+    public class MuroDTO {
+        @AuraEnabled public List<MuroItem> donantes;
+        @AuraEnabled public Decimal totalAnonimo;
+    }
+
     public class AvanceDTO {
         @AuraEnabled public Decimal total;
         @AuraEnabled public Decimal meta;
@@ -81,11 +87,16 @@ public without sharing class MesaRegalosController {
 
     // Ejecuta en contexto de sistema para el usuario guest, que no tiene acceso directo a
     // Opportunity. Solo devuelve este DTO público; nunca incluye el contacto ni otros datos personales.
+    // Las donaciones anónimas (cualquier visibilidad distinta de Publica) no son renglones del muro:
+    // solo se suman en totalAnonimo, sin nombre, conteo ni montos individuales.
     @AuraEnabled(cacheable=true)
-    public static List<MuroItem> obtenerMuro(Id campaignId) {
+    public static MuroDTO obtenerMuro(Id campaignId) {
+        MuroDTO resultado = new MuroDTO();
+        resultado.totalAnonimo = 0;
         Map<Id, MuroItem> porDonante = new Map<Id, MuroItem>();
         if (campaignId == null) {
-            return new List<MuroItem>();
+            resultado.donantes = porDonante.values();
+            return resultado;
         }
         for (Reconocimiento_Publico__c r : [
             SELECT Name, Monto__c, Donativo__r.Id, Donativo__r.Contacto_Donador__c,
@@ -97,25 +108,27 @@ public without sharing class MesaRegalosController {
                 AND Donativo__r.StageName = 'Closed Won'
             ORDER BY Donativo__r.CloseDate DESC, CreatedDate DESC
         ]) {
+            Decimal monto = r.Monto__c == null ? 0 : r.Monto__c;
+            if (r.Donativo__r.Visibilidad__c != 'Publica') {
+                resultado.totalAnonimo += monto;
+                continue;
+            }
             Id contactoId = r.Donativo__r.Contacto_Donador__c;
             Id claveDonante = contactoId == null ? r.Donativo__r.Id : contactoId;
-            Boolean anonimo = r.Donativo__r.Visibilidad__c != 'Publica';
             MuroItem m = porDonante.get(claveDonante);
             if (m == null) {
                 m = new MuroItem();
-                m.nombre = anonimo ? NOMBRE_ANONIMO : r.Name;
+                m.nombre = r.Name;
                 m.monto = 0;
                 m.fecha = r.Donativo__r.CloseDate;
                 porDonante.put(claveDonante, m);
-            } else if (anonimo) {
-                m.nombre = NOMBRE_ANONIMO;
             }
-            m.monto += r.Monto__c == null ? 0 : r.Monto__c;
+            m.monto += monto;
             if (r.Donativo__r.CloseDate > m.fecha) {
                 m.fecha = r.Donativo__r.CloseDate;
             }
         }
-        List<MuroItem> resultado = porDonante.values();
+        resultado.donantes = porDonante.values();
         return resultado;
     }
 

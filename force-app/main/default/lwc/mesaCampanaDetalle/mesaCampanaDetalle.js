@@ -24,6 +24,7 @@ export default class MesaCampanaDetalle extends LightningElement {
     campanaId;
     campana;
     donantes = [];
+    totalAnonimo = 0;
     cargando = true;
     hayError = false;
 
@@ -45,6 +46,7 @@ export default class MesaCampanaDetalle extends LightningElement {
         this.hayError = false;
         this.campana = null;
         this.donantes = [];
+        this.totalAnonimo = 0;
         if (!this.campanaId) {
             this.cargando = false;
             return;
@@ -69,19 +71,21 @@ export default class MesaCampanaDetalle extends LightningElement {
 
     cargarDonantes(id) {
         obtenerMuro({ campaignId: id })
-            .then((lista) => {
+            .then((muro) => {
                 if (id !== this.campanaId) {
                     return;
                 }
-                this.donantes = (lista || []).map((m, i) => ({
+                this.donantes = ((muro && muro.donantes) || []).map((m, i) => ({
                     clave: `${i}-${m.nombre}`,
                     nombre: m.nombre,
                     monto: m.monto != null ? formatearMonto(m.monto) : ''
                 }));
+                this.totalAnonimo = (muro && muro.totalAnonimo) || 0;
             })
             .catch(() => {
                 // El muro es secundario: si falla, la campaña se muestra igual, sin lista.
                 this.donantes = [];
+                this.totalAnonimo = 0;
             });
     }
 
@@ -155,6 +159,14 @@ export default class MesaCampanaDetalle extends LightningElement {
 
     get hayDonantes() {
         return this.donantes.length > 0;
+    }
+
+    get hayTotalAnonimo() {
+        return this.totalAnonimo > 0;
+    }
+
+    get sinApoyos() {
+        return !this.hayDonantes && !this.hayTotalAnonimo;
     }
 
     get urlVolver() {
