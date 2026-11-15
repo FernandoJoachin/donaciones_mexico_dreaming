@@ -2,8 +2,10 @@
 // Ejecutar: sf apex run --file scripts/apex/campanas-demostracion.apex --target-org class2026E
 // Idempotente: actualiza las campañas por nombre y los donativos por su clave "DEMO CAMPAÑAS | ...".
 // Quitar los donativos: DELETE [SELECT Id FROM Opportunity WHERE Name LIKE 'DEMO CAMPAÑAS | %'];
-// Las imágenes están en assets/campanas/ y se sirven desde GitHub (raw).
-String IMG = 'https://raw.githubusercontent.com/FernandoJoachin/donaciones_mexico_dreaming/entrega-1/assets/campanas/';
+// Las imágenes están en el recurso estático MesaCampanasImg (force-app/main/default/staticresources) y se sirven desde el propio sitio:
+// el sitio bloquea imágenes de otros dominios (política de seguridad de contenido).
+// El controlador solo acepta URL https:// (no rutas relativas): se usa la dirección completa del sitio. Cambiarla si el sitio cambia de dominio.
+String IMG = 'https://uady--class2026e.sandbox.my.site.com/mesaregalos/resource/MesaCampanasImg/';
 Date hoy = Date.today();
 
 // nombre, descripción, meta (null = sin meta), inicio, fin (null = siempre abierta), imagen
