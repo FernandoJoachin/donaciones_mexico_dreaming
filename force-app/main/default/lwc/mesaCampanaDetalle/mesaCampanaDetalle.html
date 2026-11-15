@@ -1,0 +1,94 @@
+<template>
+    <div class="pagina">
+        <template lwc:if={cargando}>
+            <div class="contenedor"><p class="info">Cargando campaña…</p></div>
+        </template>
+
+        <template lwc:if={hayError}>
+            <div class="contenedor">
+                <p class="error">No pudimos cargar la campaña. Intenta de nuevo en unos minutos.</p>
+                <a class="enlace" href={urlVolver}>{textoVolver}</a>
+            </div>
+        </template>
+
+        <template lwc:if={noEncontrada}>
+            <div class="contenedor">
+                <h1 class="titulo">No encontramos esta campaña</h1>
+                <p class="intro">Puede que el enlace esté incompleto o que la campaña ya no esté disponible.</p>
+                <a class="enlace" href={urlVolver}>{textoVolver}</a>
+            </div>
+        </template>
+
+        <template lwc:if={hayCampana}>
+            <header class={claseHero}>
+                <template lwc:if={campana.imagenUrl}>
+                    <img class="hero-imagen" src={campana.imagenUrl} alt="" onerror={ocultarImagen} />
+                    <span class="hero-velo" aria-hidden="true"></span>
+                </template>
+                <template lwc:else>
+                    <span class="burbuja burbuja-a" aria-hidden="true"></span>
+                    <span class="burbuja burbuja-b" aria-hidden="true"></span>
+                </template>
+                <div class="hero-contenido">
+                    <template lwc:if={cerrada}>
+                        <span class="insignia">Cerrada</span>
+                    </template>
+                    <h1 class="hero-titulo">{campana.nombre}</h1>
+                </div>
+            </header>
+
+            <div class="contenedor">
+                <div class="detalle">
+                    <template lwc:if={campana.descripcion}>
+                        <p class="descripcion">{campana.descripcion}</p>
+                    </template>
+
+                    <div class="avance">
+                        <template lwc:if={conMeta}>
+                            <div class="cifras">
+                                <span class="cifra-grande">{recaudado}</span>
+                                <span class="cifra-meta">de {meta}</span>
+                            </div>
+                            <div class="barra" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow={campana.porcentaje} aria-label="Avance de la campaña">
+                                <div class="barra-relleno" style={estiloBarra}></div>
+                            </div>
+                            <p class="leyenda">{porcentajeTexto}</p>
+                        </template>
+                        <template lwc:elseif={hayRecaudado}>
+                            <div class="cifras">
+                                <span class="cifra-grande">{recaudado}</span>
+                                <span class="cifra-meta">recaudados</span>
+                            </div>
+                        </template>
+                        <template lwc:if={leyenda}>
+                            <p class="leyenda">{leyenda}</p>
+                        </template>
+                        <template lwc:if={puedeDonar}>
+                            <button type="button" class="btn btn-primario boton-donar" onclick={donar}>{textoBotonDonar}</button>
+                        </template>
+                        <template lwc:if={cerrada}>
+                            <p class="info">Esta campaña ya cerró. ¡Gracias a quienes participaron!</p>
+                        </template>
+                    </div>
+                </div>
+
+                <h2 class="subtitulo">Quiénes ya donaron</h2>
+                <template lwc:if={hayDonantes}>
+                    <ul class="lista">
+                        <template for:each={donantes} for:item="d">
+                            <li key={d.clave} class="donante">
+                                <span class="donante-nombre">{d.nombre}</span>
+                                <span class="donante-monto">{d.monto}</span>
+                            </li>
+                        </template>
+                    </ul>
+                </template>
+                <template lwc:else>
+                    <p class="vacio">Aún no hay donantes. Puedes ser la primera persona.</p>
+                </template>
+
+                <a class="enlace" href={urlVolver}>{textoVolver}</a>
+            </div>
+        </template>
+    </div>
+</template>

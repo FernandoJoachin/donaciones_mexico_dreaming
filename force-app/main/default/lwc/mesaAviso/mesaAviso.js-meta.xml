@@ -15,6 +15,7 @@
             <property name="plazoConservacion" type="String" label="Plazo de conservación de los datos"/>
             <property name="versionAviso" type="String" label="Versión del aviso"/>
             <property name="fechaActualizacion" type="String" label="Fecha de última actualización"/>
+            <property name="paginaBaja" type="String" label="Página de baja de avisos" default="baja"/>
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>

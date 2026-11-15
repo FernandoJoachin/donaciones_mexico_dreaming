@@ -1,0 +1,31 @@
+<template>
+    <div class="pagina">
+        <header class="banda">
+            <span class="burbuja burbuja-a" aria-hidden="true"></span>
+            <span class="burbuja burbuja-b" aria-hidden="true"></span>
+            <div class="banda-contenido">
+                <h1 class="banda-titulo">{titulo}</h1>
+            </div>
+        </header>
+
+        <div class="contenedor">
+            <p class="intro">{introduccion}</p>
+
+            <ol class="pasos">
+                <template for:each={pasos} for:item="paso">
+                    <li key={paso.numero} class="paso">
+                        <span class="numero">{paso.numero}</span>
+                        <div>
+                            <h2 class="paso-titulo">{paso.titulo}</h2>
+                            <p class="paso-texto">{paso.texto}</p>
+                        </div>
+                    </li>
+                </template>
+            </ol>
+
+            <a class="btn btn-primario boton-correo" href={hrefCorreo}>Escribir a {correoFacturas}</a>
+            <p class="nota">{notaFinal}</p>
+            <a class="enlace" href={urlVolver}>{textoVolver}</a>
+        </div>
+    </div>
+</template>

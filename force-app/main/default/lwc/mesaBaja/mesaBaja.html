@@ -1,0 +1,41 @@
+<template>
+    <div class="pagina">
+        <header class="banda">
+            <span class="burbuja burbuja-a" aria-hidden="true"></span>
+            <span class="burbuja burbuja-b" aria-hidden="true"></span>
+            <div class="banda-contenido">
+                <span class="etiqueta">México Dreaming</span>
+                <h1 class="banda-titulo">Darme de baja</h1>
+            </div>
+        </header>
+        <div class="contenedor">
+            <template lwc:if={enviando}>
+                <lightning-spinner alternative-text="Enviando" size="medium"></lightning-spinner>
+            </template>
+
+            <template lwc:if={error}>
+                <p class="error" role="alert">{error}</p>
+            </template>
+
+            <template lwc:if={listo}>
+                <h2 class="titulo">Listo</h2>
+                <p class="intro">Si ese correo estaba registrado, ya no recibirá avisos de próximos eventos y donaciones.</p>
+            </template>
+            <template lwc:else>
+                <h2 class="titulo">Dejar de recibir avisos</h2>
+                <p class="intro">Escribe tu correo y dejaremos de enviarte avisos. Esto no afecta tus donativos anteriores.</p>
+
+                <lightning-input type="email" label="Correo electrónico" data-campo="correo" value={correo} onchange={cambio} maxlength="80"></lightning-input>
+
+                <!-- Campo trampa: las personas no lo ven; los programas automáticos sí lo llenan. -->
+                <div class="trampa" aria-hidden="true">
+                    <label>Sitio web (déjalo vacío)
+                        <input type="text" name="sitioWeb" tabindex="-1" autocomplete="off" data-campo="sitioWeb" value={sitioWeb} onchange={cambio} />
+                    </label>
+                </div>
+
+                <button type="button" class="btn btn-primario" onclick={enviar} disabled={enviando}>Darme de baja</button>
+            </template>
+        </div>
+    </div>
+</template>

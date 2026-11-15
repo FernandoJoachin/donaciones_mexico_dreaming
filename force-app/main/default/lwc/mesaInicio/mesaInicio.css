@@ -234,3 +234,15 @@
         transform: none;
     }
 }
+.info-lista {
+    list-style: none;
+    margin: 0 auto;
+    padding: 0;
+    max-width: 1000px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
+}
+.tarjeta.info {
+    text-align: left;
+}

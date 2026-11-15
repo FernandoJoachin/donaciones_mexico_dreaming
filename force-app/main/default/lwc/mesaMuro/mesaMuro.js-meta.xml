@@ -4,13 +4,22 @@
     <isExposed>true</isExposed>
     <masterLabel>Mesa - Muro y avance</masterLabel>
     <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightning__RecordPage</target>
         <target>lightningCommunity__Page</target>
         <target>lightningCommunity__Default</target>
     </targets>
     <targetConfigs>
+        <targetConfig targets="lightning__AppPage,lightning__HomePage,lightning__RecordPage">
+            <property name="campaignId" type="String" label="Id de la campaña"/>
+            <property name="mostrarAvance" type="Boolean" label="Mostrar avance de la meta" default="true"/>
+            <property name="metaCampana" type="Integer" label="Meta de la campaña (MXN)" default="50000"/>
+        </targetConfig>
         <targetConfig targets="lightningCommunity__Default">
             <property name="campaignId" type="String" label="Id de la campaña"/>
             <property name="mostrarAvance" type="Boolean" label="Mostrar avance de la meta" default="true"/>
+            <property name="metaCampana" type="Integer" label="Meta de la campaña (MXN)" default="50000"/>
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>

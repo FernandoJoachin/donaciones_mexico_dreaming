@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Moderacion_Muro</fullName>
+    <label>Moderación del muro</label>
+    <filterScope>Everything</filterScope>
+    <columns>NAME</columns>
+    <columns>Es_Empresa__c</columns>
+    <columns>Campana__c</columns>
+    <columns>Monto__c</columns>
+    <columns>Mostrar_En_Muro__c</columns>
+    <columns>CREATED_DATE</columns>
+</ListView>

@@ -1,0 +1,69 @@
+<template>
+    <footer class="pie">
+        <div class="pie-contenido">
+            <div class="pie-columna pie-marca">
+                <p class="pie-titulo">{titulo}</p>
+                <template lwc:if={descripcion}>
+                    <p class="pie-texto">{descripcion}</p>
+                </template>
+                <template lwc:if={universidad}>
+                    <p class="pie-institucion">{universidad}</p>
+                </template>
+                <template lwc:if={facultad}>
+                    <p class="pie-institucion pie-facultad">{facultad}</p>
+                </template>
+            </div>
+
+            <nav class="pie-columna" aria-label="Enlaces del sitio">
+                <p class="pie-encabezado">Explora</p>
+                <ul class="pie-lista">
+                    <template for:each={enlaces} for:item="e">
+                        <li key={e.id}><a class="pie-enlace" href={e.url}>{e.texto}</a></li>
+                    </template>
+                </ul>
+            </nav>
+
+            <template lwc:if={hayContacto}>
+                <div class="pie-columna">
+                    <p class="pie-encabezado">Contacto</p>
+                    <ul class="pie-lista">
+                        <template lwc:if={correoContacto}>
+                            <li><a class="pie-enlace" href={hrefCorreo}>{correoContacto}</a></li>
+                        </template>
+                        <template lwc:if={telefonoContacto}>
+                            <li><a class="pie-enlace" href={hrefTelefono}>{telefonoContacto}</a></li>
+                        </template>
+                    </ul>
+                </div>
+            </template>
+
+            <template lwc:if={hayRedes}>
+                <div class="pie-columna">
+                    <p class="pie-encabezado">Síguenos</p>
+                    <ul class="pie-redes">
+                        <template for:each={redes} for:item="r">
+                            <li key={r.id}>
+                                <a class="pie-red" href={r.url} target="_blank" rel="noopener noreferrer">{r.texto}</a>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </template>
+
+            <template lwc:if={urlDonar}>
+                <div class="pie-columna pie-cta">
+                    <p class="pie-encabezado">Súmate</p>
+                    <p class="pie-texto">{textoCta}</p>
+                    <a class="pie-boton" href={urlDonar}>{textoBotonCta}</a>
+                </div>
+            </template>
+        </div>
+
+        <div class="pie-base">
+            <p class="pie-legal">© {anio} {textoLegal}</p>
+            <template lwc:if={urlAviso}>
+                <a class="pie-enlace" href={urlAviso}>Aviso de privacidad</a>
+            </template>
+        </div>
+    </footer>
+</template>

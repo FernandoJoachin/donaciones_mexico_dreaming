@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>62.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Mesa - Campañas</masterLabel>
+    <targets>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightningCommunity__Default">
+            <property name="etiqueta" type="String" label="Etiqueta superior (opcional)" default=""/>
+            <property name="titulo" type="String" label="Título" default="Donaciones"/>
+            <property name="descripcion" type="String" label="Descripción del sitio (bajo el título)" default="Conoce las campañas de ex-alumnos de la Facultad de Matemáticas y apoya la que más te llegue."/>
+            <property name="sinPortada" type="Boolean" label="No mostrar la portada e información del inicio" default="false"/>
+            <property name="ocultarBanda" type="Boolean" label="Ocultar la banda azul (usar bajo la portada)" default="false"/>
+            <property name="textoBotonVer" type="String" label="Texto del botón de cada campaña" default="Ver campaña"/>
+            <property name="paginaCampana" type="String" label="Página de presentación de la campaña" default="campana"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

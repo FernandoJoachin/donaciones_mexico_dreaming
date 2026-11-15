@@ -57,6 +57,28 @@ export function resolverUrl(destino, token, desdeInicio) {
     return base + destino + consulta;
 }
 
+const CLAVE_RETORNO_PAGO = 'mesaRetornoPago';
+
+/** Marca que la persona sale del flujo de pago hacia el muro. Si el navegador bloquea el almacenamiento, simplemente no se marca. */
+export function guardarRetornoPago(estado) {
+    try {
+        window.sessionStorage.setItem(CLAVE_RETORNO_PAGO, estado);
+    } catch (e) {
+        // sin almacenamiento: el muro no mostrará el mensaje de gracias
+    }
+}
+
+/** Lee y borra la marca: el mensaje de gracias sale una sola vez y solo si se venía del flujo de pago. */
+export function leerRetornoPago() {
+    try {
+        const estado = window.sessionStorage.getItem(CLAVE_RETORNO_PAGO);
+        window.sessionStorage.removeItem(CLAVE_RETORNO_PAGO);
+        return estado || undefined;
+    } catch (e) {
+        return undefined;
+    }
+}
+
 export function irA(url) {
     window.location.assign(url);
 }

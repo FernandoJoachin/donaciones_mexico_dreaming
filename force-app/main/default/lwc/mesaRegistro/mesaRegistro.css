@@ -1,5 +1,13 @@
 @import 'c/mesaEstilos';
 
+.publico {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1rem 1.1rem;
+    background: var(--mesa-cielo);
+    border-radius: 20px;
+}
 .trampa {
     position: absolute;
     left: -10000px;
@@ -7,4 +15,55 @@
     width: 1px;
     height: 1px;
     overflow: hidden;
+}
+.pasarela {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1.2rem 1.3rem;
+    background: #ffffff;
+    border: 2px dashed var(--mesa-azul);
+    border-radius: 20px;
+}
+.pasarela-marca {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--mesa-azul-medio);
+}
+.pasarela-monto {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--mesa-azul-oscuro);
+}
+.pasarela-monto span {
+    font-size: 1rem;
+    font-weight: 600;
+}
+.pasarela-datos {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.2rem 1rem;
+    margin: 0;
+}
+.pasarela-datos dt {
+    font-weight: 700;
+}
+.pasarela-datos dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+.pasarela-fila {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+}
+.pasarela-botones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.4rem;
 }

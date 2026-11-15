@@ -10,15 +10,22 @@
     <targetConfigs>
         <targetConfig targets="lightningCommunity__Default">
             <property name="etiqueta" type="String" label="Etiqueta superior" default="Campaña de ex-alumnos"/>
-            <property name="titulo" type="String" label="Título" default="México Dreaming"/>
+            <property name="titulo" type="String" label="Título" default="Apoya a la comunidad"/>
             <property name="descripcion" type="String" label="Descripción breve"/>
             <property name="textoBotonDonar" type="String" label="Texto del botón de donar" default="Quiero donar"/>
             <property name="textoBotonMuro" type="String" label="Texto del botón del muro" default="Ver quién ya se sumó"/>
             <property name="tituloFinal" type="String" label="Título del cierre" default="Gracias por ser parte de Ohana"/>
             <property name="textoFinal" type="String" label="Texto del cierre"/>
-            <property name="paginaDonar" type="String" label="Página de donación" default="donar"/>
-            <property name="paginaRegistro" type="String" label="Página de registro" default="registro"/>
             <property name="paginaMuro" type="String" label="Página del muro" default="muro"/>
+            <property name="mostrarCierre" type="Boolean" label="Mostrar el cierre de agradecimiento" default="false"/>
+            <property name="tituloSobre" type="String" label="Título de la sección informativa" default="Sobre la campaña"/>
+            <property name="subSobre" type="String" label="Subtítulo de la sección informativa"/>
+            <property name="infoTitulo1" type="String" label="Información 1: título"/>
+            <property name="infoTexto1" type="String" label="Información 1: texto"/>
+            <property name="infoTitulo2" type="String" label="Información 2: título"/>
+            <property name="infoTexto2" type="String" label="Información 2: texto"/>
+            <property name="infoTitulo3" type="String" label="Información 3: título"/>
+            <property name="infoTexto3" type="String" label="Información 3: texto"/>
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>
