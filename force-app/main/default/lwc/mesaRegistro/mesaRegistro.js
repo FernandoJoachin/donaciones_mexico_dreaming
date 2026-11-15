@@ -1,6 +1,7 @@
 import { LightningElement, api, wire } from 'lwc';
 import { CurrentPageReference } from 'lightning/navigation';
 import guardarDonativo from '@salesforce/apex/MesaRegalosController.guardarDonativo';
+import obtenerCampana from '@salesforce/apex/MesaRegalosController.obtenerCampana';
 import { parseMonto, formatearMonto, mensajeError, resolverUrl, irA, guardarRetornoPago } from 'c/mesaUtil';
 
 // Deben coincidir con MesaRegalosController (el servidor es quien manda).
@@ -35,6 +36,67 @@ export default class MesaRegistro extends LightningElement {
     @wire(CurrentPageReference)
     leerCampanaDeLaDireccion(ref) {
         this.campanaUrl = ref && ref.state && ref.state.campana ? ref.state.campana : undefined;
+        this.aplicarMontoDeLaDireccion(ref && ref.state ? ref.state.monto : undefined);
+        this.cargarCampanaInfo();
+    }
+
+    /** Datos públicos de la campaña para el encabezado (nombre y resumen). */
+    campanaInfo;
+    campanaCargada;
+
+    connectedCallback() {
+        this.cargarCampanaInfo();
+    }
+
+    cargarCampanaInfo() {
+        const id = this.idCampana;
+        if (!id || id === this.campanaCargada) {
+            return;
+        }
+        this.campanaCargada = id;
+        obtenerCampana({ campaignId: id })
+            .then((d) => {
+                if (id === this.idCampana) {
+                    this.campanaInfo = d || undefined;
+                }
+            })
+            .catch(() => {
+                // El encabezado es secundario: si falla, se queda el título genérico.
+                this.campanaInfo = undefined;
+            });
+    }
+
+    get tituloBanda() {
+        return this.campanaInfo ? `Apoya a ${this.campanaInfo.nombre}` : 'Tu donativo';
+    }
+
+    get resumenCampana() {
+        return this.campanaInfo ? this.campanaInfo.resumen : undefined;
+    }
+
+    /**
+     * US-22 (CA2): al elegir un nivel de impacto en la página de la campaña se llega con
+     * ?monto=<n>. Se aplica una sola vez, para no pisar lo que la persona cambie después.
+     * Si coincide con un paquete se elige ese paquete; si no, se usa "Otro monto".
+     */
+    montoAplicado = false;
+
+    aplicarMontoDeLaDireccion(valor) {
+        if (this.montoAplicado || valor === undefined || valor === null) {
+            return;
+        }
+        const monto = parseMonto(valor);
+        if (monto === null || monto <= 0) {
+            return;
+        }
+        this.montoAplicado = true;
+        const paquete = Object.keys(PAQUETES).find((k) => PAQUETES[k] === monto);
+        if (paquete) {
+            this.paquete = paquete;
+        } else {
+            this.paquete = 'Abierto';
+            this.montoTexto = String(monto);
+        }
     }
 
     /** La campaña de la dirección manda; si no viene, la que se configuró en Experience Builder. */

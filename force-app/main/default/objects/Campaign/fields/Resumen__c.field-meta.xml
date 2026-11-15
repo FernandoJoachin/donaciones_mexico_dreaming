@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Resumen__c</fullName>
+    <description>Una línea bajo el título de la campaña en el sitio público (US-22). Público: no lleva datos personales.</description>
+    <externalId>false</externalId>
+    <label>Resumen</label>
+    <length>160</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

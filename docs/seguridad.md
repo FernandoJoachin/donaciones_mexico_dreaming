@@ -107,6 +107,11 @@ la clase).
 con su red y sitio) no están en el repositorio; la lista de permisos de esta tabla sale de lo observado en las orgs y de la
 prueba de la sección 1. Falta incluirlos en el respaldo de metadata.
 
+**Historia de cada campaña (US-22, 15 de noviembre de 2026).** El visitante no recibe permisos nuevos: la historia, los
+niveles de impacto y el número de donantes salen por los mismos métodos de `MesaRegalosController` (`obtenerCampanas` y
+`obtenerCampana`), que solo devuelven el DTO público. El texto se muestra como texto (las plantillas de LWC no interpretan
+HTML). Editar la historia y los niveles es del permission set `Gestor_Campanas` (y de `Mesa_Regalos_Admin`).
+
 ## 3. Claves y datos de la pasarela
 
 - **No hay claves en el proyecto.** Se revisó el historial de commits completo buscando `sk_live`, `sk_test`, `pk_live`,
@@ -135,6 +140,9 @@ prueba de la sección 1. Falta incluirlos en el respaldo de metadata.
 | Consentimiento de publicación y versión del aviso | `Opportunity` | No (registro legal) | Sí | Probar el consentimiento | Personal interno |
 | Identificador del pago | `Opportunity.Stripe_Pago_Id__c` | Sensible (vincula con la pasarela) | Sí, cuando exista el webhook | Conciliar el pago | Personal interno |
 | Datos fiscales (RFC, constancia) | **No se piden ni se guardan** | Sí | **No** | Factura por correo | Solo en el correo que el donante envía |
+| Historia, resumen, a quién ayuda y quién organiza (US-22) | Campaign: `Resumen__c`, `Historia__c`, `Para_Quien__c`, `Organiza__c` | No | Sí | Contar la causa en el sitio | Público (visitante sin login) |
+| Niveles de impacto (US-22) | `Nivel_Impacto__c` (monto y qué logra) | No | Sí | Montos sugeridos de cada campaña | Público |
+| Número de personas que donaron (US-22) | Se calcula al vuelo con las donaciones pagadas | No (es un conteo, sin nombres) | No | Mostrar participación | Público |
 
 Decisiones del 7 de noviembre: se piden siempre nombre, apellidos y correo; "anónimo" se filtra en el servidor y el muro muestra
 "Anónimo" con el monto; la factura no se pide en el formulario ni se almacenan datos fiscales.

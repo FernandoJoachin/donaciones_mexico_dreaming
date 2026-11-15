@@ -70,6 +70,9 @@
                                 <span class="cifra-meta">recaudados</span>
                             </div>
                         </template>
+                        <template lwc:if={c.donantes}>
+                            <p class="campana-donantes">{c.donantes}</p>
+                        </template>
                         <template lwc:if={c.leyenda}>
                             <p class="leyenda">{c.leyenda}</p>
                         </template>

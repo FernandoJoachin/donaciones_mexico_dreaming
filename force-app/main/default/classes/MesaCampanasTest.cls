@@ -174,4 +174,66 @@ private class MesaCampanasTest {
         delete futura;
         Assert.isNull(MesaRegalosController.obtenerCampana(borrada));
     }
+
+    // ---------- US-22: historia de cada campaña ----------
+
+    @IsTest
+    static void campanaIndividualDevuelveSuHistoriaEImpactosOrdenados() {
+        Campaign c = [SELECT Id FROM Campaign LIMIT 1];
+        c.Resumen__c = '  Llevamos a 20 estudiantes al evento  ';
+        c.Historia__c = 'Primer párrafo.\n\nSegundo párrafo.\r\n\r\n\n  Tercer párrafo.  ';
+        c.Para_Quien__c = 'Estudiantes de la facultad';
+        c.Organiza__c = 'Comunidad de la facultad';
+        update c;
+        insert new List<Nivel_Impacto__c>{
+            new Nivel_Impacto__c(Campana__c = c.Id, Monto__c = 1000, Descripcion__c = 'Un boleto', Orden__c = 2),
+            new Nivel_Impacto__c(Campana__c = c.Id, Monto__c = 250, Descripcion__c = 'Un mes de internet', Orden__c = 1),
+            new Nivel_Impacto__c(Campana__c = c.Id, Monto__c = 5000, Descripcion__c = 'Hospedaje', Orden__c = null),
+            new Nivel_Impacto__c(Campana__c = c.Id, Monto__c = 0, Descripcion__c = 'Monto inválido', Orden__c = 3)
+        };
+
+        MesaRegalosController.CampanaDTO d = MesaRegalosController.obtenerCampana(String.valueOf(c.Id));
+        Assert.areEqual('Llevamos a 20 estudiantes al evento', d.resumen);
+        Assert.areEqual(new List<String>{ 'Primer párrafo.', 'Segundo párrafo.', 'Tercer párrafo.' }, d.historia);
+        Assert.areEqual('Estudiantes de la facultad', d.paraQuien);
+        Assert.areEqual('Comunidad de la facultad', d.organiza);
+        Assert.areEqual(3, d.impactos.size(), 'El nivel con monto 0 no se publica');
+        Assert.areEqual('Un mes de internet', d.impactos[0].descripcion);
+        Assert.areEqual('Un boleto', d.impactos[1].descripcion);
+        Assert.areEqual('Hospedaje', d.impactos[2].descripcion, 'Sin orden va al final');
+    }
+
+    @IsTest
+    static void campanaSinHistoriaDevuelveListasVaciasYNoSeRompe() {
+        Id campanaId = [SELECT Id FROM Campaign LIMIT 1].Id;
+        MesaRegalosController.CampanaDTO d = MesaRegalosController.obtenerCampana(String.valueOf(campanaId));
+        Assert.isNull(d.resumen);
+        Assert.isNull(d.paraQuien);
+        Assert.isNull(d.organiza);
+        Assert.areEqual(0, d.historia.size());
+        Assert.areEqual(0, d.impactos.size());
+        Assert.areEqual(0, d.donantes);
+    }
+
+    @IsTest
+    static void donantesCuentaPersonasDistintasConDonacionPagada() {
+        Id campanaId = [SELECT Id FROM Campaign LIMIT 1].Id;
+        Contact ana = [SELECT Id FROM Contact LIMIT 1];
+        Contact beto = new Contact(FirstName = 'Beto', LastName = 'Prueba', Email = 'beto.prueba@example.com');
+        Contact carla = new Contact(FirstName = 'Carla', LastName = 'Prueba', Email = 'carla.prueba@example.com');
+        insert new List<Contact>{ beto, carla };
+        insert new List<Opportunity>{
+            new Opportunity(Name = 'A1', StageName = 'Closed Won', CloseDate = Date.today(), Amount = 100, CampaignId = campanaId, Contacto_Donador__c = ana.Id),
+            new Opportunity(Name = 'A2', StageName = 'Closed Won', CloseDate = Date.today(), Amount = 200, CampaignId = campanaId, Contacto_Donador__c = ana.Id),
+            new Opportunity(Name = 'B1', StageName = 'Closed Won', CloseDate = Date.today(), Amount = 300, CampaignId = campanaId, Contacto_Donador__c = beto.Id),
+            new Opportunity(Name = 'C1', StageName = 'Prospecting', CloseDate = Date.today().addDays(10), Amount = 900, CampaignId = campanaId, Contacto_Donador__c = carla.Id)
+        };
+
+        MesaRegalosController.CampanaDTO detalle = MesaRegalosController.obtenerCampana(String.valueOf(campanaId));
+        Assert.areEqual(2, detalle.donantes, 'Ana cuenta una vez; Carla está pendiente y no cuenta');
+        Assert.areEqual(3, detalle.donativos);
+        MesaRegalosController.CampanaDTO enLista = campanaPorNombre('México Dreaming TEST');
+        Assert.areEqual(2, enLista.donantes);
+        Assert.areEqual(0, enLista.impactos.size(), 'La lista no carga niveles de impacto');
+    }
 }

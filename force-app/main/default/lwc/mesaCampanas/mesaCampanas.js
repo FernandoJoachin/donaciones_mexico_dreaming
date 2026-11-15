@@ -2,6 +2,14 @@ import { LightningElement, api, wire } from 'lwc';
 import obtenerCampanas from '@salesforce/apex/MesaRegalosController.obtenerCampanas';
 import { resolverUrl, irA, formatearMonto } from 'c/mesaUtil';
 
+/** "N personas ya donaron" (solo donaciones pagadas); vacío si nadie ha donado. */
+function textoDonantes(n) {
+    if (!n) {
+        return '';
+    }
+    return n === 1 ? '1 persona ya donó' : `${n} personas ya donaron`;
+}
+
 const MS_DIA = 24 * 60 * 60 * 1000;
 
 /**
@@ -80,7 +88,8 @@ export default class MesaCampanas extends LightningElement {
             id: c.id,
             imagen: c.imagenUrl,
             nombre: c.nombre,
-            descripcion: c.descripcion,
+            descripcion: c.resumen || c.descripcion,
+            donantes: textoDonantes(c.donantes),
             cerrada: !c.activa,
             conMeta,
             hayRecaudado: c.total > 0,
