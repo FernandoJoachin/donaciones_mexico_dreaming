@@ -1,5 +1,14 @@
 @import 'c/mesaEstilos';
 
+/* La región del pie agrega 12px de relleno arriba y abajo, y el contenido termina con su propio
+   margen: acercamos el pie al contenido y lo pegamos al borde inferior de la página. */
+:host {
+    display: block;
+    margin-top: -48px;
+    margin-bottom: -12px;
+}
+
+
 /* Misma banda de degradado que el encabezado, con las esquinas redondeadas hacia arriba. */
 .pie {
     position: relative;
