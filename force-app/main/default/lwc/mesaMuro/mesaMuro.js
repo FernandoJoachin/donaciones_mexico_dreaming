@@ -1,6 +1,8 @@
 import { LightningElement, api, wire } from 'lwc';
+import { CurrentPageReference } from 'lightning/navigation';
 import obtenerMuro from '@salesforce/apex/MesaRegalosController.obtenerMuro';
 import obtenerAvance from '@salesforce/apex/MesaRegalosController.obtenerAvance';
+import obtenerCampana from '@salesforce/apex/MesaRegalosController.obtenerCampana';
 import { leerRetornoPago, formatearMonto } from 'c/mesaUtil';
 
 const OPCIONES_ORDEN = [
@@ -61,6 +63,12 @@ export default class MesaMuro extends LightningElement {
     _scrollContainer;
     _scrollResumeTimeout;
 
+    /** Campaña que se muestra: la de la dirección (?campana=) si está publicada; si no, la configurada. */
+    campanaEfectiva;
+    /** Nombre de la campaña mostrada, para la banda y el mensaje de gracias. */
+    nombreCampana;
+    _campanaUrl;
+
     @api
     get campaignId() {
         return this._campaignId;
@@ -68,10 +76,57 @@ export default class MesaMuro extends LightningElement {
 
     set campaignId(value) {
         this._campaignId = typeof value === 'string' ? value.trim() : value;
+        if (!this._campanaUrl) {
+            this.usarCampana(this._campaignId);
+        }
+    }
+
+    /**
+     * Después de donar, el flujo llega con ?campana=<Id> para mostrar el muro de esa campaña.
+     * Solo se usa si la campaña está publicada (obtenerCampana devuelve nulo si no); si no,
+     * se queda la configurada en Experience Builder.
+     */
+    @wire(CurrentPageReference)
+    leerCampanaDeLaDireccion(ref) {
+        const id = ref && ref.state && ref.state.campana ? ref.state.campana : undefined;
+        if (!id || id === this._campanaUrl) {
+            return;
+        }
+        this._campanaUrl = id;
+        obtenerCampana({ campaignId: id })
+            .then((c) => {
+                if (c && this._campanaUrl === id) {
+                    this.usarCampana(c.id);
+                    this.nombreCampana = c.nombre;
+                }
+            })
+            .catch(() => {
+                // Si falla, se queda la campaña configurada.
+            });
+    }
+
+    usarCampana(valor) {
+        const id = typeof valor === 'string' ? valor.trim() : valor;
+        if (id && id === this.campanaEfectiva) {
+            return;
+        }
+        this.campanaEfectiva = id;
+        this.nombreCampana = undefined;
+        if (id) {
+            obtenerCampana({ campaignId: id })
+                .then((c) => {
+                    if (c && this.campanaEfectiva === id) {
+                        this.nombreCampana = c.nombre;
+                    }
+                })
+                .catch(() => {
+                    this.nombreCampana = undefined;
+                });
+        }
         this.limpiarTiempoLimite();
         this.muro = undefined;
 
-        if (!this._campaignId) {
+        if (!this.campanaEfectiva) {
             this.isLoading = false;
             this.errorCarga = SIN_CAMPANA;
             return;
@@ -86,14 +141,14 @@ export default class MesaMuro extends LightningElement {
                     'Salesforce no respondió a tiempo. En Live Preview, verifica la conexión con la org; ' +
                     'también puedes probar el componente en una página del sandbox.';
                 console.error('Tiempo de espera agotado al cargar el muro.', {
-                    campaignId: this.campaignId,
+                    campaignId: this.campanaEfectiva,
                     timeoutMs: TIEMPO_LIMITE_CARGA_MS
                 });
             }
         }, TIEMPO_LIMITE_CARGA_MS);
     }
 
-    @wire(obtenerAvance, { campaignId: '$campaignId' })
+    @wire(obtenerAvance, { campaignId: '$campanaEfectiva' })
     recibirAvance(valor) {
         this.avance = valor;
         if (valor.error) {
@@ -104,7 +159,7 @@ export default class MesaMuro extends LightningElement {
         }
     }
 
-    @wire(obtenerMuro, { campaignId: '$campaignId' })
+    @wire(obtenerMuro, { campaignId: '$campanaEfectiva' })
     recibirMuro(valor) {
         this.muro = valor;
         if (valor.data !== undefined) {
@@ -224,6 +279,16 @@ export default class MesaMuro extends LightningElement {
     }
 
     // ---------- Ciclo de vida ----------
+
+    get etiquetaBanda() {
+        return this.nombreCampana || 'Gracias';
+    }
+
+    get textoGracias() {
+        return this.nombreCampana
+            ? `Confirmando tu pago. Tu aportación a ${this.nombreCampana} aparecerá en el muro en cuanto se confirme, como la elegiste.`
+            : 'Confirmando tu pago. En cuanto se confirme, tu aportación aparecerá en el muro como la elegiste.';
+    }
 
     connectedCallback() {
         this.mostrarGracias = leerRetornoPago() === 'exito';
