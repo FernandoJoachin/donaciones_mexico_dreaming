@@ -1,0 +1,25 @@
+<template>
+    <section class="tarjeta" aria-label="Aportaciones anónimas">
+        <span class="icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="30" height="30" focusable="false">
+                <circle class="persona-atras" cx="16.5" cy="7.5" r="3.5"></circle>
+                <path class="persona-atras" d="M10.6 20a5.9 5.9 0 0 1 11.8 0z"></path>
+                <circle class="persona" cx="9" cy="8.5" r="4.6"></circle>
+                <path class="persona" d="M1.2 21.5a7.8 7.8 0 0 1 15.6 0z"></path>
+                <rect class="antifaz" x="4.1" y="6.9" width="9.8" height="3.2" rx="1.6"></rect>
+                <circle class="ojo" cx="7.1" cy="8.5" r="0.85"></circle>
+                <circle class="ojo" cx="10.9" cy="8.5" r="0.85"></circle>
+            </svg>
+        </span>
+        <div class="texto">
+            <p class="encabezado">
+                <span class="nombre">Aportaciones anónimas</span>
+                <template lwc:if={porcentajeTexto}>
+                    <span class="insignia">{porcentajeTexto}</span>
+                </template>
+            </p>
+            <p class="descripcion">Quienes prefirieron no mostrar su nombre</p>
+        </div>
+        <p class="monto">{montoFormateado}<span class="moneda"> MXN</span></p>
+    </section>
+</template>

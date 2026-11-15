@@ -83,7 +83,10 @@
                         </template>
                     </ul>
                 </template>
-                <template lwc:else>
+                <template lwc:if={hayTotalAnonimo}>
+                    <c-mesa-total-anonimo monto={totalAnonimo} total-recaudado={campana.total}></c-mesa-total-anonimo>
+                </template>
+                <template lwc:if={sinApoyos}>
                     <p class="vacio">Aún no hay donantes. Puedes ser la primera persona.</p>
                 </template>
 

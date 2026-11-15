@@ -53,7 +53,7 @@
                 <p class="vacio">Aún no hay agradecimientos. Pronto aparecerán aquí quienes se sumen.</p>
             </template>
 
-            <template lwc:if={hayPodio}>
+            <template lwc:if={hayDatos}>
                 <section class="seccion-podio" aria-labelledby="titulo-podio">
                     <h3 id="titulo-podio" class="subtitulo">Principales donantes</h3>
                     <ol class="podio">
@@ -97,6 +97,10 @@
                         </template>
                     </ul>
                 </div>
+            </template>
+
+            <template lwc:if={hayTotalAnonimo}>
+                <c-mesa-total-anonimo monto={totalAnonimo} total-recaudado={totalRecaudado}></c-mesa-total-anonimo>
             </template>
         </div>
     </div>

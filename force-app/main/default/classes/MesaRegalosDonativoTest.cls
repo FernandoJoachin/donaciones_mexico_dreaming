@@ -278,16 +278,16 @@ private class MesaRegalosDonativoTest {
 
         Assert.areEqual('Donó', [SELECT Status FROM CampaignMember WHERE Contact.Email = 'acme@example.com'].Status);
 
-        List<MesaRegalosController.MuroItem> muro = MesaRegalosController.obtenerMuro(campana());
-        Assert.areEqual(2, muro.size());
-        for (MesaRegalosController.MuroItem m : muro) {
-            Assert.isTrue(m.monto == 3000); // el monto se muestra siempre, también en Anónimo
-            Assert.isNotNull(m.fecha);
-        }
+        MesaRegalosController.MuroDTO muro = MesaRegalosController.obtenerMuro(campana());
+        Assert.areEqual(1, muro.donantes.size()); // la anónima no es un renglón
+        Assert.areEqual('Acme SA', muro.donantes[0].nombre);
+        Assert.isTrue(muro.donantes[0].monto == 3000);
+        Assert.isNotNull(muro.donantes[0].fecha);
+        Assert.isTrue(muro.totalAnonimo == 3000); // solo la suma
     }
 
     @IsTest
-    static void muroConsolidaPorDonanteOcultaAnonimosYExcluyePendientes() {
+    static void muroConsolidaPorDonanteSeparaAnonimosYExcluyePendientes() {
         Map<String, Object> primera = base();
         primera.put('paquete', 'P1000');
         primera.put('correo', 'mismo@example.com');
@@ -310,23 +310,108 @@ private class MesaRegalosDonativoTest {
 
         MesaRegalosService.confirmarPago(new List<Id>{ primeraId, anonimaId, mayorId });
 
-        List<MesaRegalosController.MuroItem> muro = MesaRegalosController.obtenerMuro(campana());
-        Assert.areEqual(2, muro.size());
-        Boolean encontroAnonimoAgregado = false;
-        Boolean encontroMayor = false;
-        for (MesaRegalosController.MuroItem item : muro) {
-            if (item.nombre == 'Anónimo') {
-                encontroAnonimoAgregado = true;
-                Assert.isTrue(item.monto == 4000);
-            } else if (item.nombre == 'Luz Prueba') {
-                encontroMayor = true;
-                Assert.isTrue(item.monto == 5000);
-            }
+        // La misma persona donó en público ($1,000) y en anónimo ($3,000): su renglón muestra
+        // solo lo público y lo anónimo va al total, sin ligarse a su nombre.
+        MesaRegalosController.MuroDTO muro = MesaRegalosController.obtenerMuro(campana());
+        Map<Decimal, Integer> renglonesPorMonto = new Map<Decimal, Integer>();
+        for (MesaRegalosController.MuroItem item : muro.donantes) {
+            Assert.areNotEqual('Anónimo', item.nombre);
+            Assert.areEqual('Luz Prueba', item.nombre);
             Assert.isNotNull(item.fecha);
+            renglonesPorMonto.put(item.monto, renglonesPorMonto.containsKey(item.monto) ? renglonesPorMonto.get(item.monto) + 1 : 1);
         }
-        Assert.isTrue(encontroAnonimoAgregado);
-        Assert.isTrue(encontroMayor);
+        Assert.areEqual(2, muro.donantes.size());
+        Assert.areEqual(1, renglonesPorMonto.get(1000));
+        Assert.areEqual(1, renglonesPorMonto.get(5000));
+        Assert.isTrue(muro.totalAnonimo == 3000);
         Assert.areEqual(1, [SELECT COUNT() FROM Opportunity WHERE StageName != 'Closed Won']);
+    }
+
+    // ---------- Total de donaciones anónimas ----------
+
+    /** Registra una donación anónima en la campaña indicada y devuelve el Id del donativo. */
+    private static Id enviarAnonima(Id campaignId, String paquete, String correo) {
+        Map<String, Object> d = base();
+        d.put('visibilidad', 'Anonima');
+        d.put('paquete', paquete);
+        d.put('correo', correo);
+        return MesaRegalosController.guardarDonativo(campaignId, JSON.serialize(d)).donativoId;
+    }
+
+    @IsTest
+    static void totalAnonimoSumaVariasAnonimasPagadasSinRenglones() {
+        Id a1 = enviarAnonima(campana(), 'P1000', 'a1@example.com');
+        Id a2 = enviarAnonima(campana(), 'P5000', 'a2@example.com');
+        Id pub = enviar(base()).donativoId;
+        MesaRegalosService.confirmarPago(new List<Id>{ a1, a2, pub });
+
+        MesaRegalosController.MuroDTO muro = MesaRegalosController.obtenerMuro(campana());
+        Assert.isTrue(muro.totalAnonimo == 6000);                 // CA1
+        Assert.areEqual(1, muro.donantes.size());                  // CA2: solo la pública
+        Assert.areEqual('Luz Prueba', muro.donantes[0].nombre);
+        Assert.isTrue(muro.donantes[0].monto == 3000);             // la pública no cambia
+    }
+
+    @IsTest
+    static void totalAnonimoExcluyePendientesYSubeAlPagarse() {
+        Id pagada = enviarAnonima(campana(), 'P1000', 'pagada@example.com');
+        Id pendiente = enviarAnonima(campana(), 'P3000', 'pendiente@example.com');
+        MesaRegalosService.confirmarPago(new List<Id>{ pagada });
+
+        Assert.isTrue(MesaRegalosController.obtenerMuro(campana()).totalAnonimo == 1000); // CA3
+
+        MesaRegalosService.confirmarPago(new List<Id>{ pendiente });
+        Assert.isTrue(MesaRegalosController.obtenerMuro(campana()).totalAnonimo == 4000); // CA4: +3,000 exactos
+    }
+
+    @IsTest
+    static void sinAnonimasPagadasElTotalEsCero() {
+        enviarAnonima(campana(), 'P1000', 'solo.promesa@example.com'); // pendiente
+        Id pub = enviar(base()).donativoId;
+        MesaRegalosService.confirmarPago(new List<Id>{ pub });
+
+        MesaRegalosController.MuroDTO muro = MesaRegalosController.obtenerMuro(campana());
+        Assert.isTrue(muro.totalAnonimo == 0); // CA6: el sitio no lo muestra
+        Assert.areEqual(1, muro.donantes.size());
+    }
+
+    @IsTest
+    static void totalAnonimoNoSeMezclaEntreCampanas() {
+        Campaign otra = new Campaign(Name = 'Otra campaña TEST', IsActive = true);
+        insert otra;
+        Id enEsta = enviarAnonima(campana(), 'P1000', 'esta@example.com');
+        Id enOtra = enviarAnonima(otra.Id, 'P5000', 'otra@example.com');
+        MesaRegalosService.confirmarPago(new List<Id>{ enEsta, enOtra });
+
+        Assert.isTrue(MesaRegalosController.obtenerMuro(campana()).totalAnonimo == 1000);
+        Assert.isTrue(MesaRegalosController.obtenerMuro(otra.Id).totalAnonimo == 5000);
+    }
+
+    @IsTest
+    static void anonimaModeradaNoSeSuma() {
+        Id visible = enviarAnonima(campana(), 'P1000', 'visible@example.com');
+        Id oculta = enviarAnonima(campana(), 'P3000', 'oculta@example.com');
+        MesaRegalosService.confirmarPago(new List<Id>{ visible, oculta });
+        Reconocimiento_Publico__c r = [SELECT Id FROM Reconocimiento_Publico__c WHERE Donativo__c = :oculta];
+        r.Mostrar_En_Muro__c = false;
+        update r;
+
+        Assert.isTrue(MesaRegalosController.obtenerMuro(campana()).totalAnonimo == 1000);
+    }
+
+    @IsTest
+    static void elMuroSoloExponeDonantesPublicosYLaSumaAnonima() {
+        Id anon = enviarAnonima(campana(), 'P5000', 'secreta@example.com');
+        MesaRegalosService.confirmarPago(new List<Id>{ anon });
+
+        // CA5: lo que viaja al navegador. Solo debe existir la lista (vacía) y el total.
+        String salida = JSON.serialize(MesaRegalosController.obtenerMuro(campana()));
+        Map<String, Object> dto = (Map<String, Object>) JSON.deserializeUntyped(salida);
+        Assert.areEqual(new Set<String>{ 'donantes', 'totalAnonimo' }, dto.keySet());
+        Assert.areEqual(0, ((List<Object>) dto.get('donantes')).size());
+        Assert.isFalse(salida.contains('secreta@example.com'));
+        Assert.isFalse(salida.contains('Anónimo'));
+        Assert.isFalse(salida.contains(String.valueOf(anon).left(15)));
     }
 
     // ---------- Baja ----------
@@ -362,7 +447,7 @@ private class MesaRegalosDonativoTest {
         enviar(otro); // queda en promesa: no cuenta
 
         Assert.isTrue(MesaRegalosController.obtenerAvance(campana()).total == 0);
-        Assert.areEqual(0, MesaRegalosController.obtenerMuro(campana()).size());
+        Assert.areEqual(0, MesaRegalosController.obtenerMuro(campana()).donantes.size());
 
         MesaRegalosService.confirmarPago(new List<Id>{ pagado });
 
@@ -370,12 +455,14 @@ private class MesaRegalosDonativoTest {
         Assert.isTrue(avance.total == 3000);
         Assert.isTrue(avance.porcentaje == 30); // la meta de la campaña de prueba es 10,000
         Assert.areEqual(1, avance.donativos);
-        Assert.areEqual(1, MesaRegalosController.obtenerMuro(campana()).size());
+        Assert.areEqual(1, MesaRegalosController.obtenerMuro(campana()).donantes.size());
     }
 
     @IsTest
     static void sinCampanaElMuroYElAvanceVienenVacios() {
-        Assert.areEqual(0, MesaRegalosController.obtenerMuro(null).size());
+        MesaRegalosController.MuroDTO muro = MesaRegalosController.obtenerMuro(null);
+        Assert.areEqual(0, muro.donantes.size());
+        Assert.isTrue(muro.totalAnonimo == 0);
         Assert.isTrue(MesaRegalosController.obtenerAvance(null).total == 0);
     }
 
