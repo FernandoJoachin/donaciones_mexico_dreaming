@@ -195,3 +195,142 @@
         gap: 0.6rem 1rem;
     }
 }
+
+/* ---------- US-22: historia de la campaña ---------- */
+.hero-resumen {
+    margin: 0;
+    max-width: 720px;
+    font-size: clamp(1rem, 2.2vw, 1.25rem);
+    line-height: 1.45;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+.hero-organiza {
+    padding: 0.3rem 0.9rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.18);
+    font-size: 0.8125rem;
+    font-weight: 700;
+}
+.campana-cuerpo {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+.principal {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+    min-width: 0;
+}
+.seccion {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.parrafo {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--mesa-texto);
+    white-space: pre-line;
+}
+.para-quien {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0.9rem;
+    padding: 1rem 1.2rem;
+    background: #fff6ec;
+    border: 1px solid #ffd9b0;
+    border-radius: 20px;
+}
+.para-quien-icono {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 50%;
+    background: #ffe2c2;
+    color: #c2410c;
+}
+.donantes-cuenta {
+    margin: 0;
+    font-weight: 700;
+    color: var(--mesa-azul-medio);
+}
+.impactos {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+}
+.impacto {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    padding: 1rem 1.2rem;
+    text-align: left;
+    font: inherit;
+    color: inherit;
+    background: #ffffff;
+    border: 2px solid #dbe5f0;
+    border-radius: 18px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+.impacto:hover,
+.impacto:focus-visible {
+    border-color: var(--mesa-azul);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(1, 118, 211, 0.15);
+    outline: none;
+}
+.impacto-fijo {
+    cursor: default;
+}
+.impacto-monto {
+    font-size: 1.375rem;
+    font-weight: 800;
+    color: var(--mesa-azul-oscuro);
+    font-variant-numeric: tabular-nums;
+}
+.impacto-texto {
+    color: var(--mesa-gris);
+    line-height: 1.45;
+}
+.impacto-accion {
+    margin-top: 0.35rem;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--mesa-azul);
+}
+
+@media (min-width: 960px) {
+    .pagina .contenedor.campana-cuerpo {
+        max-width: 1120px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 340px;
+        align-items: start;
+        gap: 2.25rem;
+    }
+    .lateral {
+        grid-column: 2;
+        grid-row: 1;
+        position: sticky;
+        top: 1.5rem;
+    }
+    .principal {
+        grid-column: 1;
+        grid-row: 1;
+    }
+    .lateral .boton-donar {
+        align-self: stretch;
+        min-width: 0;
+    }
+    .impactos {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+}

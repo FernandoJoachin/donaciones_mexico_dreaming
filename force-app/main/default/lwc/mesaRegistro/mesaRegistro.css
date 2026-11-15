@@ -76,3 +76,11 @@
     gap: 0.6rem;
     margin-top: 0.4rem;
 }
+
+/* US-22: resumen de la campaña bajo el título. */
+.banda-resumen {
+    margin: 0;
+    max-width: 640px;
+    color: #dcecfb;
+    line-height: 1.45;
+}

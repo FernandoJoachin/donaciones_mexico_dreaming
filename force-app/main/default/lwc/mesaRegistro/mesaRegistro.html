@@ -4,8 +4,11 @@
             <span class="burbuja burbuja-a" aria-hidden="true"></span>
             <span class="burbuja burbuja-b" aria-hidden="true"></span>
             <div class="banda-contenido">
-                <span class="etiqueta">México Dreamin</span>
-                <h1 class="banda-titulo">Tu donativo</h1>
+                <span class="etiqueta">Tu donativo</span>
+                <h1 class="banda-titulo">{tituloBanda}</h1>
+                <template lwc:if={resumenCampana}>
+                    <p class="banda-resumen">{resumenCampana}</p>
+                </template>
             </div>
         </header>
         <div class="contenedor">

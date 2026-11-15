@@ -42,6 +42,47 @@ for (Map<String, Object> d : defs) {
 upsert guardar;
 for (Campaign c : guardar) { porNombre.put(c.Name, c); }
 
+// US-22: historia, a quién ayuda, quién organiza y niveles de impacto de cada campaña.
+Map<String, List<String>> textos = new Map<String, List<String>>();
+textos.put('México Dreamin', new List<String>{ 'Llevemos a 20 estudiantes de la UADY a México Dreamin 2026.', 'México Dreamin reúne a la comunidad Salesforce de todo el país. Este año es el 20 de noviembre en la Ciudad de México y, para muchos estudiantes de Yucatán, es la primera oportunidad de conocer en persona a quienes trabajan con la plataforma todos los días.\n\nIr cuesta: el boleto del evento, el autobús de Mérida a la Ciudad de México y el hospedaje. Para la mayoría de quienes terminaron el bootcamp, ese gasto decide si van o se quedan.\n\nCon tu aportación cubrimos el viaje de 20 estudiantes. A su regreso compartirán lo que aprendieron en una sesión abierta para toda la facultad.', '20 estudiantes de la Facultad de Matemáticas que terminaron el bootcamp de Salesforce.', 'Comunidad Salesforce FMAT-UADY' });
+textos.put('Mérida Dreamin', new List<String>{ 'Un día de comunidad Salesforce en Mérida, gratis para estudiantes.', 'No todos pueden viajar a la Ciudad de México. Mérida Dreamin trae la experiencia a casa: un día de charlas, talleres prácticos y encuentros con profesionales de Salesforce de la región.\n\nQueremos que la entrada sea gratuita para estudiantes. Para lograrlo hay que cubrir la sede, los alimentos y los materiales de los talleres para unas 80 personas.\n\nCada aportación hace que un estudiante asista sin pagar y se lleve algo concreto: un taller hecho con sus manos y contactos para su primer empleo.', 'Unas 80 personas, sobre todo estudiantes de la península de Yucatán.', 'Comunidad Salesforce Yucatán' });
+textos.put('Becas de conectividad', new List<String>{ 'Internet en casa para que nadie deje sus clases por falta de conexión.', 'Varios estudiantes de la facultad hacen sus prácticas y proyectos desde un celular con datos limitados. Cuando se acaban los datos, se acaba la clase.\n\nEsta campaña financia becas de conectividad: un plan de internet en casa o un módem portátil durante un semestre, para quienes más lo necesitan.\n\nCada beca significa entregar tareas a tiempo, entrar a las clases en línea y practicar Salesforce sin cortes.', 'Estudiantes de la Facultad de Matemáticas sin internet estable en casa.', 'Comunidad Salesforce FMAT-UADY' });
+textos.put('Laboratorio de cómputo', new List<String>{ 'Renovemos el laboratorio donde se aprende a programar.', 'El laboratorio de cómputo es donde muchos estudiantes escriben su primera línea de código y donde practican Salesforce. Varios equipos ya no soportan las herramientas actuales.\n\nCon esta campaña renovamos computadoras y monitores, y mejoramos la conexión del laboratorio para las prácticas de programación y de Salesforce.\n\nUn laboratorio que funciona bien sirve a cientos de estudiantes cada semestre.', 'Los estudiantes que usan el laboratorio de la facultad cada semestre.', 'Comunidad Salesforce FMAT-UADY' });
+textos.put('Donación general', new List<String>{ 'Tu aportación va a donde más se necesite.', 'Si no sabes qué campaña elegir, esta es para ti. Repartimos las aportaciones entre las campañas que más lo necesitan y las que están más lejos de su meta.\n\nEsta campaña siempre está abierta y no tiene fecha de cierre.', 'Las campañas activas de la comunidad.', 'Comunidad Salesforce FMAT-UADY' });
+Map<String, List<List<Object>>> niveles = new Map<String, List<List<Object>>>();
+niveles.put('México Dreamin', new List<List<Object>>{ new List<Object>{ 250, 'Una comida para un estudiante durante el viaje' }, new List<Object>{ 1000, 'Una noche de hospedaje compartido' }, new List<Object>{ 2500, 'Un boleto de autobús Mérida–CDMX, ida y vuelta' } });
+niveles.put('Mérida Dreamin', new List<List<Object>>{ new List<Object>{ 150, 'El refrigerio de un asistente' }, new List<Object>{ 500, 'Materiales de taller para cinco personas' }, new List<Object>{ 3000, 'Una sala para un taller de medio día' } });
+niveles.put('Becas de conectividad', new List<List<Object>>{ new List<Object>{ 250, 'Un mes de internet para un estudiante' }, new List<Object>{ 1500, 'Un semestre de datos para un estudiante' }, new List<Object>{ 4000, 'Un módem portátil con un semestre de servicio' } });
+niveles.put('Laboratorio de cómputo', new List<List<Object>>{ new List<Object>{ 500, 'Un teclado y un ratón nuevos' }, new List<Object>{ 3500, 'Un monitor' }, new List<Object>{ 12000, 'Una computadora completa' } });
+niveles.put('Donación general', new List<List<Object>>{ new List<Object>{ 100, 'Suma al fondo común de la comunidad' }, new List<Object>{ 500, 'Cubre lo más urgente de una campaña' }, new List<Object>{ 1000, 'Ayuda a que una campaña llegue a su meta' } });
+List<Campaign> conHistoria = new List<Campaign>();
+for (Campaign c : guardar) {
+    List<String> t = textos.get(c.Name);
+    if (t == null) { continue; }
+    c.put('Resumen__c', t[0]);
+    c.put('Historia__c', t[1]);
+    c.put('Para_Quien__c', t[2]);
+    c.put('Organiza__c', t[3]);
+    conHistoria.add(c);
+}
+update conHistoria;
+Set<Id> idsCampanas = new Set<Id>();
+for (Campaign c : guardar) { idsCampanas.add(c.Id); }
+delete [SELECT Id FROM Nivel_Impacto__c WHERE Campana__c IN :idsCampanas];
+List<Nivel_Impacto__c> nuevosNiveles = new List<Nivel_Impacto__c>();
+for (Campaign c : guardar) {
+    List<List<Object>> lista = niveles.get(c.Name);
+    if (lista == null) { continue; }
+    for (Integer i = 0; i < lista.size(); i++) {
+        // Campos por nombre: el usuario que corre el script puede no tener permiso de campo sobre Orden__c.
+        Nivel_Impacto__c n = new Nivel_Impacto__c(Campana__c = c.Id, Monto__c = Decimal.valueOf(String.valueOf(lista[i][0])),
+            Descripcion__c = (String) lista[i][1]);
+        n.put('Orden__c', i + 1);
+        nuevosNiveles.add(n);
+    }
+}
+insert nuevosNiveles;
+
 // donativos ficticios pagados: campaña, clave, nombre, monto, visibilidad, empresa, días atrás
 List<List<Object>> donativos = new List<List<Object>>{
     new List<Object>{'Becas de conectividad', 'becas-01', 'Fundación Costa Maya', 8000, 'Publica', true, 9},

@@ -288,11 +288,44 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
   archivo con una codificación incorrecta.
 - **Aceleración estimada:** ~5 h.
 
+### 23. ⚠ Error de la IA — "mergeó un PR a la rama equivocada"
+- **Fecha:** 2026-11-15
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** US-10 / SCRUM-62 (PR #17 de Daniel)
+- **Qué se pidió:** mergear los PR abiertos (#17, #18 y #19) a `entrega-1`.
+- **Qué se obtuvo:** la IA mergeó el #17 sin revisar su rama base, que era `main`. GitHub lo marcó como mergeado, pero los cambios no llegaron a `entrega-1`.
+- **Qué se verificó y cómo:** después del merge se revisó el historial de `entrega-1` y faltaban los permission sets nuevos; el commit del merge colgaba de `main`.
+- **Qué se corrigió:** el PR #20 (de `main` a `entrega-1`) llevó solo los 9 archivos de Daniel. Lección: revisar la rama base antes de mergear.
+- **Aceleración estimada:** ~20 min (detectarlo a mano habría tardado más, porque GitHub decía "Merged").
+
+### 24. ⚠ Error de la IA — "imágenes de las campañas desde GitHub"
+- **Fecha:** 2026-11-15
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** US-13 / SCRUM-79 (imagen en cada campaña)
+- **Qué se pidió:** campañas de demostración más realistas, con imagen.
+- **Qué se obtuvo:** cinco ilustraciones servidas desde `raw.githubusercontent.com`. En el sitio no cargaban: la política de seguridad de contenido del sitio bloquea imágenes de otros dominios. Al pasarlas a un recurso estático con ruta relativa tampoco salían, porque el controlador solo acepta URL `https://`.
+- **Qué se verificó y cómo:** se abrió el sitio como visitante con un navegador automatizado y se leyeron los errores de la consola y el tamaño real de cada imagen.
+- **Qué se corrigió:** las imágenes quedaron en el recurso estático `MesaCampanasImg` y el script usa la dirección completa del sitio. No se cambió la configuración de seguridad del sitio.
+- **Aceleración estimada:** ~1 h.
+
+### 25. Historia de cada campaña (US-22)
+- **Fecha:** 2026-11-15
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** US-22 / SCRUM-132
+- **Qué se pidió:** que cada campaña cuente su historia (retro de la presentación del 12 de noviembre: "no parecía un sitio de donación").
+- **Qué se obtuvo:** campos en Campaign (resumen, historia, a quién ayuda, quién organiza), el objeto hijo `Nivel_Impacto__c`, el número de donantes en el controlador, la página de campaña en dos columnas, el monto elegido que llega al formulario (`?monto=`) y el contenido ficticio de las 5 campañas.
+- **Qué se verificó y cómo:** 3 pruebas nuevas de Apex pasan en la org de desarrollo (una prueba del muro ya fallaba antes, sin estos cambios). Prueba como visitante en la sandbox UADY, en escritorio y celular: la historia y los niveles se ven y elegir un nivel abre el formulario con ese monto.
+- **Qué se corrigió:** el permission set rechazó permisos de campo en campos obligatorios y pedía lectura de Campaign; el script no podía escribir `Orden__c` sin permiso de campo, así que se agregó al permission set de administración.
+- **Aceleración estimada:** ~6 h.
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 9 | 5 (entradas 1, 4, 5, 8 y 9) |
+| José Carlos Leo Fernández | 12 (1–9 y 23–25) | 7 (entradas 1, 4, 5, 8, 9, 23 y 24) |
 | Fernando Joachín | 5 (entradas 10–15) | 2 (entradas 11 y 13) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 

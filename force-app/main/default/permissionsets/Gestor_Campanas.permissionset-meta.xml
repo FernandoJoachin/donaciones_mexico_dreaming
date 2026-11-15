@@ -38,6 +38,15 @@
         <object>Reconocimiento_Publico__c</object>
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>Nivel_Impacto__c</object>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
     <fieldPermissions>
         <editable>true</editable>
         <field>Campaign.Imagen_Url__c</field>
@@ -91,6 +100,31 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Reconocimiento_Publico__c.Monto__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Campaign.Resumen__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Campaign.Historia__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Campaign.Para_Quien__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Campaign.Organiza__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Nivel_Impacto__c.Orden__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <tabSettings>

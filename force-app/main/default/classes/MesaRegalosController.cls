@@ -81,6 +81,18 @@ public without sharing class MesaRegalosController {
         @AuraEnabled public Date fechaFin;
         @AuraEnabled public Boolean activa;     // false = ya cerró (se muestra en "Campañas pasadas")
         @AuraEnabled public String imagenUrl;   // null = la campaña no tiene imagen
+        // US-22: la historia de la campaña. Todo es texto público, sin datos personales.
+        @AuraEnabled public String resumen;
+        @AuraEnabled public List<String> historia;     // párrafos; vacía si no hay historia
+        @AuraEnabled public String paraQuien;
+        @AuraEnabled public String organiza;
+        @AuraEnabled public List<ImpactoDTO> impactos; // solo en la página de la campaña; vacía si no hay
+        @AuraEnabled public Integer donantes;          // personas distintas con al menos una donación pagada
+    }
+
+    public class ImpactoDTO {
+        @AuraEnabled public Decimal monto;
+        @AuraEnabled public String descripcion;
     }
 
     // ---------- Datos públicos: muro y avance ----------
@@ -184,7 +196,8 @@ public without sharing class MesaRegalosController {
     public static List<CampanaDTO> obtenerCampanas() {
         Date hoy = Date.today();
         List<Campaign> campanas = [
-            SELECT Id, Name, Description, ExpectedRevenue, EndDate, Imagen_Url__c
+            SELECT Id, Name, Description, ExpectedRevenue, EndDate, Imagen_Url__c,
+                   Resumen__c, Historia__c, Para_Quien__c, Organiza__c
             FROM Campaign
             WHERE IsActive = true AND (StartDate = null OR StartDate <= :hoy)
             ORDER BY StartDate DESC NULLS LAST, Name
@@ -193,7 +206,8 @@ public without sharing class MesaRegalosController {
 
         Map<Id, AggregateResult> pagados = new Map<Id, AggregateResult>();
         for (AggregateResult ar : [
-            SELECT CampaignId, SUM(Amount) total, COUNT(Id) donativos
+            SELECT CampaignId, SUM(Amount) total, COUNT(Id) donativos,
+                   COUNT_DISTINCT(Contacto_Donador__c) donantes
             FROM Opportunity
             WHERE CampaignId IN :campanas AND StageName = 'Closed Won'
             GROUP BY CampaignId
@@ -230,7 +244,10 @@ public without sharing class MesaRegalosController {
         }
         Date hoy = Date.today();
         List<Campaign> campanas = [
-            SELECT Id, Name, Description, ExpectedRevenue, EndDate, Imagen_Url__c
+            SELECT Id, Name, Description, ExpectedRevenue, EndDate, Imagen_Url__c,
+                   Resumen__c, Historia__c, Para_Quien__c, Organiza__c,
+                   (SELECT Monto__c, Descripcion__c FROM Niveles_Impacto__r
+                    ORDER BY Orden__c ASC NULLS LAST, Monto__c ASC LIMIT 6)
             FROM Campaign
             WHERE Id = :cid AND IsActive = true AND (StartDate = null OR StartDate <= :hoy)
             LIMIT 1
@@ -239,11 +256,20 @@ public without sharing class MesaRegalosController {
             return null;
         }
         AggregateResult pagado = [
-            SELECT SUM(Amount) total, COUNT(Id) donativos
+            SELECT SUM(Amount) total, COUNT(Id) donativos, COUNT_DISTINCT(Contacto_Donador__c) donantes
             FROM Opportunity
             WHERE CampaignId = :cid AND StageName = 'Closed Won'
         ];
-        return armarCampanaDTO(campanas[0], pagado, hoy);
+        CampanaDTO d = armarCampanaDTO(campanas[0], pagado, hoy);
+        for (Nivel_Impacto__c n : campanas[0].Niveles_Impacto__r) {
+            if (n.Monto__c != null && n.Monto__c > 0 && String.isNotBlank(n.Descripcion__c)) {
+                ImpactoDTO i = new ImpactoDTO();
+                i.monto = n.Monto__c;
+                i.descripcion = n.Descripcion__c.trim();
+                d.impactos.add(i);
+            }
+        }
+        return d;
     }
 
     /** Arma el DTO público de una campaña. `pagado` puede ser nulo o traer total nulo (sin pagos). */
@@ -255,10 +281,13 @@ public without sharing class MesaRegalosController {
         d.meta = c.ExpectedRevenue == null ? 0 : c.ExpectedRevenue;
         d.total = 0;
         d.donativos = 0;
+        d.donantes = 0;
         if (pagado != null) {
             Decimal total = (Decimal) pagado.get('total');
             d.total = total == null ? 0 : total;
             d.donativos = (Integer) pagado.get('donativos');
+            Object donantes = pagado.get('donantes');
+            d.donantes = donantes == null ? 0 : (Integer) donantes;
         }
         d.porcentaje = 0;
         if (d.meta > 0) {
@@ -271,7 +300,28 @@ public without sharing class MesaRegalosController {
         // Solo se publica si es https; cualquier otro esquema se descarta.
         d.imagenUrl = (c.Imagen_Url__c != null && c.Imagen_Url__c.startsWithIgnoreCase('https://'))
             ? c.Imagen_Url__c : null;
+        d.resumen = String.isBlank(c.Resumen__c) ? null : c.Resumen__c.trim();
+        d.historia = parrafos(c.Historia__c);
+        d.paraQuien = String.isBlank(c.Para_Quien__c) ? null : c.Para_Quien__c.trim();
+        d.organiza = String.isBlank(c.Organiza__c) ? null : c.Organiza__c.trim();
+        d.impactos = new List<ImpactoDTO>();
         return d;
+    }
+
+    /** Parte la historia en párrafos (separados por una o más líneas en blanco). Máximo 20. */
+    @TestVisible
+    private static List<String> parrafos(String texto) {
+        List<String> resultado = new List<String>();
+        if (String.isBlank(texto)) {
+            return resultado;
+        }
+        for (String p : texto.replace('\r\n', '\n').split('\n\\s*\n')) {
+            String limpio = p.trim();
+            if (limpio.length() > 0 && resultado.size() < 20) {
+                resultado.add(limpio);
+            }
+        }
+        return resultado;
     }
 
     // ---------- Formulario único: registro + donación (sin token) ----------

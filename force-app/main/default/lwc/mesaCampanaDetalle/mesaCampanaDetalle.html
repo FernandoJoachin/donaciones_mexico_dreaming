@@ -34,15 +34,18 @@
                         <span class="insignia">Cerrada</span>
                     </template>
                     <h1 class="hero-titulo">{campana.nombre}</h1>
+                    <template lwc:if={campana.resumen}>
+                        <p class="hero-resumen">{campana.resumen}</p>
+                    </template>
+                    <template lwc:if={campana.organiza}>
+                        <span class="hero-organiza">Organiza: {campana.organiza}</span>
+                    </template>
                 </div>
             </header>
 
-            <div class="contenedor">
-                <div class="detalle">
-                    <template lwc:if={campana.descripcion}>
-                        <p class="descripcion">{campana.descripcion}</p>
-                    </template>
-
+            <div class="contenedor campana-cuerpo">
+                <!-- Columna lateral: el avance y el botón. En celular va primero. -->
+                <aside class="lateral">
                     <div class="avance">
                         <template lwc:if={conMeta}>
                             <div class="cifras">
@@ -60,6 +63,9 @@
                                 <span class="cifra-meta">recaudados</span>
                             </div>
                         </template>
+                        <template lwc:if={textoDonantes}>
+                            <p class="donantes-cuenta">{textoDonantes}</p>
+                        </template>
                         <template lwc:if={leyenda}>
                             <p class="leyenda">{leyenda}</p>
                         </template>
@@ -70,27 +76,77 @@
                             <p class="info">Esta campaña ya cerró. ¡Gracias a quienes participaron!</p>
                         </template>
                     </div>
-                </div>
+                </aside>
 
-                <h2 class="subtitulo">Quiénes ya donaron</h2>
-                <template lwc:if={hayDonantes}>
-                    <ul class="lista">
-                        <template for:each={donantes} for:item="d">
-                            <li key={d.clave} class="donante">
-                                <span class="donante-nombre">{d.nombre}</span>
-                                <span class="donante-monto">{d.monto}</span>
-                            </li>
+                <div class="principal">
+                    <template lwc:if={hayHistoria}>
+                        <section class="seccion">
+                            <h2 class="subtitulo">{tituloHistoria}</h2>
+                            <template for:each={parrafos} for:item="p">
+                                <p key={p.clave} class="parrafo">{p.texto}</p>
+                            </template>
+                        </section>
+                    </template>
+
+                    <template lwc:if={campana.paraQuien}>
+                        <section class="seccion para-quien">
+                            <span class="para-quien-icono" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M12 21s-7.5-4.6-9.6-9.2C.9 8.5 3 5 6.4 5c2 0 3.3 1.1 4 2.2.3.5 1 .5 1.3 0C12.4 6.1 13.6 5 15.6 5 19 5 21.1 8.5 19.6 11.8 17.5 16.4 12 21 12 21z"/></svg>
+                            </span>
+                            <div>
+                                <h2 class="subtitulo">A quién ayuda</h2>
+                                <p class="parrafo">{campana.paraQuien}</p>
+                            </div>
+                        </section>
+                    </template>
+
+                    <template lwc:if={hayImpactos}>
+                        <section class="seccion">
+                            <h2 class="subtitulo">Lo que logra tu aportación</h2>
+                            <ul class="impactos">
+                                <template for:each={impactos} for:item="i">
+                                    <li key={i.clave}>
+                                        <template lwc:if={puedeDonar}>
+                                            <button type="button" class="impacto" data-monto={i.valor} onclick={elegirImpacto} aria-label={i.etiqueta}>
+                                                <span class="impacto-monto">{i.monto}</span>
+                                                <span class="impacto-texto">{i.descripcion}</span>
+                                                <span class="impacto-accion">Donar este monto</span>
+                                            </button>
+                                        </template>
+                                        <template lwc:else>
+                                            <div class="impacto impacto-fijo">
+                                                <span class="impacto-monto">{i.monto}</span>
+                                                <span class="impacto-texto">{i.descripcion}</span>
+                                            </div>
+                                        </template>
+                                    </li>
+                                </template>
+                            </ul>
+                        </section>
+                    </template>
+
+                    <section class="seccion">
+                        <h2 class="subtitulo">Quiénes ya donaron</h2>
+                        <template lwc:if={hayDonantes}>
+                            <ul class="lista">
+                                <template for:each={donantes} for:item="d">
+                                    <li key={d.clave} class="donante">
+                                        <span class="donante-nombre">{d.nombre}</span>
+                                        <span class="donante-monto">{d.monto}</span>
+                                    </li>
+                                </template>
+                            </ul>
                         </template>
-                    </ul>
-                </template>
-                <template lwc:if={hayTotalAnonimo}>
-                    <c-mesa-total-anonimo monto={totalAnonimo} total-recaudado={campana.total}></c-mesa-total-anonimo>
-                </template>
-                <template lwc:if={sinApoyos}>
-                    <p class="vacio">Aún no hay donantes. Puedes ser la primera persona.</p>
-                </template>
+                        <template lwc:if={hayTotalAnonimo}>
+                            <c-mesa-total-anonimo monto={totalAnonimo} total-recaudado={campana.total}></c-mesa-total-anonimo>
+                        </template>
+                        <template lwc:if={sinApoyos}>
+                            <p class="vacio">Aún no hay donantes. Puedes ser la primera persona.</p>
+                        </template>
+                    </section>
 
-                <a class="enlace" href={urlVolver}>{textoVolver}</a>
+                    <a class="enlace" href={urlVolver}>{textoVolver}</a>
+                </div>
             </div>
         </template>
     </div>

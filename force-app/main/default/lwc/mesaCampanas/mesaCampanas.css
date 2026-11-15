@@ -164,3 +164,11 @@
     margin: 0.5rem 0 0;
     color: var(--mesa-gris);
 }
+
+/* US-22: cuántas personas ya donaron (solo pagadas). */
+.campana-donantes {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--mesa-azul-medio);
+}

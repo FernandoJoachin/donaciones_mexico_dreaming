@@ -157,6 +157,59 @@ export default class MesaCampanaDetalle extends LightningElement {
         return dias === 1 ? 'Falta 1 día' : `Faltan ${dias} días`;
     }
 
+    // ---------- US-22: historia de la campaña ----------
+
+    /** Párrafos de la historia; si no hay historia, la descripción hace de historia. */
+    get parrafos() {
+        const c = this.campana;
+        if (!c) {
+            return [];
+        }
+        const textos = c.historia && c.historia.length ? c.historia : c.descripcion ? [c.descripcion] : [];
+        return textos.map((t, i) => ({ clave: `p${i}`, texto: t }));
+    }
+
+    get hayHistoria() {
+        return this.parrafos.length > 0;
+    }
+
+    get tituloHistoria() {
+        return this.campana && this.campana.historia && this.campana.historia.length ? 'La historia' : 'Sobre la campaña';
+    }
+
+    get impactos() {
+        const lista = (this.campana && this.campana.impactos) || [];
+        return lista.map((i, n) => ({
+            clave: `i${n}`,
+            valor: i.monto,
+            monto: formatearMonto(i.monto),
+            descripcion: i.descripcion,
+            etiqueta: `Donar ${formatearMonto(i.monto)}: ${i.descripcion}`
+        }));
+    }
+
+    get hayImpactos() {
+        return this.impactos.length > 0;
+    }
+
+    /** "N personas ya donaron": cuenta solo donaciones pagadas, sin datos personales. */
+    get textoDonantes() {
+        const n = this.campana ? this.campana.donantes : 0;
+        if (!n) {
+            return '';
+        }
+        return n === 1 ? '1 persona ya donó' : `${n} personas ya donaron`;
+    }
+
+    /** Elegir un nivel de impacto lleva al formulario con ese monto ya elegido (CA2). */
+    elegirImpacto(evento) {
+        const monto = evento.currentTarget.dataset.monto;
+        irA(
+            `${resolverUrl(this.paginaDonar, null, false)}?campana=${encodeURIComponent(this.campanaId)}` +
+                `&monto=${encodeURIComponent(monto)}`
+        );
+    }
+
     get hayDonantes() {
         return this.donantes.length > 0;
     }
