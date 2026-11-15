@@ -1,5 +1,14 @@
 @import 'c/mesaEstilos';
 
+/* El tema de Experience Cloud deja ~44px vacíos sobre el contenido (32px de encabezado más 12px
+   de relleno de la región). Subimos la página para que la banda arranque en el borde superior,
+   igual que en el inicio (mesaCampanas). */
+:host {
+    display: block;
+    margin-top: -44px;
+}
+
+
 .trampa {
     position: absolute;
     left: -10000px;
