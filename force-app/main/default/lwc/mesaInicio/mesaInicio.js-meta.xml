@@ -9,7 +9,7 @@
     </targets>
     <targetConfigs>
         <targetConfig targets="lightningCommunity__Default">
-            <property name="etiqueta" type="String" label="Etiqueta superior" default="Campaña de ex-alumnos"/>
+            <property name="etiqueta" type="String" label="Etiqueta superior (opcional)"/>
             <property name="titulo" type="String" label="Título" default="Apoya a la comunidad"/>
             <property name="descripcion" type="String" label="Descripción breve"/>
             <property name="textoBotonDonar" type="String" label="Texto del botón de donar" default="Quiero donar"/>

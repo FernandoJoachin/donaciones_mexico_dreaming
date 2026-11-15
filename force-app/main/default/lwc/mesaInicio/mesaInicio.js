@@ -7,7 +7,7 @@ import { resolverUrl, irA } from 'c/mesaUtil';
  * Los textos se editan en Experience Builder, sin tocar código.
  */
 export default class MesaInicio extends LightningElement {
-    @api etiqueta = 'Campaña de ex-alumnos';
+    @api etiqueta = '';
     @api titulo = 'Apoya a la comunidad';
     @api descripcion =
         'Con el espíritu de Ohana, invitamos a quienes cursaron la materia de Salesforce a devolver un poco de lo que recibieron.';
