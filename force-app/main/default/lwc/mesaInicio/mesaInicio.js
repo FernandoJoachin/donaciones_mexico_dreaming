@@ -22,7 +22,7 @@ export default class MesaInicio extends LightningElement {
     @api tituloSobre = 'Sobre la campaña';
     @api subSobre = 'Lo que conviene saber antes de donar.';
     @api infoTitulo1 = 'Quién organiza';
-    @api infoTexto1 = 'Ex-alumnos de la Facultad de Matemáticas que cursaron Salesforce, con el espíritu de Ohana.';
+    @api infoTexto1 = 'La comunidad Salesforce de la Facultad de Matemáticas, con el espíritu de Ohana.';
     @api infoTitulo2 = 'Cada campaña, su meta';
     @api infoTexto2 = 'Cada campaña tiene su propia meta y su avance. Entra a la que más te llegue para ver los detalles.';
     @api infoTitulo3 = 'Transparencia';
@@ -30,9 +30,9 @@ export default class MesaInicio extends LightningElement {
 
     get pasos() {
         return [
-            { numero: '1', titulo: 'Elige una campaña', texto: 'Conoce las campañas activas y escoge la que más te llegue.' },
-            { numero: '2', titulo: 'Indica tu aportación', texto: 'Dinos tu nombre y correo, y el monto que quieras donar. Tú decides si tu nombre se muestra.' },
-            { numero: '3', titulo: 'Completa tu pago', texto: 'Te llevamos al pago seguro y recibes la confirmación por correo.' }
+            { numero: '1', titulo: 'Elige una causa', texto: 'Lee la historia de cada campaña y escoge la que más te llegue.' },
+            { numero: '2', titulo: 'Decide tu aportación', texto: 'Cada campaña te dice qué logra cada monto. Tú decides si tu nombre se muestra.' },
+            { numero: '3', titulo: 'Súmate al muro', texto: 'Cuando tu aportación se confirma, aparece en el muro de agradecimiento de la campaña.' }
         ];
     }
 
@@ -45,7 +45,7 @@ export default class MesaInicio extends LightningElement {
     }
 
     get ayuda() {
-        return 'Elige una campaña, indica tu aportación y pasas al pago. Tarda un minuto.';
+        return 'Cada aportación, grande o pequeña, acerca a una campaña a su meta.';
     }
 
     /** Las campañas van justo debajo de este componente: baja suavemente hasta ellas. */

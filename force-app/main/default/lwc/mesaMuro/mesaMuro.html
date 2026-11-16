@@ -4,7 +4,7 @@
             <span class="burbuja burbuja-a" aria-hidden="true"></span>
             <span class="burbuja burbuja-b" aria-hidden="true"></span>
             <div class="banda-contenido">
-                <span class="etiqueta">Ohana</span>
+                <span class="etiqueta">{etiquetaBanda}</span>
                 <h1 class="banda-titulo">Muro de agradecimiento</h1>
             </div>
         </header>
@@ -12,7 +12,7 @@
             <template lwc:if={mostrarGracias}>
                 <section class="gracias" role="status" aria-live="polite">
                     <h2 class="gracias-titulo">¡Gracias por tu donación!</h2>
-                    <p class="gracias-texto">Confirmando tu pago. En cuanto se confirme, tu aportación aparecerá en el muro como la elegiste.</p>
+                    <p class="gracias-texto">{textoGracias}</p>
                 </section>
             </template>
             <template lwc:if={mostrarPanelAvance}>

@@ -276,7 +276,9 @@ export default class MesaRegistro extends LightningElement {
     /** Maqueta: "pagar" no cobra ni confirma nada; solo lleva al muro con el mensaje "Confirmando tu pago". */
     pagarSimulado() {
         guardarRetornoPago('exito');
-        irA(resolverUrl(this.paginaMuro, null, false));
+        // El muro abre la campaña a la que se donó, no la configurada por defecto.
+        const consulta = this.idCampana ? `?campana=${encodeURIComponent(this.idCampana)}` : '';
+        irA(resolverUrl(this.paginaMuro, null, false) + consulta);
     }
 
     /** Maqueta: cancelar deja el donativo pendiente y ofrece intentar de nuevo (sin crear otro registro). */

@@ -29,7 +29,7 @@ export default class MesaCampanas extends LightningElement {
     /** Landing: muestra la portada y la información de mesaInicio arriba de la lista (sin banda propia). */
     @api sinPortada = false;
     @api descripcion =
-        'Conoce las campañas de ex-alumnos de la Facultad de Matemáticas y apoya la que más te llegue.';
+        'Conoce las campañas de la comunidad de la Facultad de Matemáticas y apoya la que más te llegue.';
     @api textoBotonVer = 'Ver campaña';
     /** Nombre de la página de presentación (como aparece en la URL) o ruta completa que empiece con "/". */
     @api paginaCampana = 'campana';

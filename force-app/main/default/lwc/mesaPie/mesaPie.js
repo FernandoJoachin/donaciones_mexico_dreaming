@@ -8,7 +8,7 @@ import { resolverUrl } from 'c/mesaUtil';
  */
 export default class MesaPie extends LightningElement {
     @api titulo = 'Apoya a la comunidad';
-    @api descripcion = 'Comunidad de ex-alumnos y amigos de la Facultad de Matemáticas, reunida en torno a causas que importan.';
+    @api descripcion = 'Comunidad Salesforce de la Facultad de Matemáticas, reunida en torno a causas que importan.';
     @api universidad = 'Universidad Autónoma de Yucatán';
     @api facultad = 'Facultad de Matemáticas';
 
