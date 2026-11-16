@@ -293,6 +293,11 @@ export default class MesaMuro extends LightningElement {
         return this.nombreCampana || 'Gracias';
     }
 
+    /** Referencia corta del donativo: la misma que lleva el correo del comprobante (últimos 8 del Id). */
+    get referenciaDonativo() {
+        return this._donativoRetorno ? String(this._donativoRetorno).slice(-8).toUpperCase() : '';
+    }
+
     get textoGracias() {
         if (this.pagoConfirmado) {
             return this.nombreCampana

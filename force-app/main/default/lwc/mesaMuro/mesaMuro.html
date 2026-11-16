@@ -13,6 +13,11 @@
                 <section class="gracias" role="status" aria-live="polite">
                     <h2 class="gracias-titulo">¡Gracias por tu donación!</h2>
                     <p class="gracias-texto">{textoGracias}</p>
+                    <template lwc:if={pagoConfirmado}>
+                        <p class="gracias-detalle">Tu referencia es <strong>{referenciaDonativo}</strong>. Te enviamos tu comprobante al correo que escribiste; si no lo ves en unos minutos, revisa la carpeta de spam y ten a la mano tu referencia por si necesitas factura.</p>
+                        <p class="gracias-detalle">Tu donativo se suma al avance de la campaña: aquí abajo puedes ver cuánto lleva y quiénes ya se sumaron.</p>
+                        <p class="gracias-detalle"><a class="gracias-enlace" href="./">Conocer otras campañas →</a></p>
+                    </template>
                 </section>
             </template>
             <template lwc:if={mostrarPanelAvance}>

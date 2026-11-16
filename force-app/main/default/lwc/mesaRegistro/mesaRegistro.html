@@ -27,7 +27,8 @@
 
             <template lwc:if={pagoCancelado}>
                 <h2 class="titulo">Pago no completado</h2>
-                <p class="error" role="alert">No se completó el pago. Tu donativo sigue pendiente y no se te cobró nada.</p>
+                <p class="error" role="alert">No se completó el pago y tu donativo sigue pendiente. Si cancelaste, no se hizo ningún cargo. Si tu banco rechazó la tarjeta, puedes intentar de nuevo o usar otra tarjeta.</p>
+                <p class="info">Si crees que se te cobró, recibirás tu comprobante por correo; si no llega, escríbenos con tu referencia.</p>
                 <p class="info">Referencia de tu donativo: <strong>{referenciaPago}</strong></p>
                 <button type="button" class="btn btn-primario" onclick={reintentarPago}>Intentar de nuevo</button>
             </template>
@@ -69,7 +70,7 @@
                 ></lightning-radio-group>
 
                 <template lwc:if={esAnonimo}>
-                    <p class="info">Aparecerás como «Anónimo», junto con el monto. No te pediremos tu nombre.</p>
+                    <p class="info">Aparecerás como «Anónimo», junto con el monto, y no te pediremos tu nombre. Al continuar autorizas que tu donativo se publique así. Tu correo se guarda solo para enviarte tu comprobante; nunca se muestra.</p>
                 </template>
 
                 <template lwc:if={esPublico}>
@@ -97,7 +98,7 @@
 
                 <lightning-radio-group
                     name="consentimientoAvisos"
-                    label="¿Quieres que te avisemos de próximos eventos y donaciones?"
+                    label="¿Podemos guardar tus datos para invitarte a futuras campañas?"
                     options={opcionesConsentimiento}
                     value={consentimientoAvisos}
                     type="radio"
@@ -105,7 +106,9 @@
                     onchange={cambio}
                 ></lightning-radio-group>
 
-                <lightning-input type="checkbox" label="Autorizo que mi donativo se publique en el muro de agradecimiento (mi nombre o «Anónimo», y el monto)" data-campo="consentimientoPublicacion" checked={consentimientoPublicacion} onchange={cambio}></lightning-input>
+                <template lwc:if={esPublico}>
+                    <lightning-input type="checkbox" label="Autorizo que mi donativo se publique en el muro de agradecimiento (mi nombre y el monto)" data-campo="consentimientoPublicacion" checked={consentimientoPublicacion} onchange={cambio}></lightning-input>
+                </template>
 
                 <!-- Campo trampa: las personas no lo ven; los programas automáticos sí lo llenan. -->
                 <div class="trampa" aria-hidden="true">
