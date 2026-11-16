@@ -1,74 +1,93 @@
 /**
  * Comprobante por correo al confirmarse un pago (US-07, CA3 y CA4).
  *
- * Corre en un Queueable, en una transacción aparte y después del commit del pago:
- *  - si el correo falla (por ejemplo, la org no permite enviar correos), el pago ya quedó confirmado;
- *  - el webhook de Stripe responde sin esperar al envío.
- * Solo se programa para donativos que confirmarPago acaba de pasar a pagados, así que un aviso
- * repetido no manda un segundo correo.
+ * Quién manda el correo: la confirmación del pago corre como el usuario guest del sitio, que no tiene
+ * (ni debe tener) el permiso "Send Email". Por eso confirmarPago solo publica un evento de plataforma
+ * (Comprobante_Pago__e) y el trigger que lo atiende corre como usuario interno (Automated Process).
+ *  - El evento se publica después del commit: el trigger ve el donativo ya pagado.
+ *  - Si el correo falla, el pago ya quedó confirmado; el motivo queda en Opportunity.Comprobante_Estado__c.
+ *  - Solo se publica para donativos que confirmarPago acaba de pasar a pagados, y enviar() omite los que
+ *    ya dicen "Enviado", así que un aviso repetido no manda un segundo correo.
  *
  * El correo de facturación sale de la etiqueta personalizada Mesa_Correo_Facturas
  * (Setup > Etiquetas personalizadas), para cambiarlo sin desplegar código.
  */
-public without sharing class MesaComprobante implements Queueable {
+public without sharing class MesaComprobante {
 
-    private final List<Id> donativoIds;
+    public static final String ESTADO_ENVIADO = 'Enviado';
 
     /** Correos armados en la última ejecución; las pruebas los revisan sin que se envíe nada. */
     @TestVisible private static List<Messaging.SingleEmailMessage> ultimosCorreos = new List<Messaging.SingleEmailMessage>();
 
-    public MesaComprobante(List<Id> donativoIds) {
-        this.donativoIds = donativoIds;
-    }
-
-    /** Programa el envío. No lanza excepciones: un problema con el correo no debe deshacer el pago. */
+    /** Publica el aviso. No lanza excepciones: un problema con el correo no debe deshacer el pago. */
     public static void programar(List<Id> donativoIds) {
         if (donativoIds == null || donativoIds.isEmpty()) {
             return;
         }
         try {
-            System.enqueueJob(new MesaComprobante(donativoIds));
+            List<Comprobante_Pago__e> eventos = new List<Comprobante_Pago__e>();
+            for (Id donativoId : donativoIds) {
+                eventos.add(new Comprobante_Pago__e(Donativo_Id__c = donativoId));
+            }
+            for (Database.SaveResult r : EventBus.publish(eventos)) {
+                if (!r.isSuccess()) {
+                    System.debug(LoggingLevel.ERROR, 'Comprobante: no se pudo publicar el aviso: ' + r.getErrors()[0].getStatusCode());
+                }
+            }
         } catch (Exception e) {
             System.debug(LoggingLevel.ERROR, 'Comprobante: no se pudo programar el envío: ' + e.getTypeName() + ' ' + e.getMessage());
         }
     }
 
-    public void execute(QueueableContext contexto) {
-        enviar(donativoIds);
-    }
-
-    /** Arma y envía un comprobante por donativo pagado que tenga correo. Devuelve cuántos se enviaron. */
+    /**
+     * Arma y envía un comprobante por donativo pagado que tenga correo y no lo haya recibido ya.
+     * Anota el resultado en Comprobante_Estado__c. Devuelve cuántos se enviaron.
+     */
     public static Integer enviar(List<Id> ids) {
         ultimosCorreos = new List<Messaging.SingleEmailMessage>();
+        List<Opportunity> porEnviar = new List<Opportunity>();
         for (Opportunity o : [
             SELECT Id, Amount, CloseDate, StageName, Visibilidad__c, Nombre_Visible__c, Stripe_Pago_Id__c,
-                   Campaign.Name, Contacto_Donador__r.FirstName, Contacto_Donador__r.Email
+                   Comprobante_Estado__c, Campaign.Name, Contacto_Donador__r.FirstName, Contacto_Donador__r.Email
             FROM Opportunity
             WHERE Id IN :ids AND StageName = 'Closed Won'
         ]) {
+            if (o.Comprobante_Estado__c == ESTADO_ENVIADO) {
+                continue;
+            }
             if (o.Contacto_Donador__r != null && String.isNotBlank(o.Contacto_Donador__r.Email)) {
+                porEnviar.add(o);
                 ultimosCorreos.add(armarCorreo(o));
             }
         }
         if (ultimosCorreos.isEmpty()) {
             return 0;
         }
+        Integer enviados = 0;
+        List<Opportunity> resultado = new List<Opportunity>();
         try {
-            Integer enviados = 0;
-            for (Messaging.SendEmailResult r : Messaging.sendEmail(ultimosCorreos, false)) {
+            List<Messaging.SendEmailResult> envios = Messaging.sendEmail(ultimosCorreos, false);
+            for (Integer i = 0; i < envios.size(); i++) {
+                Messaging.SendEmailResult r = envios[i];
+                String estado = ESTADO_ENVIADO;
                 if (r.isSuccess()) {
                     enviados++;
                 } else {
-                    // Sin el correo del donante: el error no incluye datos personales.
-                    System.debug(LoggingLevel.ERROR, 'Comprobante no enviado: ' + r.getErrors()[0].getStatusCode());
+                    // Solo el código: el mensaje de error podría incluir el correo del donante.
+                    estado = 'Error: ' + r.getErrors()[0].getStatusCode();
+                    System.debug(LoggingLevel.ERROR, 'Comprobante no enviado: ' + estado);
                 }
+                resultado.add(new Opportunity(Id = porEnviar[i].Id, Comprobante_Estado__c = estado));
             }
-            return enviados;
         } catch (Exception e) {
             // Típico en sandbox: "The organization is not permitted to send email" (Deliverability apagado).
-            System.debug(LoggingLevel.ERROR, 'Comprobante: la org no pudo enviar correos: ' + e.getTypeName() + ' ' + e.getMessage());
-            return 0;
+            System.debug(LoggingLevel.ERROR, 'Comprobante: la org no pudo enviar correos: ' + e.getTypeName());
+            for (Opportunity o : porEnviar) {
+                resultado.add(new Opportunity(Id = o.Id, Comprobante_Estado__c = ('Error: ' + e.getTypeName()).left(255)));
+            }
         }
+        update resultado;
+        return enviados;
     }
 
     @TestVisible

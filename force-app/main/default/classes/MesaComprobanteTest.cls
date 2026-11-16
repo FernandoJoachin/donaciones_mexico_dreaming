@@ -23,22 +23,33 @@ private class MesaComprobanteTest {
         return MesaRegalosController.guardarDonativo(campana, JSON.serialize(d)).donativoId;
     }
 
-    private static Integer trabajosProgramados() {
-        return [SELECT COUNT() FROM AsyncApexJob WHERE ApexClass.Name = 'MesaComprobante'];
+    private static Opportunity donativoConEstado(Id id) {
+        return [SELECT Comprobante_Estado__c FROM Opportunity WHERE Id = :id];
     }
 
     @IsTest
-    static void confirmarPagoProgramaUnSoloComprobanteAunqueElAvisoLlegueDosVeces() {
+    static void confirmarPagoPublicaElAvisoYElTriggerEnviaUnSoloComprobante() {
         Id id = donativo('Publica', 'P1000', 'luz@example.com');
 
         Test.startTest();
         MesaRegalosService.confirmarPago(new List<Id>{ id });
-        MesaRegalosService.confirmarPago(new List<Id>{ id });   // aviso repetido
+        MesaRegalosService.confirmarPago(new List<Id>{ id });   // aviso repetido de Stripe
+        Test.getEventBus().deliver();                           // corre ComprobantePagoTrigger
         Test.stopTest();
 
-        Assert.areEqual(1, trabajosProgramados(), 'El segundo aviso no debe programar otro correo');
-        Assert.areEqual(1, MesaComprobante.ultimosCorreos.size());
+        Assert.areEqual(1, MesaComprobante.ultimosCorreos.size(), 'El segundo aviso no debe mandar otro correo');
         Assert.areEqual('luz@example.com', MesaComprobante.ultimosCorreos[0].getToAddresses()[0]);
+        Assert.areEqual('Enviado', donativoConEstado(id).Comprobante_Estado__c);
+    }
+
+    @IsTest
+    static void unComprobanteYaEnviadoNoSeVuelveAEnviar() {
+        Id id = donativo('Publica', 'P1000', 'luz@example.com');
+        MesaRegalosService.confirmarPago(new List<Id>{ id });
+
+        Assert.areEqual(1, MesaComprobante.enviar(new List<Id>{ id }));
+        Assert.areEqual(0, MesaComprobante.enviar(new List<Id>{ id }), 'Ya dice Enviado: no se repite');
+        Assert.areEqual(0, MesaComprobante.ultimosCorreos.size());
     }
 
     @IsTest
