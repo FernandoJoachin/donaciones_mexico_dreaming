@@ -313,12 +313,15 @@ private class MesaRegalosDonativoTest {
         // La misma persona donó en público ($1,000) y en anónimo ($3,000): su renglón muestra
         // solo lo público y lo anónimo va al total, sin ligarse a su nombre.
         MesaRegalosController.MuroDTO muro = MesaRegalosController.obtenerMuro(campana());
-        Map<Decimal, Integer> renglonesPorMonto = new Map<Decimal, Integer>();
+        // Llave entera: en un Map<Decimal, ...> 1000.00 y 1000 son llaves distintas
+        // (aunque 1000.00 == 1000 sea verdadero), y el monto llega con dos decimales.
+        Map<Integer, Integer> renglonesPorMonto = new Map<Integer, Integer>();
         for (MesaRegalosController.MuroItem item : muro.donantes) {
             Assert.areNotEqual('Anónimo', item.nombre);
             Assert.areEqual('Luz Prueba', item.nombre);
             Assert.isNotNull(item.fecha);
-            renglonesPorMonto.put(item.monto, renglonesPorMonto.containsKey(item.monto) ? renglonesPorMonto.get(item.monto) + 1 : 1);
+            Integer llave = item.monto.intValue();
+            renglonesPorMonto.put(llave, renglonesPorMonto.containsKey(llave) ? renglonesPorMonto.get(llave) + 1 : 1);
         }
         Assert.areEqual(2, muro.donantes.size());
         Assert.areEqual(1, renglonesPorMonto.get(1000));

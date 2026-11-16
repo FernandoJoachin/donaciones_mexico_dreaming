@@ -321,7 +321,18 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué se corrigió:** el permission set rechazó permisos de campo en campos obligatorios y pedía lectura de Campaign; el script no podía escribir `Orden__c` sin permiso de campo, así que se agregó al permission set de administración.
 - **Aceleración estimada:** ~6 h.
 
-### 26. Integración de pagos con Stripe Checkout y webhook (US-05)
+### 26. Diagnóstico de la prueba del muro que fallaba (US-21)
+- **Fecha:** 2026-11-15
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** US-21 / SCRUM-134
+- **Qué se pidió:** saber por qué fallaba `muroConsolidaPorDonanteSeparaAnonimosYExcluyePendientes` (Expected 1, Actual null en la línea 324) y corregirla.
+- **Qué se obtuvo:** el código del muro estaba bien; la prueba guardaba los montos como llaves de un `Map<Decimal, Integer>`. El monto llega como `1000.00` y se buscaba con `get(1000)`: en Apex `1000.00 == 1000` es verdadero, pero en un Map son llaves distintas.
+- **Qué se verificó y cómo:** se repitió el escenario de la prueba con Apex anónimo en la org de desarrollo, deshaciendo los datos al final: el muro devolvió renglones de 1000 y 5000 y 3000 en el total anónimo. Aparte se comprobó que `m.get(1000)` da `null` cuando la llave guardada es `1000.00`.
+- **Qué se corrigió:** solo la prueba, que ahora usa `item.monto.intValue()` como llave. Pasan las 39 pruebas de `MesaRegalosDonativoTest` y `MesaCampanasTest` en la org de desarrollo.
+- **Aceleración estimada:** ~1 h.
+
+### 27. Integración de pagos con Stripe Checkout y webhook (US-05)
 - **Fecha:** 2026-11-15
 - **Autor:** Fernando Joachín
 - **Herramienta:** Claude (Anthropic), con acceso a la carpeta del proyecto y a la cuenta de prueba de Stripe
@@ -329,10 +340,10 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué se pidió:** analizar el proyecto, proponer e implementar el pago con Stripe para que la donación quede registrada como pendiente antes de pagar, se cobre exactamente el monto elegido y se confirme sola; más una guía de pruebas.
 - **Qué se obtuvo:** primero una propuesta (sin tocar código) que comparó Checkout, Elements y los Payment Links existentes, y dejó cuatro decisiones al autor: X = $100 MXN (el mínimo que ya existía), facturación fuera de esta historia, aviso en el sitio (sin correo) y reemplazar los Payment Links. Después: `MesaPagosStripe` (sesión de Checkout y firma), `MesaStripeWebhook` (aviso de pago), `iniciarPago` y `estadoPago` en el controlador, credencial con nombre, configuración `Stripe_Config__c`, permission set `Mesa_Sitio_Pagos`, cambios en `mesaRegistro` y `mesaMuro`, 16 pruebas en `MesaPagosStripeTest` y `docs/guia_pruebas_stripe.md`.
 - **Qué se verificó y cómo:** pago de prueba de punta a punta en la sandbox UADY con la tarjeta `4242…`: Stripe cobró MXN $1,000.00 con `client_reference_id` y `metadata.donativo_id` iguales al Id del donativo, y el evento `checkout.session.completed` se entregó al webhook sin pendientes (revisado con la API de Stripe). El sitio mostró el agradecimiento al volver.
-- **Qué se corrigió:** ver entradas 27 a 29.
+- **Qué se corrigió:** ver entradas 28 a 30.
 - **Aceleración estimada:** ~12 h (diseño, Apex, LWC, pruebas y guía).
 
-### 27. ⚠ Error de la IA — metadata inválida y el mismo error de la entrada 21
+### 28. ⚠ Error de la IA — metadata inválida y el mismo error de la entrada 21
 - **Fecha:** 2026-11-15
 - **Autor:** Fernando Joachín
 - **Herramienta:** Claude (Anthropic)
@@ -343,7 +354,7 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué se corrigió:** se quitó `description` y las propiedades se conservaron marcadas como "(Ya no se usa)"; el código ya no las lee.
 - **Aceleración estimada:** ~15 min. Lección: revisar la bitácora antes de quitar propiedades de un componente que está en un sitio.
 
-### 28. ⚠ Error de la IA — parámetro de Stripe ya no soportado
+### 29. ⚠ Error de la IA — parámetro de Stripe ya no soportado
 - **Fecha:** 2026-11-15
 - **Autor:** Fernando Joachín
 - **Herramienta:** Claude (Anthropic)
@@ -354,7 +365,7 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué se corrigió:** se quitó el parámetro. En la revisión final se mejoró el registro para guardar tipo, código, parámetro y mensaje del error de Stripe.
 - **Aceleración estimada:** ~30 min, aunque el registro pobre alargó el diagnóstico.
 
-### 29. ⚠ Error de la IA — al usuario guest le faltaba un permiso de la credencial
+### 30. ⚠ Error de la IA — al usuario guest le faltaba un permiso de la credencial
 - **Fecha:** 2026-11-15
 - **Autor:** Fernando Joachín
 - **Herramienta:** Claude (Anthropic)
@@ -365,13 +376,13 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué se corrigió:** se agregó solo esa lectura a `Mesa_Sitio_Pagos`. Después de desplegarlo, el sitio abrió Stripe.
 - **Aceleración estimada:** ~1 h.
 
-### 30. Revisión de buenas prácticas del código de pagos
+### 31. Revisión de buenas prácticas del código de pagos
 - **Fecha:** 2026-11-15
 - **Autor:** Fernando Joachín
 - **Herramienta:** Claude (Anthropic)
 - **Historia:** US-05 / SCRUM-9
 - **Qué se pidió:** revisar que el código generado siguiera buenas prácticas.
-- **Qué se obtuvo:** una revisión con lo que estaba bien y seis puntos. Se aplicaron tres: cobrar siempre en pesos (`adaptive_pricing[enabled]=false`, porque con Adaptive Pricing un donante extranjero podía pagar en otra moneda y el webhook rechazaría la confirmación), el registro de errores de Stripe (entrada 28) y borrar los scripts temporales de diagnóstico. Quedó sin aplicar la llave de idempotencia con huella de los datos.
+- **Qué se obtuvo:** una revisión con lo que estaba bien y seis puntos. Se aplicaron tres: cobrar siempre en pesos (`adaptive_pricing[enabled]=false`, porque con Adaptive Pricing un donante extranjero podía pagar en otra moneda y el webhook rechazaría la confirmación), el registro de errores de Stripe (entrada 29) y borrar los scripts temporales de diagnóstico. Quedó sin aplicar la llave de idempotencia con huella de los datos.
 - **Qué se verificó y cómo:** la configuración de métodos de pago y la sesión pagada se leyeron con la API de Stripe; las pruebas de Apex se corren al desplegar.
 - **Qué se corrigió:** lo descrito arriba.
 - **Aceleración estimada:** ~1 h.
@@ -380,8 +391,7 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 12 (1–9 y 23–25) | 7 (entradas 1, 4, 5, 8, 9, 23 y 24) |
-| Fernando Joachín | 11 (entradas 10–15 y 26–30) | 5 (entradas 11, 13, 27, 28 y 29) |
-| Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
+| José Carlos Leo Fernández | 13 (1–9 y 23–26) | 7 (entradas 1, 4, 5, 8, 9, 23 y 24) |
+| Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 
 Requisito de la rúbrica: mínimo 3 entradas con error de la IA, incluyendo a los tres integrantes.
