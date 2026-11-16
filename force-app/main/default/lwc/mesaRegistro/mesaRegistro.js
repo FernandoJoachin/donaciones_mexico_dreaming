@@ -2,13 +2,18 @@ import { LightningElement, api, wire } from 'lwc';
 import { CurrentPageReference } from 'lightning/navigation';
 import guardarDonativo from '@salesforce/apex/MesaRegalosController.guardarDonativo';
 import obtenerCampana from '@salesforce/apex/MesaRegalosController.obtenerCampana';
-import { parseMonto, formatearMonto, mensajeError, resolverUrl, irA, guardarRetornoPago } from 'c/mesaUtil';
+import iniciarPago from '@salesforce/apex/MesaRegalosController.iniciarPago';
+import { parseMonto, formatearMonto, mensajeError, resolverUrl, irA, guardarRetornoPago, leerRetornoPago } from 'c/mesaUtil';
 
 // Deben coincidir con MesaRegalosController (el servidor es quien manda).
 const MONTO_MINIMO = 100;
 const PAQUETES = { P1000: 1000, P3000: 3000, P5000: 5000 };
 const LINKEDIN = /^https:\/\/([a-z]{2,3}\.)?linkedin\.com\/(in|company)\/\S+$/i;
 const CORREO = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+const ID_DONATIVO = /^[A-Za-z0-9]{15}([A-Za-z0-9]{3})?$/;
+
+/** Último tramo de una ruta ("/donaciones/s/registro" -> "registro"): el servidor solo acepta nombres de página. */
+const ultimoTramo = (ruta) => String(ruta || '').split('/').filter(Boolean).pop() || '';
 
 /**
  * Registro y donación en un solo formulario, sin token: la persona se identifica con su correo.
@@ -20,14 +25,14 @@ export default class MesaRegistro extends LightningElement {
     @api avisoUrl;
     @api versionAviso = 'v1';
     /**
-     * Opcional. Enlace de pago (Payment Link de Stripe). Si se llena, al registrar el donativo
-     * se redirige ahí con el Id del donativo (client_reference_id) y el correo pre-rellenado.
+     * Obsoletas desde US-05: el pago usa Stripe Checkout creado en el servidor. Se conservan solo porque
+     * Salesforce no permite quitar propiedades que el sitio publicado tiene guardadas. No se leen.
      */
     @api urlPago;
     @api urlPagoP1000;
     @api urlPagoP3000;
     @api urlPagoP5000;
-    /** Página del muro (donde se muestra el agradecimiento al terminar de pagar). */
+    /** Página del muro: Stripe regresa ahí al terminar de pagar y ahí se avisa el resultado. */
     @api paginaMuro = 'muro';
 
     /** Campaña que viene en la dirección (?campana=<Id>), por ejemplo desde el botón Donar de su página. */
@@ -37,7 +42,24 @@ export default class MesaRegistro extends LightningElement {
     leerCampanaDeLaDireccion(ref) {
         this.campanaUrl = ref && ref.state && ref.state.campana ? ref.state.campana : undefined;
         this.aplicarMontoDeLaDireccion(ref && ref.state ? ref.state.monto : undefined);
+        this.aplicarRegresoDelPago(ref && ref.state);
         this.cargarCampanaInfo();
+    }
+
+    /**
+     * Stripe regresa aquí si la persona cancela (?pago=cancelado&donativo=<Id>). El donativo sigue
+     * pendiente: se avisa y se ofrece pagar de nuevo el mismo donativo, sin crear otro (CA6, CA7).
+     */
+    regresoAplicado = false;
+
+    aplicarRegresoDelPago(estado) {
+        if (this.regresoAplicado || !estado || estado.pago !== 'cancelado' || !ID_DONATIVO.test(estado.donativo || '')) {
+            return;
+        }
+        this.regresoAplicado = true;
+        leerRetornoPago(); // ya no se viene de un pago: el muro no debe decir "Confirmando tu pago"
+        this.donativoId = estado.donativo;
+        this.pagoCancelado = true;
     }
 
     /** Datos públicos de la campaña para el encabezado (nombre y resumen). */
@@ -120,8 +142,6 @@ export default class MesaRegistro extends LightningElement {
 
     enviando = false;
     registrado = false;
-    /** Maqueta de la pasarela: se usa mientras no haya Payment Link configurado. */
-    pagoSimulado = false;
     pagoCancelado = false;
     donativoId;
     error;
@@ -144,15 +164,7 @@ export default class MesaRegistro extends LightningElement {
     ];
 
     get mostrarFormulario() {
-        return !this.registrado && !this.pagoSimulado && !this.pagoCancelado;
-    }
-
-    get totalPago() {
-        return this.montoValido ? formatearMonto(this.montoFinal) : '';
-    }
-
-    get correoPago() {
-        return this.correo.trim();
+        return !this.registrado && !this.pagoCancelado;
     }
 
     get referenciaPago() {
@@ -200,33 +212,6 @@ export default class MesaRegistro extends LightningElement {
     }
 
 
-    /** Payment Link que corresponde al paquete elegido. */
-    get enlacePago() {
-        const enlaces = {
-            P1000: this.urlPagoP1000,
-            P3000: this.urlPagoP3000,
-            P5000: this.urlPagoP5000,
-            Abierto: this.urlPago
-        };
-        return enlaces[this.paquete];
-    }
-
-    /** Arma la URL de pago: Id del donativo (para conciliar), correo bloqueado y, en monto libre, el monto en centavos. */
-    armarUrlPago(donativoId) {
-        const base = this.enlacePago;
-        if (!base) {
-            return null;
-        }
-        const separador = base.includes('?') ? '&' : '?';
-        let url =
-            `${base}${separador}client_reference_id=${encodeURIComponent(donativoId)}` +
-            `&locked_prefilled_email=${encodeURIComponent(this.correo.trim())}`;
-        if (this.esAbierto) {
-            url += `&prefilled_amount=${Math.round(this.montoFinal * 100)}`;
-        }
-        return url;
-    }
-
     cambio(evento) {
         const campo = evento.target.dataset.campo;
         if (evento.target.type === 'checkbox') {
@@ -273,23 +258,35 @@ export default class MesaRegistro extends LightningElement {
         return undefined;
     }
 
-    /** Maqueta: "pagar" no cobra ni confirma nada; solo lleva al muro con el mensaje "Confirmando tu pago". */
-    pagarSimulado() {
-        guardarRetornoPago('exito');
-        // El muro abre la campaña a la que se donó, no la configurada por defecto.
-        const consulta = this.idCampana ? `?campana=${encodeURIComponent(this.idCampana)}` : '';
-        irA(resolverUrl(this.paginaMuro, null, false) + consulta);
-    }
-
-    /** Maqueta: cancelar deja el donativo pendiente y ofrece intentar de nuevo (sin crear otro registro). */
-    cancelarSimulado() {
-        this.pagoSimulado = false;
-        this.pagoCancelado = true;
-    }
-
     reintentarPago() {
-        this.pagoCancelado = false;
-        this.pagoSimulado = true;
+        this.abrirPago();
+    }
+
+    /**
+     * Pide al servidor la sesión de Stripe del donativo ya guardado y lleva a la persona a pagar.
+     * El monto lo pone el servidor con lo guardado; aquí solo viaja el Id del donativo.
+     */
+    async abrirPago() {
+        this.error = undefined;
+        this.enviando = true;
+        try {
+            const url = await iniciarPago({
+                donativoId: this.donativoId,
+                paginaExito: ultimoTramo(this.paginaMuro),
+                paginaRegreso: ultimoTramo(window.location.pathname)
+            });
+            // Al volver, el muro consulta el estado real de este donativo para avisar el resultado (CA7).
+            guardarRetornoPago(this.donativoId);
+            this.pagoCancelado = false;
+            this.registrado = true;
+            irA(url);
+        } catch (e) {
+            this.error = mensajeError(e);
+            this.registrado = false;
+            this.pagoCancelado = true;
+        } finally {
+            this.enviando = false;
+        }
     }
 
     async enviar() {
@@ -299,8 +296,9 @@ export default class MesaRegistro extends LightningElement {
         }
         const comoEmpresa = this.esPublico && this.esEmpresa;
         this.enviando = true;
+        let r;
         try {
-            const r = await guardarDonativo({
+            r = await guardarDonativo({
                 campaignId: this.idCampana || null,
                 datosJson: JSON.stringify({
                     paquete: this.paquete,
@@ -319,21 +317,18 @@ export default class MesaRegistro extends LightningElement {
                     sitioWeb: this.sitioWeb
                 })
             });
-
-            this.donativoId = r && r.donativoId;
-            const urlPago = this.donativoId ? this.armarUrlPago(this.donativoId) : null;
-            if (urlPago) {
-                // Con Payment Link configurado: pago real (modo de prueba de Stripe).
-                this.registrado = true;
-                window.location.href = urlPago;
-            } else {
-                // Sin Payment Link todavía: maqueta de la pasarela para no dejar al donante en una página sin salida.
-                this.pagoSimulado = true;
-            }
         } catch (e) {
             this.error = mensajeError(e);
+            return;
         } finally {
             this.enviando = false;
+        }
+        // CA1: el donativo ya quedó guardado como pendiente; hasta ahora se abre la pasarela.
+        this.donativoId = r && r.donativoId;
+        if (this.donativoId) {
+            await this.abrirPago();
+        } else {
+            this.registrado = true; // campo trampa: no se guardó nada y no hay pago que abrir
         }
     }
 }

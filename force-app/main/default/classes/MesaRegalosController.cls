@@ -506,6 +506,76 @@ public without sharing class MesaRegalosController {
         return res;
     }
 
+    // ---------- Pago con Stripe Checkout (US-05) ----------
+
+    private static final Pattern PAGINA_VALIDA = Pattern.compile('^[A-Za-z0-9][A-Za-z0-9\\-_]{0,59}$');
+
+    /**
+     * Abre la pasarela para un donativo ya registrado y pendiente. Es una llamada aparte de
+     * guardarDonativo porque el donativo debe quedar guardado antes del pago (CA1) y Apex no permite
+     * un callout después de un DML en la misma transacción.
+     *  - El monto sale de la Opportunity guardada; el navegador no lo envía.
+     *  - Solo acepta donativos pendientes de una campaña activa.
+     *  - paginaExito y paginaRegreso son nombres de página del sitio (por ejemplo "muro" y "registro");
+     *    la dirección base la fija la configuración Stripe_Config__c, no el navegador.
+     *  - Reintentar devuelve la misma sesión durante 24 h (idempotencia en Stripe).
+     */
+    @AuraEnabled
+    public static String iniciarPago(Id donativoId, String paginaExito, String paginaRegreso) {
+        if (donativoId == null || donativoId.getSobjectType() != Opportunity.SObjectType) {
+            throw crearError('No pudimos identificar tu donativo.');
+        }
+        List<Opportunity> ops = [
+            SELECT Id, Amount, StageName, CampaignId, Campaign.Name, Campaign.IsActive, Contacto_Donador__r.Email
+            FROM Opportunity WHERE Id = :donativoId LIMIT 1
+        ];
+        if (ops.isEmpty()) {
+            throw crearError('No pudimos identificar tu donativo.');
+        }
+        Opportunity o = ops[0];
+        if (o.StageName != MesaPagosStripe.ETAPA_PENDIENTE) {
+            throw crearError('Este donativo ya no está pendiente de pago.');
+        }
+        if (o.CampaignId == null || o.Campaign.IsActive != true || o.Amount == null || o.Amount <= 0) {
+            throw crearError('No pudimos iniciar el pago de este donativo.');
+        }
+        String base = MesaPagosStripe.urlSitio();
+        if (base == null || !esPaginaValida(paginaExito) || !esPaginaValida(paginaRegreso)) {
+            throw crearError('El pago en línea no está disponible por ahora. Intenta más tarde.');
+        }
+        String campana = EncodingUtil.urlEncode(String.valueOf(o.CampaignId), 'UTF-8');
+        String urlExito = base + '/' + paginaExito + '?campana=' + campana;
+        String urlCancelacion = base + '/' + paginaRegreso + '?campana=' + campana
+            + '&pago=cancelado&donativo=' + EncodingUtil.urlEncode(String.valueOf(o.Id), 'UTF-8');
+        try {
+            return MesaPagosStripe.crearSesion(o, urlExito, urlCancelacion);
+        } catch (Exception e) {
+            System.debug(LoggingLevel.ERROR, 'Stripe: no se pudo crear la sesión del donativo ' + o.Id + ': ' + e.getTypeName() + ' ' + e.getMessage());
+            throw crearError('No pudimos abrir la pasarela de pago. Intenta de nuevo en unos minutos.');
+        }
+    }
+
+    /**
+     * Estado del pago de un donativo para el aviso al volver de la pasarela (CA7): 'pagado',
+     * 'pendiente' o null si el Id no es un donativo. No devuelve ningún otro dato.
+     */
+    @AuraEnabled
+    public static String estadoPago(String donativoId) {
+        Id oid = MesaPagosStripe.aIdDeOportunidad(donativoId);
+        if (oid == null) {
+            return null;
+        }
+        List<Opportunity> ops = [SELECT StageName FROM Opportunity WHERE Id = :oid LIMIT 1];
+        if (ops.isEmpty()) {
+            return null;
+        }
+        return ops[0].StageName == MesaPagosStripe.ETAPA_PAGADO ? 'pagado' : 'pendiente';
+    }
+
+    private static Boolean esPaginaValida(String pagina) {
+        return pagina != null && PAGINA_VALIDA.matcher(pagina).matches();
+    }
+
     // ---------- Baja de avisos (página /baja) ----------
 
     /**

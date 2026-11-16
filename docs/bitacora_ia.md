@@ -321,12 +321,67 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué se corrigió:** el permission set rechazó permisos de campo en campos obligatorios y pedía lectura de Campaign; el script no podía escribir `Orden__c` sin permiso de campo, así que se agregó al permission set de administración.
 - **Aceleración estimada:** ~6 h.
 
+### 26. Integración de pagos con Stripe Checkout y webhook (US-05)
+- **Fecha:** 2026-11-15
+- **Autor:** Fernando Joachín
+- **Herramienta:** Claude (Anthropic), con acceso a la carpeta del proyecto y a la cuenta de prueba de Stripe
+- **Historia:** US-05 / SCRUM-9
+- **Qué se pidió:** analizar el proyecto, proponer e implementar el pago con Stripe para que la donación quede registrada como pendiente antes de pagar, se cobre exactamente el monto elegido y se confirme sola; más una guía de pruebas.
+- **Qué se obtuvo:** primero una propuesta (sin tocar código) que comparó Checkout, Elements y los Payment Links existentes, y dejó cuatro decisiones al autor: X = $100 MXN (el mínimo que ya existía), facturación fuera de esta historia, aviso en el sitio (sin correo) y reemplazar los Payment Links. Después: `MesaPagosStripe` (sesión de Checkout y firma), `MesaStripeWebhook` (aviso de pago), `iniciarPago` y `estadoPago` en el controlador, credencial con nombre, configuración `Stripe_Config__c`, permission set `Mesa_Sitio_Pagos`, cambios en `mesaRegistro` y `mesaMuro`, 16 pruebas en `MesaPagosStripeTest` y `docs/guia_pruebas_stripe.md`.
+- **Qué se verificó y cómo:** pago de prueba de punta a punta en la sandbox UADY con la tarjeta `4242…`: Stripe cobró MXN $1,000.00 con `client_reference_id` y `metadata.donativo_id` iguales al Id del donativo, y el evento `checkout.session.completed` se entregó al webhook sin pendientes (revisado con la API de Stripe). El sitio mostró el agradecimiento al volver.
+- **Qué se corrigió:** ver entradas 27 a 29.
+- **Aceleración estimada:** ~12 h (diseño, Apex, LWC, pruebas y guía).
+
+### 27. ⚠ Error de la IA — metadata inválida y el mismo error de la entrada 21
+- **Fecha:** 2026-11-15
+- **Autor:** Fernando Joachín
+- **Herramienta:** Claude (Anthropic)
+- **Historia:** US-05 / SCRUM-9
+- **Qué se pidió:** desplegar la integración de Stripe.
+- **Qué se obtuvo:** el despliegue falló con dos errores: la credencial con nombre traía `description`, que no es válida en la versión 62.0, y la IA había quitado del `js-meta.xml` de `mesaRegistro` las cuatro propiedades de Payment Link, que el sitio publicado todavía tenía guardadas. Es el mismo error de la entrada 21.
+- **Qué se verificó y cómo:** la salida de `sf project deploy start`. Como el despliegue es todo o nada, la org no cambió.
+- **Qué se corrigió:** se quitó `description` y las propiedades se conservaron marcadas como "(Ya no se usa)"; el código ya no las lee.
+- **Aceleración estimada:** ~15 min. Lección: revisar la bitácora antes de quitar propiedades de un componente que está en un sitio.
+
+### 28. ⚠ Error de la IA — parámetro de Stripe ya no soportado
+- **Fecha:** 2026-11-15
+- **Autor:** Fernando Joachín
+- **Herramienta:** Claude (Anthropic)
+- **Historia:** US-05 / SCRUM-9
+- **Qué se pidió:** abrir la pasarela desde el sitio.
+- **Qué se obtuvo:** el sitio mostraba "No pudimos abrir la pasarela de pago". La IA había enviado `payment_method_types`, que Stripe ya no acepta al crear sesiones de Checkout (ahora los métodos se eligen en el Dashboard). Además, el registro de errores solo guardaba el código HTTP, así que la causa no se veía.
+- **Qué se verificó y cómo:** la cuenta de Stripe no tenía ninguna sesión creada; un script de diagnóstico en Apex anónimo repitió la petición y mostró la respuesta completa (`HTTP 400`, `param: payment_method_types`).
+- **Qué se corrigió:** se quitó el parámetro. En la revisión final se mejoró el registro para guardar tipo, código, parámetro y mensaje del error de Stripe.
+- **Aceleración estimada:** ~30 min, aunque el registro pobre alargó el diagnóstico.
+
+### 29. ⚠ Error de la IA — al usuario guest le faltaba un permiso de la credencial
+- **Fecha:** 2026-11-15
+- **Autor:** Fernando Joachín
+- **Herramienta:** Claude (Anthropic)
+- **Historia:** US-05 / SCRUM-9
+- **Qué se pidió:** que el visitante del sitio (usuario guest) pudiera abrir la pasarela.
+- **Qué se obtuvo:** con el usuario administrador funcionaba y con el guest no. El permission set que preparó la IA daba acceso al principal de la credencial pero no la lectura del objeto *User External Credential*, que Salesforce también exige.
+- **Qué se verificó y cómo:** se activó un registro de depuración del usuario guest y se leyó el error: `You don't have read permissions on the User External Credential object`.
+- **Qué se corrigió:** se agregó solo esa lectura a `Mesa_Sitio_Pagos`. Después de desplegarlo, el sitio abrió Stripe.
+- **Aceleración estimada:** ~1 h.
+
+### 30. Revisión de buenas prácticas del código de pagos
+- **Fecha:** 2026-11-15
+- **Autor:** Fernando Joachín
+- **Herramienta:** Claude (Anthropic)
+- **Historia:** US-05 / SCRUM-9
+- **Qué se pidió:** revisar que el código generado siguiera buenas prácticas.
+- **Qué se obtuvo:** una revisión con lo que estaba bien y seis puntos. Se aplicaron tres: cobrar siempre en pesos (`adaptive_pricing[enabled]=false`, porque con Adaptive Pricing un donante extranjero podía pagar en otra moneda y el webhook rechazaría la confirmación), el registro de errores de Stripe (entrada 28) y borrar los scripts temporales de diagnóstico. Quedó sin aplicar la llave de idempotencia con huella de los datos.
+- **Qué se verificó y cómo:** la configuración de métodos de pago y la sesión pagada se leyeron con la API de Stripe; las pruebas de Apex se corren al desplegar.
+- **Qué se corrigió:** lo descrito arriba.
+- **Aceleración estimada:** ~1 h.
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
 | José Carlos Leo Fernández | 12 (1–9 y 23–25) | 7 (entradas 1, 4, 5, 8, 9, 23 y 24) |
-| Fernando Joachín | 5 (entradas 10–15) | 2 (entradas 11 y 13) |
+| Fernando Joachín | 11 (entradas 10–15 y 26–30) | 5 (entradas 11, 13, 27, 28 y 29) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 
 Requisito de la rúbrica: mínimo 3 entradas con error de la IA, incluyendo a los tres integrantes.

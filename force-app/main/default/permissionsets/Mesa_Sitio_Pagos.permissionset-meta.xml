@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Para el usuario guest del sitio: recibir el aviso de pagos de Stripe y usar la credencial Stripe al abrir la pasarela. Solo da lectura al objeto User External Credential, que Salesforce exige para usar la credencial; ningún otro objeto.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Mesa - Pagos del sitio (guest)</label>
+    <classAccesses>
+        <apexClass>MesaStripeWebhook</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <externalCredentialPrincipalAccesses>
+        <enabled>true</enabled>
+        <externalCredentialPrincipal>Stripe-Clave</externalCredentialPrincipal>
+    </externalCredentialPrincipalAccesses>
+    <objectPermissions>
+        <allowCreate>false</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>UserExternalCredential</object>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+</PermissionSet>
