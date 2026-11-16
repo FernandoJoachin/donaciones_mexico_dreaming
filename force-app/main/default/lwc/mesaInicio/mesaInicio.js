@@ -1,5 +1,4 @@
 import { LightningElement, api } from 'lwc';
-import { resolverUrl, irA } from 'c/mesaUtil';
 
 /**
  * Landing del inicio: portada, cómo sumarte y datos informativos. La lista de campañas
@@ -12,12 +11,15 @@ export default class MesaInicio extends LightningElement {
     @api descripcion =
         'Con el espíritu de Ohana, invitamos a quienes cursaron la materia de Salesforce a devolver un poco de lo que recibieron.';
     @api textoBotonDonar = 'Quiero donar';
-    @api textoBotonMuro = 'Ver quién ya se sumó';
+    /**
+     * Obsoletas desde SCRUM-135: cada campaña tiene su propio muro y el enlace vive en su página.
+     * Se conservan porque Salesforce no deja quitar propiedades que el sitio publicado tiene guardadas. No se leen.
+     */
+    @api textoBotonMuro;
+    @api paginaMuro;
     @api tituloFinal = 'Gracias por ser parte de Ohana';
     @api textoFinal =
-        'Cada aportación ayuda a que más personas vivan la experiencia. Conoce a quienes ya se sumaron.';
-    /** Nombre de la página del muro (como aparece en la URL) o ruta completa que empiece con "/". */
-    @api paginaMuro = 'muro';
+        'Cada aportación ayuda a que más personas vivan la experiencia. Elige una campaña y súmate.';
     @api mostrarCierre = false;
     @api tituloSobre = 'Sobre la campaña';
     @api subSobre = 'Lo que conviene saber antes de donar.';
@@ -26,7 +28,7 @@ export default class MesaInicio extends LightningElement {
     @api infoTitulo2 = 'Cada campaña, su meta';
     @api infoTexto2 = 'Cada campaña tiene su propia meta y su avance. Entra a la que más te llegue para ver los detalles.';
     @api infoTitulo3 = 'Transparencia';
-    @api infoTexto3 = 'Puedes ver cuánto lleva cada campaña y quiénes ya se sumaron en el muro de agradecimiento.';
+    @api infoTexto3 = 'Cada campaña muestra cuánto lleva y quiénes ya se sumaron en su muro de agradecimiento.';
 
     get pasos() {
         return [
@@ -52,9 +54,5 @@ export default class MesaInicio extends LightningElement {
     irACampanas() {
         const fin = this.template.host.getBoundingClientRect().bottom + window.scrollY;
         window.scrollTo({ top: Math.max(fin - 24, 0), behavior: 'smooth' });
-    }
-
-    verMuro() {
-        irA(resolverUrl(this.paginaMuro, null, true));
     }
 }

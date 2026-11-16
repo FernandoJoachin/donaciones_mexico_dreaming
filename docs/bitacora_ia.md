@@ -387,11 +387,23 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué se corrigió:** lo descrito arriba.
 - **Aceleración estimada:** ~1 h.
 
+### 32. Revisión del PR de pagos y muro por campaña (SCRUM-135)
+- **Fecha:** 2026-11-16
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** US-05 / SCRUM-9 (revisión del PR #27) y SCRUM-135
+- **Qué se pidió:** revisar el PR de Stripe antes de mergearlo y, a pedido de Fernando, quitar del inicio el botón "Ver quién ya se sumó", porque cada campaña tiene su propio muro.
+- **Qué se obtuvo:** la revisión confirmó que el PR conserva los cambios previos de `entrega-1` y valida firma, monto, moneda y duplicados; dejó como pendientes que los avisos rechazados solo quedan en el log (US-17 CA1, US-08) y el correo del comprobante (US-07). Para el muro: el botón se quitó del inicio (en el cierre queda "Quiero donar") y cada campaña tiene "Ver muro de agradecimiento", que abre `muro?campana=<Id>`.
+- **Qué se verificó y cómo:** las 57 pruebas de Apex del PR pasan en la org de desarrollo; el código desplegado en la sandbox UADY es el mismo del PR. Como visitante en UADY: el inicio ya no tiene el botón, y desde "Becas de conectividad" el enlace abre el muro de esa campaña, sin mensaje de gracias.
+- **Qué se corrigió:** al mergear el PR #27 se había perdido la fila de Daniel en la tabla de abajo; se restauró tal como estaba.
+- **Aceleración estimada:** ~1 h.
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 13 (1–9 y 23–26) | 7 (entradas 1, 4, 5, 8, 9, 23 y 24) |
+| José Carlos Leo Fernández | 14 (1–9, 23–26 y 32) | 7 (entradas 1, 4, 5, 8, 9, 23 y 24) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
+| Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 
 Requisito de la rúbrica: mínimo 3 entradas con error de la IA, incluyendo a los tres integrantes.

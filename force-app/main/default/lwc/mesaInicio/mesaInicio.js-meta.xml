@@ -13,10 +13,11 @@
             <property name="titulo" type="String" label="Título" default="Apoya a la comunidad"/>
             <property name="descripcion" type="String" label="Descripción breve"/>
             <property name="textoBotonDonar" type="String" label="Texto del botón de donar" default="Quiero donar"/>
-            <property name="textoBotonMuro" type="String" label="Texto del botón del muro" default="Ver quién ya se sumó"/>
+            <!-- Obsoletas desde SCRUM-135 (el muro se abre desde cada campaña). Salesforce no deja quitarlas mientras el sitio las tenga guardadas. -->
+            <property name="textoBotonMuro" type="String" label="(Ya no se usa) Texto del botón del muro"/>
             <property name="tituloFinal" type="String" label="Título del cierre" default="Gracias por ser parte de Ohana"/>
             <property name="textoFinal" type="String" label="Texto del cierre"/>
-            <property name="paginaMuro" type="String" label="Página del muro" default="muro"/>
+            <property name="paginaMuro" type="String" label="(Ya no se usa) Página del muro"/>
             <property name="mostrarCierre" type="Boolean" label="Mostrar el cierre de agradecimiento" default="false"/>
             <property name="tituloSobre" type="String" label="Título de la sección informativa" default="Sobre la campaña"/>
             <property name="subSobre" type="String" label="Subtítulo de la sección informativa"/>

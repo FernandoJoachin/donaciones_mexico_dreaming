@@ -12,6 +12,8 @@
             <property name="textoBotonDonar" type="String" label="Texto del botón de donar" default="Donar"/>
             <property name="textoVolver" type="String" label="Texto del enlace para volver" default="Ver todas las campañas"/>
             <property name="paginaDonar" type="String" label="Página de donación" default="registro"/>
+            <property name="paginaMuro" type="String" label="Página del muro" default="muro"/>
+            <property name="textoMuro" type="String" label="Texto del enlace al muro" default="Ver muro de agradecimiento"/>
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>

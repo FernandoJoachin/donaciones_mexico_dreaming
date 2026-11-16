@@ -20,6 +20,9 @@ export default class MesaCampanaDetalle extends LightningElement {
     @api textoVolver = 'Ver todas las campañas';
     /** Nombre de la página de donación (como aparece en la URL) o ruta completa que empiece con "/". */
     @api paginaDonar = 'registro';
+    /** Página del muro (como aparece en la URL); se abre con esta campaña (SCRUM-135). */
+    @api paginaMuro = 'muro';
+    @api textoMuro = 'Ver muro de agradecimiento';
 
     campanaId;
     campana;
@@ -224,6 +227,11 @@ export default class MesaCampanaDetalle extends LightningElement {
 
     get urlVolver() {
         return resolverUrl('', null, false);
+    }
+
+    /** Cada campaña tiene su muro: se abre con su Id, no el de la campaña por defecto. */
+    get urlMuro() {
+        return `${resolverUrl(this.paginaMuro, null, false)}?campana=${encodeURIComponent(this.campanaId)}`;
     }
 
     /** Si la imagen no carga (enlace roto o bloqueado), se oculta en lugar de mostrar el ícono roto. */
