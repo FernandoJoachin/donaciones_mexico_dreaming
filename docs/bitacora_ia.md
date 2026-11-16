@@ -321,11 +321,22 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué se corrigió:** el permission set rechazó permisos de campo en campos obligatorios y pedía lectura de Campaign; el script no podía escribir `Orden__c` sin permiso de campo, así que se agregó al permission set de administración.
 - **Aceleración estimada:** ~6 h.
 
+### 26. Diagnóstico de la prueba del muro que fallaba (US-21)
+- **Fecha:** 2026-11-15
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** US-21 / SCRUM-134
+- **Qué se pidió:** saber por qué fallaba `muroConsolidaPorDonanteSeparaAnonimosYExcluyePendientes` (Expected 1, Actual null en la línea 324) y corregirla.
+- **Qué se obtuvo:** el código del muro estaba bien; la prueba guardaba los montos como llaves de un `Map<Decimal, Integer>`. El monto llega como `1000.00` y se buscaba con `get(1000)`: en Apex `1000.00 == 1000` es verdadero, pero en un Map son llaves distintas.
+- **Qué se verificó y cómo:** se repitió el escenario de la prueba con Apex anónimo en la org de desarrollo, deshaciendo los datos al final: el muro devolvió renglones de 1000 y 5000 y 3000 en el total anónimo. Aparte se comprobó que `m.get(1000)` da `null` cuando la llave guardada es `1000.00`.
+- **Qué se corrigió:** solo la prueba, que ahora usa `item.monto.intValue()` como llave. Pasan las 39 pruebas de `MesaRegalosDonativoTest` y `MesaCampanasTest` en la org de desarrollo.
+- **Aceleración estimada:** ~1 h.
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 12 (1–9 y 23–25) | 7 (entradas 1, 4, 5, 8, 9, 23 y 24) |
+| José Carlos Leo Fernández | 13 (1–9 y 23–26) | 7 (entradas 1, 4, 5, 8, 9, 23 y 24) |
 | Fernando Joachín | 5 (entradas 10–15) | 2 (entradas 11 y 13) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 
