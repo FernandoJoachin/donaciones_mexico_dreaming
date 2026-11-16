@@ -398,11 +398,22 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué se corrigió:** al mergear el PR #27 se había perdido la fila de Daniel en la tabla de abajo; se restauró tal como estaba.
 - **Aceleración estimada:** ~1 h.
 
+### 33. Comprobante por correo con leyenda de factura (US-07)
+- **Fecha:** 2026-11-16
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** US-07 / SCRUM-136 (CA3 y CA4)
+- **Qué se pidió:** que al confirmarse el pago el donante reciba un comprobante por correo, con la leyenda para pedir factura, sin depender de la cuenta de Stripe.
+- **Qué se obtuvo:** la clase `MesaComprobante` (Queueable) que `confirmarPago` programa solo para los donativos que acaba de pagar; el correo lleva referencia, campaña, monto, fecha, id del pago y la leyenda de factura. El correo de facturación quedó en la etiqueta personalizada `Mesa_Correo_Facturas`. Se eligió un Queueable para que el correo corra en otra transacción, después del commit: si falla, el pago ya quedó confirmado (la misma regla de la sesión de automatización).
+- **Qué se verificó y cómo:** 5 pruebas nuevas y las 58 existentes pasan en la org de desarrollo (63 en total), incluida una que confirma el mismo pago dos veces y espera un solo correo. Antes de escribir código se comprobó, sin enviar nada, que la sandbox UADY no permite enviar correos. En UADY, con Apex anónimo y deshaciendo los datos al final: el pago quedó en "Closed Won" y el envío falló con `NO_SINGLE_MAIL_PERMISSION` sin romper la confirmación.
+- **Qué se corrigió:** el primer script de verificación no compiló porque leía un campo que solo ven las pruebas (`@TestVisible`); se cambió por el valor que devuelve el envío.
+- **Aceleración estimada:** ~2 h.
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 14 (1–9, 23–26 y 32) | 7 (entradas 1, 4, 5, 8, 9, 23 y 24) |
+| José Carlos Leo Fernández | 15 (1–9, 23–26, 32 y 33) | 7 (entradas 1, 4, 5, 8, 9, 23 y 24) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 

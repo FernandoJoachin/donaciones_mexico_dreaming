@@ -99,6 +99,10 @@ public without sharing class MesaRegalosService {
                 }
             }
         }
+
+        // US-07: comprobante por correo, en otra transacción. Solo los que se acaban de pagar,
+        // así que un aviso repetido no manda un segundo correo.
+        MesaComprobante.programar(new List<Id>(new Map<Id, Opportunity>(pendientes).keySet()));
     }
 
     /** El monto se muestra siempre; la Anónima oculta nombre, empresa y LinkedIn. */
