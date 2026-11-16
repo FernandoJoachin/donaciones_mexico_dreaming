@@ -59,7 +59,7 @@ export function resolverUrl(destino, token, desdeInicio) {
 
 const CLAVE_RETORNO_PAGO = 'mesaRetornoPago';
 
-/** Marca que la persona sale del flujo de pago hacia el muro. Si el navegador bloquea el almacenamiento, simplemente no se marca. */
+/** Marca que la persona sale a pagar (se guarda el Id del donativo). Si el navegador bloquea el almacenamiento, simplemente no se marca. */
 export function guardarRetornoPago(estado) {
     try {
         window.sessionStorage.setItem(CLAVE_RETORNO_PAGO, estado);

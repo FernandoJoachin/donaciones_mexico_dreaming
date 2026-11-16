@@ -1,8 +1,10 @@
 import { LightningElement, api, wire } from 'lwc';
 import { CurrentPageReference } from 'lightning/navigation';
+import { refreshApex } from '@salesforce/apex';
 import obtenerMuro from '@salesforce/apex/MesaRegalosController.obtenerMuro';
 import obtenerAvance from '@salesforce/apex/MesaRegalosController.obtenerAvance';
 import obtenerCampana from '@salesforce/apex/MesaRegalosController.obtenerCampana';
+import estadoPago from '@salesforce/apex/MesaRegalosController.estadoPago';
 import { leerRetornoPago, formatearMonto } from 'c/mesaUtil';
 
 const OPCIONES_ORDEN = [
@@ -14,6 +16,9 @@ const PAUSA_POR_INTERACCION_MS = 3000;
 const TIEMPO_LIMITE_CARGA_MS = 30000;
 const TAMANO_PODIO = 3;
 const SIN_CAMPANA = 'No se configuró el Id de campaña para este componente.';
+// Stripe suele regresar al sitio cuando ya entregó el aviso de pago; si aún no llega, se reintenta unos segundos.
+const INTENTOS_ESTADO_PAGO = 5;
+const ESPERA_ESTADO_PAGO_MS = 3000;
 
 /**
  * Ordena donantes por el criterio elegido ('monto' o 'fecha'). Los empates se resuelven
@@ -52,6 +57,10 @@ export default class MesaMuro extends LightningElement {
     opcionesOrden = OPCIONES_ORDEN;
     /** Solo es verdadero si la persona llega desde el flujo de pago; abrir el muro directo no muestra nada (SCRUM-99). */
     mostrarGracias = false;
+    /** Verdadero solo cuando Salesforce ya recibió el aviso firmado de Stripe (CA7). */
+    pagoConfirmado = false;
+    _donativoRetorno;
+    _estadoTimeout;
 
     _campaignId;
     _loadTimeout;
@@ -285,13 +294,46 @@ export default class MesaMuro extends LightningElement {
     }
 
     get textoGracias() {
+        if (this.pagoConfirmado) {
+            return this.nombreCampana
+                ? `Tu pago se confirmó. Tu aportación a ${this.nombreCampana} ya aparece en el muro, como la elegiste.`
+                : 'Tu pago se confirmó. Tu aportación ya aparece en el muro, como la elegiste.';
+        }
         return this.nombreCampana
             ? `Confirmando tu pago. Tu aportación a ${this.nombreCampana} aparecerá en el muro en cuanto se confirme, como la elegiste.`
             : 'Confirmando tu pago. En cuanto se confirme, tu aportación aparecerá en el muro como la elegiste.';
     }
 
     connectedCallback() {
-        this.mostrarGracias = leerRetornoPago() === 'exito';
+        // La marca la deja mesaRegistro al abrir la pasarela: es el Id del donativo que se está pagando.
+        this._donativoRetorno = leerRetornoPago();
+        this.mostrarGracias = !!this._donativoRetorno;
+        if (this.mostrarGracias) {
+            this.consultarPago(1);
+        }
+    }
+
+    /** CA7: el aviso dice el estado real (lo marca el webhook de Stripe), no la dirección de regreso. */
+    consultarPago(intento) {
+        estadoPago({ donativoId: this._donativoRetorno })
+            .then((estado) => {
+                if (estado === 'pagado') {
+                    this.pagoConfirmado = true;
+                    if (this.muro) {
+                        refreshApex(this.muro);
+                    }
+                    if (this.avance) {
+                        refreshApex(this.avance);
+                    }
+                } else if (estado === 'pendiente' && intento < INTENTOS_ESTADO_PAGO) {
+                    this._estadoTimeout = setTimeout(() => this.consultarPago(intento + 1), ESPERA_ESTADO_PAGO_MS);
+                } else if (!estado) {
+                    this.mostrarGracias = false;
+                }
+            })
+            .catch(() => {
+                // Si falla la consulta se queda "Confirmando tu pago", que nunca afirma un pago.
+            });
     }
 
     renderedCallback() {
@@ -303,6 +345,7 @@ export default class MesaMuro extends LightningElement {
     }
 
     disconnectedCallback() {
+        clearTimeout(this._estadoTimeout);
         this.limpiarTiempoLimite();
         this.detenerDesplazamiento();
         this.limpiarReanudacionDesplazamiento();

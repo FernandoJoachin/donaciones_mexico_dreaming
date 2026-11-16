@@ -2,12 +2,12 @@
 
 Proyecto base para que las personas se registren en un solo formulario y hagan un donativo en dinero, identificándose solo con su correo (sin token), con control de qué se hace público.
 
-**Estado:** los componentes validan con `--dry-run` sin errores. Las pruebas Apex (16) se validan en una Developer Edition limpia. Falta probar el pago de punta a punta con Stripe y construir el webhook de confirmación de pagos, como también una pantalla para que los admins puedan gestionar las campañas (CRUD).
+**Estado:** los componentes validan con `--dry-run` sin errores. Las pruebas Apex (16) se validan en una Developer Edition limpia. El pago con Stripe Checkout y su webhook de confirmación están implementados (US-05); falta configurarlos y probarlos de punta a punta en la org (ver [docs/guia_pruebas_stripe.md](docs/guia_pruebas_stripe.md)). Falta también una pantalla para que los admins puedan gestionar las campañas (CRUD).
 
 ## Video demo (Entrega 1)
 
 - **Video de 3 min 25 s** (subtítulos, sin voz): [demo-video/entrega-1-demo.mp4](demo-video/entrega-1-demo.mp4). Recorre como visitante sin login el sitio central, la campaña, el formulario, la maqueta del pago de prueba, el muro, la factura por correo, la seguridad y el backlog con su avance.
-- El pago con Stripe es todavía una maqueta (modo de prueba, sin cobros) y todos los datos son ficticios.
+- En el video el pago con Stripe era todavía una maqueta; hoy se usa Stripe Checkout en modo de prueba (sin cobros). Todos los datos son ficticios.
 
 ## Backlog y avance (Entrega 1)
 
@@ -49,8 +49,8 @@ Proyecto base para que las personas se registren en un solo formulario y hagan u
    - busca el **Contact** por correo y lo reutiliza sin modificar sus datos; si no existe, lo crea. El consentimiento de avisos solo se guarda si estaba vacío, así que un «No» anterior nunca se cambia;
    - crea o reutiliza el **CampaignMember** en estado `Registrado`;
    - crea la **promesa** de donativo (Opportunity en *Prospecting*) y pasa el miembro a `Redirigido a donar`;
-   - redirige al **Payment Link de Stripe** con el Id de la Opportunity (`client_reference_id`), el correo bloqueado y, en «otro monto», el monto prellenado.
-4. Cuando se confirma el pago, `MesaRegalosService.confirmarPago` marca *Closed Won*, el estado `Donó` y crea el **Reconocimiento público**. Hoy se invoca a mano (ver *Pagos con Stripe*); el siguiente paso es el webhook.
+   - con el donativo ya guardado, `iniciarPago` crea una sesión de **Stripe Checkout** con el monto de la Opportunity (no el del navegador) y el sitio redirige ahí.
+4. Stripe avisa el pago al **webhook** (`MesaStripeWebhook`); con la firma, la referencia y el monto verificados, `MesaRegalosService.confirmarPago` marca *Closed Won*, el estado `Donó` y crea el **Reconocimiento público**. Si la persona cancela o la tarjeta se rechaza, el donativo sigue pendiente (ver *Pagos con Stripe*).
 5. El muro del sitio lee únicamente Reconocimientos públicos. Las donaciones **Públicas** aparecen con nombre y monto; las **Anónimas** no aparecen como renglón: debajo de la lista, la tarjeta «Aportaciones anónimas» (componente `mesaTotalAnonimo`) muestra solo la suma de las anónimas pagadas de la campaña y qué porcentaje representa del total recaudado, y solo aparece si la suma es mayor que cero. Las empresas se marcan como tales.
 6. LinkedIn: al final de la campaña se hará una sola publicación de agradecimiento con las personas que dejaron su enlace.
 7. Quien quiera dejar de recibir avisos usa `/baja`, que escribe su correo. La respuesta es la misma exista o no el correo, para no revelar quién está registrado.
@@ -67,14 +67,16 @@ Embudo de la persona (`CampaignMember`): `Identificado` y `Contactado` (a mano, 
 
 ## Pagos con Stripe
 
-Hay 4 Payment Links: uno por paquete (precio fijo, para que el monto no se pueda editar) y uno de precio libre para «otro monto».
+Se usa **Stripe Checkout** creado desde Apex (US-05). Guía paso a paso para configurarlo y probarlo: [docs/guia_pruebas_stripe.md](docs/guia_pruebas_stripe.md).
 
-1. En Stripe, crear 3 productos de precio fijo ($1,000, $3,000, $5,000 MXN) y uno con **Customer chooses price** (mínimo $100 y máximo $1,000,000 MXN). Crear un Payment Link por cada uno.
-2. En cada enlace, configurar **After payment** para redirigir a la página `/muro` del sitio.
-3. Pegar las URLs en las propiedades del componente *Mesa - Registro y donación*: `urlPagoP1000`, `urlPagoP3000`, `urlPagoP5000` y `urlPago` (esta última es la de «otro monto»). Si una está vacía, no hay redirección.
-4. Probar primero en modo de prueba de Stripe (tarjeta `4242 4242 4242 4242`) y cambiar a las URLs reales al salir a producción.
+1. `guardarDonativo` registra la Opportunity en *Prospecting* (igual que antes).
+2. `MesaRegalosController.iniciarPago` (llamada aparte, porque Apex no permite un callout después de un DML) lee el `Amount` guardado y `MesaPagosStripe.crearSesion` crea la sesión con ese monto en centavos MXN, `client_reference_id` y `metadata.donativo_id` = Id de la Opportunity, y la descripción `Donativo REF XXXXXXXX`. El encabezado `Idempotency-Key` hace que reintentar devuelva la misma sesión.
+3. Stripe envía `checkout.session.completed` a `https://[SITIO]/services/apexrest/stripe/webhook`. `MesaStripeWebhook` valida la firma (HMAC-SHA256, tolerancia de 5 min) y `MesaPagosStripe.procesarEvento` comprueba referencia, monto, moneda y que el pago no confirme otro donativo; luego guarda `Stripe_Pago_Id__c` y llama a `confirmarPago`. Un aviso repetido no hace nada.
+4. Al volver: el muro consulta `estadoPago` y dice «Tu pago se confirmó» o «Confirmando tu pago»; si se cancela, la página de registro muestra «Pago no completado» con *Intentar de nuevo* (mismo donativo).
 
-**Conciliación manual** (mientras no exista el webhook). Con el pago confirmado en Stripe, buscar la Opportunity por el *Client reference ID* del pago, verificar el monto y ejecutar en Apex anónimo:
+**Dónde están los secretos:** la clave secreta en la External Credential `Stripe` (principal `Clave`, parámetro `SecretKey`); el secreto `whsec_` y la dirección del sitio en la configuración protegida **Configuración de Stripe** (`Stripe_Config__c`). Nada de eso está en el repositorio. El usuario guest necesita el permission set `Mesa_Sitio_Pagos`.
+
+**Conciliación manual** (si el webhook fallara). Con el pago confirmado en Stripe, buscar la Opportunity por el `donativo_id` de la metadata del pago, verificar el monto y ejecutar en Apex anónimo:
 
 ```apex
 Opportunity o = [SELECT Id FROM Opportunity WHERE Id = '006XXXXXXXXXXXXXXX'];
@@ -85,8 +87,6 @@ MesaRegalosService.confirmarPago(new List<Id>{ o.Id });
 
 `Stripe_Pago_Id__c` es único, así que un mismo pago no se registra dos veces, y `confirmarPago` es idempotente.
 
-**Webhook (pendiente).** Un endpoint Apex REST que reciba `checkout.session.completed` y, por los pagos diferidos, `checkout.session.async_payment_succeeded` y `checkout.session.async_payment_failed`. Debe validar la firma sobre el cuerpo sin procesar, guardar el secreto fuera del código, comparar el monto cobrado con el de la Opportunity y llamar a `confirmarPago`.
-
 ## Qué probar?
 
 1. **Monto:** elige «Otro monto» y escribe `1,500`; debe aceptarlo. Prueba `99` (debe rechazar) y cada paquete (por ejemplo, P3000 deja el donativo en $3,000).
@@ -94,7 +94,7 @@ MesaRegalosService.confirmarPago(new List<Id>{ o.Id });
 3. **Pública como empresa:** marca «Dono en nombre de una empresa». Los campos nombre y apellidos del Contacto llevan el nombre de la empresa y no se crea ninguna Account.
 4. **Anónima:** el Contacto se crea como «Anónimo», sin LinkedIn, no aparece como renglón en el muro y su monto se suma a «Donaciones anónimas».
 5. **Correo repetido:** vuelve a donar con el mismo correo. Se reutiliza el Contacto sin cambiar sus datos y un «No» previo de avisos no se modifica.
-6. **Pago:** completa un pago de prueba en Stripe, verifica que el *Client reference ID* sea el Id de la Opportunity, ejecuta la conciliación y comprueba el estado `Donó` y la aparición en el muro.
+6. **Pago:** sigue [docs/guia_pruebas_stripe.md](docs/guia_pruebas_stripe.md): pago exitoso (`4242…`), rechazado (`4000 0000 0000 0002`) y cancelado; comprueba el estado, el monto y la referencia en Salesforce y en Stripe.
 7. **Baja:** en `/baja` escribe un correo registrado y uno inexistente; el mensaje debe ser el mismo. El primero queda con *Email Opt Out* y `Consentimiento_Avisos__c = No`.
 8. **Pruebas Apex:** `sf apex run test --test-level RunLocalTests --wait 10 --target-org donation-UADY-lab`.
 
@@ -165,11 +165,11 @@ Scripts de apoyo (`scripts/apex/`, no se despliegan):
 - **LinkedIn:** se hará una sola publicación al final de la campaña con quienes dejaron su enlace (`LinkedIn_URL__c` en el Reconocimiento). Publicar automáticamente requiere una app aprobada por LinkedIn; por ahora lo hace una persona.
 - **Nombre público:** el nombre lo escribe la propia persona. `Mostrar_En_Muro__c` permite ocultar un reconocimiento inapropiado.
 - **Correo ajeno:** como no se verifica el correo, alguien podría registrarse con el correo de otra persona. La verificación por correo (doble autenticación) queda para después.
-- **Pagos:** falta el webhook (ver *Pagos con Stripe*). Mientras tanto la conciliación es manual.
+- **Pagos:** pasar a las claves *live* de Stripe (nueva clave, nuevo destino de webhook y su `whsec_`) y activar los recibos por correo en Stripe.
 
 ## Pendiente (por decidir)
 
-* Webhook de Stripe para confirmar pagos y pagos diferidos.
+* Pagos diferidos (OXXO, SPEI): los métodos de pago se eligen en el Dashboard de Stripe (Settings → Payment methods); por ahora deja activas solo las tarjetas, porque el webhook aún no procesa `checkout.session.async_payment_succeeded`.
 * Verificación del correo (doble autenticación).
 * Captura de ofrecimientos en especie desde el sitio (hoy es interna).
 * Moderación del nombre público.
@@ -255,7 +255,7 @@ Espero seguir un flujo como el siguiente:
 
 1. Asignar el permission set Mesa_Regalos_Admin a tu usuario.
 2. Crear la campaña y agregar el estado Registrado en Campaign Member Statuses. Los demás estados del embudo son Redirigido a donar y Donó, más Identificado y Contactado si los usas a mano.
-3. Crear el sitio de Experience Cloud con las páginas registro, muro, aviso y baja, y configurar las propiedades de los componentes (campaignId, avisoUrl, las 4 URLs de Stripe).
+3. Crear el sitio de Experience Cloud con las páginas registro, muro, aviso y baja, y configurar las propiedades de los componentes (campaignId, avisoUrl). Stripe se configura como dice docs/guia_pruebas_stripe.md.
 4. En el perfil del usuario invitado (guest) del sitio, dar acceso a la clase Apex MesaRegalosController.
 5. Regla de duplicados de Contact por correo.
 6. Los Flows de correo...

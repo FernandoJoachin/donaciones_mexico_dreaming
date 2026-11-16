@@ -59,3 +59,10 @@ Estado a **10 de noviembre de 2026**. Los hashes son de commits del repositorio;
 ## Entrega 2 (martes 17 de noviembre)
 
 Se llena al cierre de la Entrega 2, con la misma estructura.
+
+### Fernando Joachín
+
+| Qué | Ticket | Evidencia |
+|---|---|---|
+| Integración de pagos con Stripe: registro pendiente, pasarela con el monto guardado, confirmación por webhook, pruebas y configuración | SCRUM-9 (US-05) | Rama `feature/SCRUM-9-us-05-registrar-la-donacion-y-pagar-en-la-pasarela-de-pago` (commit y PR pendientes); bitácora IA entradas 26–30 |
+| Guía de pruebas con Stripe y actualización de la documentación | SCRUM-9 (US-05) | `docs/guia_pruebas_stripe.md`, `README.md`, `docs/seguridad.md` |

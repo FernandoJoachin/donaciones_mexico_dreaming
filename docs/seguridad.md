@@ -117,13 +117,20 @@ HTML). Editar la historia y los niveles es del permission set `Gestor_Campanas` 
 - **No hay claves en el proyecto.** Se revisó el historial de commits completo buscando `sk_live`, `sk_test`, `pk_live`,
   `pk_test`, `whsec_`, `client_secret` y `api_key`. Las únicas coincidencias son líneas de documentación que describen esta misma
   búsqueda; no hay claves.
-- **Enlaces de pago de Stripe:** el componente `mesaRegistro` recibe la URL del enlace de pago como propiedad configurada en
-  Experience Builder (`urlPago`, `urlPagoP1000`, `urlPagoP3000`, `urlPagoP5000`); no está escrita en el código. Un enlace de pago
-  no es un secreto, pero debe ser de la cuenta en **modo de prueba** hasta la entrega final.
-- **Qué viaja a Stripe en la dirección:** el Id del donativo (`client_reference_id`), el correo pre-rellenado del donante y, si
-  aplica, el monto. Es lo mínimo que necesita el pago; no se envían datos fiscales ni de LinkedIn.
-- **Plan para la Entrega 2:** el secreto de firma del aviso (webhook) irá en la org (Custom Metadata o credencial con nombre),
-  nunca en el código ni el repositorio, y sin acceso para el usuario visitante.
+- **Stripe Checkout (US-05):** la sesión de pago la crea Apex (`MesaPagosStripe`) con el monto **guardado** en la Opportunity; el
+  navegador solo envía el Id del donativo y nombres de página que el servidor valida. La dirección base de regreso sale de la
+  configuración, no del navegador.
+- **Clave secreta:** en la External Credential `Stripe` (cifrada, Apex no puede leerla, no aparece en registros). El usuario guest la usa
+  solo a través del permission set `Mesa_Sitio_Pagos`.
+- **Secreto de firma del webhook y dirección del sitio:** en la configuración protegida `Stripe_Config__c`; sus valores no son
+  metadata y no llegan al repositorio.
+- **Webhook (`MesaStripeWebhook`):** público para el guest, pero no lee nada sin una firma válida (HMAC-SHA256 sobre el cuerpo sin
+  procesar, tolerancia de 5 minutos). Solo `checkout.session.completed` pagado cambia algo, y solo si la referencia, el monto y la
+  moneda coinciden con lo guardado y el pago no confirmó otro donativo. Un aviso repetido no hace nada. La página de regreso nunca
+  marca un pago.
+- **Qué viaja a Stripe:** el Id del donativo (`client_reference_id` y metadata), el monto, el nombre de la campaña y el correo del
+  donante (para el recibo). No se envían datos fiscales ni de LinkedIn. Los datos de tarjeta solo los ve Stripe.
+- **`estadoPago`:** devuelve solo `pagado` o `pendiente` para un Id de donativo; ningún otro dato.
 
 ## 4. Clasificación de datos personales
 
@@ -138,7 +145,7 @@ HTML). Editar la historia y los niveles es del permission set `Gestor_Campanas` 
 | URL de LinkedIn | `Opportunity.LinkedIn_URL__c` | Sí | Sí (opcional, solo en Pública) | Reconocimiento | Personal interno |
 | Consentimiento de avisos, su fecha y la versión del aviso | `Contact` | No (registro legal) | Sí | Probar el consentimiento | Personal interno |
 | Consentimiento de publicación y versión del aviso | `Opportunity` | No (registro legal) | Sí | Probar el consentimiento | Personal interno |
-| Identificador del pago | `Opportunity.Stripe_Pago_Id__c` | Sensible (vincula con la pasarela) | Sí, cuando exista el webhook | Conciliar el pago | Personal interno |
+| Identificador del pago | `Opportunity.Stripe_Pago_Id__c` | Sensible (vincula con la pasarela) | Sí, lo guarda el webhook | Conciliar el pago | Personal interno |
 | Datos fiscales (RFC, constancia) | **No se piden ni se guardan** | Sí | **No** | Factura por correo | Solo en el correo que el donante envía |
 | Historia, resumen, a quién ayuda y quién organiza (US-22) | Campaign: `Resumen__c`, `Historia__c`, `Para_Quien__c`, `Organiza__c` | No | Sí | Contar la causa en el sitio | Público (visitante sin login) |
 | Niveles de impacto (US-22) | `Nivel_Impacto__c` (monto y qué logra) | No | Sí | Montos sugeridos de cada campaña | Público |
