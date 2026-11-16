@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>Mesa_Correo_Facturas</fullName>
+        <categories>Mesa de regalos</categories>
+        <language>es_MX</language>
+        <protected>false</protected>
+        <shortDescription>Correo para pedir factura (comprobante)</shortDescription>
+        <value>facturas@ejemplo.org</value>
+    </labels>
+</CustomLabels>

@@ -1,0 +1,93 @@
+/** Pruebas del comprobante por correo (US-07, CA3 y CA4). En pruebas Salesforce no entrega correos. */
+@IsTest
+private class MesaComprobanteTest {
+
+    @TestSetup
+    static void datos() {
+        insert new Campaign(Name = 'Becas <TEST>', IsActive = true, ExpectedRevenue = 10000);
+    }
+
+    private static Id donativo(String visibilidad, String paquete, String correo) {
+        Map<String, Object> d = new Map<String, Object>{
+            'paquete' => paquete,
+            'visibilidad' => visibilidad,
+            'nombre' => 'Luz',
+            'apellidos' => 'Prueba',
+            'correo' => correo,
+            'consentimientoAvisos' => 'Si',
+            'consentimientoPublicacion' => true,
+            'aceptaAviso' => true,
+            'versionAviso' => 'v1'
+        };
+        Id campana = [SELECT Id FROM Campaign LIMIT 1].Id;
+        return MesaRegalosController.guardarDonativo(campana, JSON.serialize(d)).donativoId;
+    }
+
+    private static Integer trabajosProgramados() {
+        return [SELECT COUNT() FROM AsyncApexJob WHERE ApexClass.Name = 'MesaComprobante'];
+    }
+
+    @IsTest
+    static void confirmarPagoProgramaUnSoloComprobanteAunqueElAvisoLlegueDosVeces() {
+        Id id = donativo('Publica', 'P1000', 'luz@example.com');
+
+        Test.startTest();
+        MesaRegalosService.confirmarPago(new List<Id>{ id });
+        MesaRegalosService.confirmarPago(new List<Id>{ id });   // aviso repetido
+        Test.stopTest();
+
+        Assert.areEqual(1, trabajosProgramados(), 'El segundo aviso no debe programar otro correo');
+        Assert.areEqual(1, MesaComprobante.ultimosCorreos.size());
+        Assert.areEqual('luz@example.com', MesaComprobante.ultimosCorreos[0].getToAddresses()[0]);
+    }
+
+    @IsTest
+    static void elCorreoTraeReferenciaMontoCampanaYLeyendaDeFactura() {
+        Id id = donativo('Publica', 'P1000', 'luz@example.com');
+        update new Opportunity(Id = id, Stripe_Pago_Id__c = 'pi_test_123');
+        MesaRegalosService.confirmarPago(new List<Id>{ id });
+
+        MesaComprobante.enviar(new List<Id>{ id });
+        Messaging.SingleEmailMessage m = MesaComprobante.ultimosCorreos[0];
+        String ref = MesaPagosStripe.referencia(id);
+
+        Assert.isTrue(m.getSubject().contains(ref), 'El asunto lleva la referencia');
+        String texto = m.getPlainTextBody();
+        Assert.isTrue(texto.contains('Hola, Luz:'));
+        Assert.isTrue(texto.contains('$1,000.00 MXN'));
+        Assert.isTrue(texto.contains('Becas <TEST>'));
+        Assert.isTrue(texto.contains('pi_test_123'));
+        Assert.isTrue(texto.contains('Si necesitas factura, escribe a ' + System.Label.Mesa_Correo_Facturas), 'CA3: leyenda de factura');
+        Assert.isTrue(texto.contains('(' + ref + ')'), 'CA3: la leyenda pide la referencia');
+        Assert.isTrue(texto.contains('no es una factura'));
+        // El HTML escapa lo que viene de los datos (aquí, el nombre de la campaña).
+        Assert.isTrue(m.getHtmlBody().contains('Becas &lt;TEST&gt;'));
+        Assert.isFalse(m.getHtmlBody().contains('Becas <TEST>'));
+    }
+
+    @IsTest
+    static void donativoAnonimoDiceComoApareceEnElMuro() {
+        Id id = donativo('Anonima', 'P3000', 'anon@example.com');
+        MesaRegalosService.confirmarPago(new List<Id>{ id });
+
+        MesaComprobante.enviar(new List<Id>{ id });
+        String texto = MesaComprobante.ultimosCorreos[0].getPlainTextBody();
+        Assert.isTrue(texto.contains('como «Anónimo»'));
+        Assert.isTrue(texto.contains('$3,000.00 MXN'));
+    }
+
+    @IsTest
+    static void donativoPendienteNoRecibeComprobante() {
+        Id id = donativo('Publica', 'P1000', 'luz@example.com');
+        Assert.areEqual(0, MesaComprobante.enviar(new List<Id>{ id }));
+        Assert.areEqual(0, MesaComprobante.ultimosCorreos.size(), 'Solo los pagados reciben comprobante');
+    }
+
+    @IsTest
+    static void montosConMilesYCentavos() {
+        Assert.areEqual('$100.00', MesaComprobante.pesos(100));
+        Assert.areEqual('$1,234.50', MesaComprobante.pesos(1234.5));
+        Assert.areEqual('$1,000,000.00', MesaComprobante.pesos(1000000));
+        Assert.areEqual('$0.00', MesaComprobante.pesos(null));
+    }
+}
