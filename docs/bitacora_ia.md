@@ -667,11 +667,24 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué no se verificó:** el aspecto de la sección de pasadas desplegada, porque en el sandbox no hay campañas cerradas (no se alteraron datos de otros); tampoco la bajada al llegar desde otra página con `?pestana=` (el panel del navegador estaba oculto y el desplazamiento no se completó en la prueba).
 - **Aceleración estimada:** no aplica (cambio visual de ~30 min).
 
+### 56. Panel interno: página de Resumen con el diseño del sitio, fase 1 (SCRUM-160)
+- **Fecha:** 2026-11-17
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** SCRUM-160 — pulido para la presentación
+- **Qué se pidió:** que la app interna de Salesforce se vea como el panel de otro equipo (barra lateral y páginas propias), pero con nuestro estilo, para trabajar más práctico.
+- **Qué se hizo:** componente `mesaPanelAdmin` (barra lateral azul, tarjetas redondeadas, mismos colores que el sitio) en una pestaña `Panel_Admin` y una app nueva `Mesa_Panel`. La sección Resumen muestra recaudado y donativos pagados, campañas activas, reconocimientos visibles/ocultos, avance por campaña y los últimos 6 reconocimientos. Campañas, Moderar muro y Donativos abren las listas estándar. Datos: `MesaPanelController` (solo lectura, `with sharing`) con su prueba.
+- **Decisiones que tomó la IA y quedan a la vista:** (1) app nueva en vez de editar `Gestion_Donation_Campanas`, porque el PR #48 de Daniel la modifica y se evitan conflictos; (2) no se tocaron permission sets (también los cambia el #48): quien no sea administrador necesitará acceso a la clase `MesaPanelController` y a la app; (3) el recaudado cuenta solo `Closed Won`, igual que el sitio.
+- **Qué se verificó y cómo:** despliegue a UADY sin errores; prueba Apex pasa (1/1); ejecutando `obtenerResumen()` en la org devuelve 124,411 recaudado, 36 pagados, 5 campañas activas, 39 visibles, 0 ocultos y 6 recientes.
+- **Qué no se verificó:** el aspecto en pantalla (el panel pide iniciar sesión en el sandbox y no se introducen credenciales); el acceso de los roles Gestor, Moderador y Tesorería; el diseño en pantallas chicas.
+- **Pendiente (fases 2 y 3):** secciones propias de Campañas, Moderar muro y Donativos dentro del panel.
+- **Aceleración estimada:** no aplica (fase 1 de ~1.5 h).
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 37 (1–9, 23–26 y 32–55) | 14 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47, 48 y 51) |
+| José Carlos Leo Fernández | 38 (1–9, 23–26 y 32–56) | 14 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47, 48 y 51) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 

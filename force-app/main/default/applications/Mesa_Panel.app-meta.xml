@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Mesa de regalos · Panel</label>
+    <description>Panel interno con el diseño del sitio público: resumen, campañas, muro y donativos</description>
+    <formFactors>Large</formFactors>
+    <navType>Standard</navType>
+    <uiType>Lightning</uiType>
+    <tabs>Panel_Admin</tabs>
+    <tabs>standard-Campaign</tabs>
+    <tabs>Reconocimiento_Publico__c</tabs>
+    <tabs>standard-Opportunity</tabs>
+    <tabs>standard-report</tabs>
+    <tabs>standard-Dashboard</tabs>
+</CustomApplication>

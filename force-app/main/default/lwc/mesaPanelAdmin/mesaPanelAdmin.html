@@ -1,0 +1,104 @@
+<template>
+    <div class="panel">
+        <aside class="lateral">
+            <div class="marca">
+                <span class="marca-logo" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="22" height="22"><path d="M7.2 19a4.6 4.6 0 0 1-.7-9.15A6 6 0 0 1 18 8.6a5.2 5.2 0 0 1-.6 10.4H7.2z" fill="#ffffff"></path></svg>
+                </span>
+                <span class="marca-texto">
+                    <strong>Comunidad Salesforce</strong>
+                    <small>Panel de administración</small>
+                </span>
+            </div>
+            <nav class="menu" aria-label="Secciones del panel">
+                <button type="button" class="menu-item menu-activo" aria-current="page">Resumen</button>
+                <template for:each={atajos} for:item="a">
+                    <button key={a.clave} type="button" class="menu-item" data-clave={a.clave} onclick={irA}>{a.texto}</button>
+                </template>
+            </nav>
+            <a class="ver-sitio" href={urlSitio} target="_blank" rel="noopener noreferrer">Ver sitio público ↗</a>
+        </aside>
+
+        <main class="contenido">
+            <header class="cabecera">
+                <h1 class="titulo">Resumen</h1>
+                <p class="subtitulo">Cómo van las campañas y los donativos de la mesa de regalos.</p>
+            </header>
+
+            <template lwc:if={hayError}>
+                <p class="aviso-error">No pudimos cargar el resumen. Revisa que tu usuario tenga acceso a la clase MesaPanelController.</p>
+            </template>
+            <template lwc:if={cargando}>
+                <p class="info">Cargando…</p>
+            </template>
+
+            <template lwc:if={resumen}>
+                <section class="cifras" aria-label="Cifras principales">
+                    <div class="cifra cifra-principal">
+                        <span class="cifra-etiqueta">Recaudado</span>
+                        <span class="cifra-valor">{totalTexto}</span>
+                        <span class="cifra-nota">{donativosTexto}</span>
+                    </div>
+                    <div class="cifra">
+                        <span class="cifra-etiqueta">Campañas activas</span>
+                        <span class="cifra-valor">{resumen.campanasActivas}</span>
+                    </div>
+                    <div class="cifra">
+                        <span class="cifra-etiqueta">Visibles en el muro</span>
+                        <span class="cifra-valor">{resumen.visiblesEnMuro}</span>
+                    </div>
+                    <div class="cifra">
+                        <span class="cifra-etiqueta">Ocultos del muro</span>
+                        <span class="cifra-valor">{resumen.ocultosDelMuro}</span>
+                    </div>
+                </section>
+
+                <div class="columnas">
+                    <section class="tarjeta">
+                        <h2 class="tarjeta-titulo">Campañas</h2>
+                        <ul class="lista">
+                            <template for:each={campanas} for:item="c">
+                                <li key={c.id} class="fila-campana">
+                                    <div class="fila-cabeza">
+                                        <span class="fila-nombre">{c.nombre}</span>
+                                        <span class={c.claseEstado}>{c.estado}</span>
+                                    </div>
+                                    <div class="fila-cifras">
+                                        <strong>{c.totalTexto}</strong>
+                                        <span>{c.metaTexto}</span>
+                                    </div>
+                                    <template lwc:if={c.conMeta}>
+                                        <div class="barra" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow={c.porcentaje} aria-label="Avance">
+                                            <div class="barra-relleno" style={c.estiloBarra}></div>
+                                        </div>
+                                    </template>
+                                </li>
+                            </template>
+                        </ul>
+                    </section>
+
+                    <section class="tarjeta">
+                        <h2 class="tarjeta-titulo">Últimos reconocimientos</h2>
+                        <template lwc:if={sinRecientes}>
+                            <p class="info">Todavía no hay donativos.</p>
+                        </template>
+                        <ul class="lista">
+                            <template for:each={recientes} for:item="r">
+                                <li key={r.id} class="fila-reciente">
+                                    <div class="reciente-datos">
+                                        <span class="fila-nombre">{r.nombre}</span>
+                                        <span class="reciente-sub">{r.detalle}</span>
+                                    </div>
+                                    <div class="reciente-derecha">
+                                        <strong>{r.montoTexto}</strong>
+                                        <span class={r.claseVisible}>{r.visibleTexto}</span>
+                                    </div>
+                                </li>
+                            </template>
+                        </ul>
+                    </section>
+                </div>
+            </template>
+        </main>
+    </div>
+</template>
