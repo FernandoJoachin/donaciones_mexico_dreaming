@@ -11,7 +11,7 @@
                 </template>
             </div>
         </header>
-        <div class="contenedor">
+        <div class={claseContenedor}>
             <template lwc:if={enviando}>
                 <lightning-spinner alternative-text="Enviando" size="medium"></lightning-spinner>
             </template>
@@ -34,93 +34,142 @@
             </template>
 
             <template lwc:if={mostrarFormulario}>
-                <h2 class="titulo">Elige tu aportación</h2>
-                <p class="intro">Tarda un minuto: eliges tu aportación, nos dejas tus datos y pasas al pago.</p>
-
-                <lightning-radio-group
-                    name="paquete"
-                    label="Aportación"
-                    options={opcionesPaquete}
-                    value={paquete}
-                    type="button"
-                    data-campo="paquete"
-                    onchange={cambio}
-                ></lightning-radio-group>
-
-                <template lwc:if={esAbierto}>
-                    <lightning-input
-                        type="text"
-                        label="Monto a donar (MXN)"
-                        placeholder="Ej. 2,500"
-                        field-level-help={ayudaMonto}
-                        data-campo="montoTexto"
-                        value={montoTexto}
-                        onchange={cambio}
-                    ></lightning-input>
-                </template>
-
-                <lightning-radio-group
-                    name="visibilidad"
-                    label="¿Cómo quieres aparecer en el muro de agradecimiento?"
-                    options={opcionesVisibilidad}
-                    value={visibilidad}
-                    type="radio"
-                    data-campo="visibilidad"
-                    onchange={cambio}
-                ></lightning-radio-group>
-
-                <template lwc:if={esAnonimo}>
-                    <p class="info">Aparecerás como «Anónimo», junto con el monto, y no te pediremos tu nombre. Al continuar autorizas que tu donativo se publique así. Tu correo se guarda solo para enviarte tu comprobante; nunca se muestra.</p>
-                </template>
-
-                <template lwc:if={esPublico}>
-                    <div class="publico">
-                        <lightning-input type="checkbox" label="Dono en nombre de una empresa" data-campo="esEmpresa" checked={esEmpresa} onchange={cambio}></lightning-input>
-                        <template lwc:if={esEmpresa}>
-                            <lightning-input label="Nombre de la empresa" data-campo="nombreEmpresa" value={nombreEmpresa} onchange={cambio} maxlength="80"></lightning-input>
+                <div class="disposicion">
+                    <aside class="resumen" aria-label="Resumen de la campaña">
+                        <template lwc:if={mostrarImagen}>
+                            <img class="resumen-imagen" src={campanaInfo.imagenUrl} alt="" onerror={ocultarImagen} />
                         </template>
-                        <template lwc:else>
-                            <lightning-input label="Nombre" data-campo="nombre" value={nombre} onchange={cambio} maxlength="40"></lightning-input>
-                            <lightning-input label="Apellidos" data-campo="apellidos" value={apellidos} onchange={cambio} maxlength="80"></lightning-input>
+                        <template lwc:if={campanaInfo}>
+                            <h2 class="resumen-titulo">{campanaInfo.nombre}</h2>
+                            <template lwc:if={textoCausa}>
+                                <p class="resumen-texto">{textoCausa}</p>
+                            </template>
+                            <template lwc:if={hayMeta}>
+                                <div class="resumen-avance">
+                                    <div class="resumen-cifras"><strong>{recaudadoTexto}</strong> <span>de {metaTexto}</span></div>
+                                    <div class="barra" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow={porcentajeAvance} aria-label="Avance de la campaña">
+                                        <div class="barra-relleno" style={estiloBarra}></div>
+                                    </div>
+                                </div>
+                            </template>
+                            <template lwc:if={textoDonantes}>
+                                <p class="resumen-donantes">{textoDonantes}</p>
+                            </template>
                         </template>
-                        <lightning-input
-                            type="url"
-                            label="LinkedIn (opcional). Si lo agregas, te mencionamos en la publicación de agradecimiento"
-                            placeholder="https://www.linkedin.com/in/..."
-                            data-campo="linkedinUrl"
-                            value={linkedinUrl}
-                            onchange={cambio}
-                        ></lightning-input>
+                        <template lwc:if={impactoElegido}>
+                            <div class="resumen-impacto">
+                                <span class="resumen-impacto-monto">Con {impactoElegido.monto}</span>
+                                <span>{impactoElegido.descripcion}</span>
+                            </div>
+                        </template>
+                        <ul class="confianza">
+                            <li><span class="confianza-icono" aria-hidden="true">✓</span> Pago seguro con Stripe: nunca vemos tu tarjeta.</li>
+                            <li><span class="confianza-icono" aria-hidden="true">✓</span> Recibes tu comprobante por correo.</li>
+                            <li><span class="confianza-icono" aria-hidden="true">✓</span> Tú decides qué se publica de ti en el muro.</li>
+                        </ul>
+                    </aside>
+
+                    <div class="formulario">
+                        <h2 class="titulo">Completa tu donativo</h2>
+                        <p class="intro">Son tres pasos y tarda un minuto.</p>
+
+                        <section class="paso" aria-labelledby="paso1">
+                            <h3 id="paso1" class="paso-titulo"><span class="paso-numero" aria-hidden="true">1</span> Tu aportación</h3>
+                            <div class="montos" role="group" aria-label="Aportación">
+                                <template for:each={tarjetasMonto} for:item="t">
+                                    <button key={t.valor} type="button" class={t.clase} data-valor={t.valor} aria-pressed={t.pulsada} onclick={elegirMonto}>
+                                        <span class="monto-cifra">{t.etiqueta}</span>
+                                        <template lwc:if={t.detalle}>
+                                            <span class="monto-detalle">{t.detalle}</span>
+                                        </template>
+                                    </button>
+                                </template>
+                            </div>
+                            <template lwc:if={otroSeleccionado}>
+                                <lightning-input
+                                    type="text"
+                                    label="Monto a donar (MXN)"
+                                    placeholder="Ej. 2,500"
+                                    field-level-help={ayudaMonto}
+                                    data-campo="montoTexto"
+                                    value={montoTexto}
+                                    onchange={cambio}
+                                ></lightning-input>
+                            </template>
+                        </section>
+
+                        <section class="paso" aria-labelledby="paso2">
+                            <h3 id="paso2" class="paso-titulo"><span class="paso-numero" aria-hidden="true">2</span> Cómo quieres aparecer en el muro de agradecimiento</h3>
+                            <div class="opciones" role="radiogroup" aria-labelledby="paso2">
+                                <label class={clasePublica}>
+                                    <input type="radio" name="visibilidad" value="Publica" checked={esPublico} onchange={cambioVisibilidad} />
+                                    <span class="opcion-texto"><strong>Con mi nombre</strong><span>Mi nombre (o el de mi empresa) y el monto.</span></span>
+                                </label>
+                                <label class={claseAnonima}>
+                                    <input type="radio" name="visibilidad" value="Anonima" checked={esAnonimo} onchange={cambioVisibilidad} />
+                                    <span class="opcion-texto"><strong>De forma anónima</strong><span>Solo «Anónimo» y el monto.</span></span>
+                                </label>
+                            </div>
+
+                            <template lwc:if={esAnonimo}>
+                                <p class="info">Aparecerás como «Anónimo», junto con el monto, y no te pediremos tu nombre. Al continuar autorizas que tu donativo se publique así. Tu correo se guarda solo para enviarte tu comprobante; nunca se muestra.</p>
+                            </template>
+
+                            <template lwc:if={esPublico}>
+                                <div class="publico">
+                                    <lightning-input type="checkbox" label="Dono en nombre de una empresa" data-campo="esEmpresa" checked={esEmpresa} onchange={cambio}></lightning-input>
+                                    <template lwc:if={esEmpresa}>
+                                        <lightning-input label="Nombre de la empresa" data-campo="nombreEmpresa" value={nombreEmpresa} onchange={cambio} maxlength="80"></lightning-input>
+                                    </template>
+                                    <template lwc:else>
+                                        <lightning-input label="Nombre" data-campo="nombre" value={nombre} onchange={cambio} maxlength="40"></lightning-input>
+                                        <lightning-input label="Apellidos" data-campo="apellidos" value={apellidos} onchange={cambio} maxlength="80"></lightning-input>
+                                    </template>
+                                    <lightning-input
+                                        type="url"
+                                        label="LinkedIn (opcional). Si lo agregas, te mencionamos en la publicación de agradecimiento"
+                                        placeholder="https://www.linkedin.com/in/..."
+                                        data-campo="linkedinUrl"
+                                        value={linkedinUrl}
+                                        onchange={cambio}
+                                    ></lightning-input>
+                                </div>
+                            </template>
+                        </section>
+
+                        <section class="paso" aria-labelledby="paso3">
+                            <h3 id="paso3" class="paso-titulo"><span class="paso-numero" aria-hidden="true">3</span> Tus datos</h3>
+                            <lightning-input type="email" label="Correo electrónico (aquí te enviamos tu comprobante)" data-campo="correo" value={correo} onchange={cambio} maxlength="80"></lightning-input>
+
+                            <lightning-radio-group
+                                name="consentimientoAvisos"
+                                label="¿Podemos guardar tus datos para invitarte a futuras campañas?"
+                                options={opcionesConsentimiento}
+                                value={consentimientoAvisos}
+                                type="radio"
+                                data-campo="consentimientoAvisos"
+                                onchange={cambio}
+                            ></lightning-radio-group>
+
+                            <template lwc:if={esPublico}>
+                                <lightning-input type="checkbox" label="Autorizo que mi donativo se publique en el muro de agradecimiento (mi nombre y el monto)" data-campo="consentimientoPublicacion" checked={consentimientoPublicacion} onchange={cambio}></lightning-input>
+                            </template>
+
+                            <!-- Campo trampa: las personas no lo ven; los programas automáticos sí lo llenan. -->
+                            <div class="trampa" aria-hidden="true">
+                                <label>Sitio web (déjalo vacío)
+                                    <input type="text" name="sitioWeb" tabindex="-1" autocomplete="off" data-campo="sitioWeb" value={sitioWeb} onchange={cambio} />
+                                </label>
+                            </div>
+
+                            <lightning-input type="checkbox" label="He leído y acepto el aviso de privacidad" data-campo="aceptaAviso" checked={aceptaAviso} onchange={cambio}></lightning-input>
+                            <p class="aviso"><a href={avisoHref} target="_blank" rel="noopener">Ver aviso de privacidad</a></p>
+                        </section>
+
+                        <button type="button" class="btn btn-primario btn-donar" onclick={enviar} disabled={botonDeshabilitado}>{etiquetaBoton}</button>
+                        <p class="seguro">🔒 Pagas en el sitio seguro de Stripe: los datos de tu tarjeta solo los ve Stripe.</p>
                     </div>
-                </template>
-
-                <lightning-input type="email" label="Correo electrónico" data-campo="correo" value={correo} onchange={cambio} maxlength="80"></lightning-input>
-
-                <lightning-radio-group
-                    name="consentimientoAvisos"
-                    label="¿Podemos guardar tus datos para invitarte a futuras campañas?"
-                    options={opcionesConsentimiento}
-                    value={consentimientoAvisos}
-                    type="radio"
-                    data-campo="consentimientoAvisos"
-                    onchange={cambio}
-                ></lightning-radio-group>
-
-                <template lwc:if={esPublico}>
-                    <lightning-input type="checkbox" label="Autorizo que mi donativo se publique en el muro de agradecimiento (mi nombre y el monto)" data-campo="consentimientoPublicacion" checked={consentimientoPublicacion} onchange={cambio}></lightning-input>
-                </template>
-
-                <!-- Campo trampa: las personas no lo ven; los programas automáticos sí lo llenan. -->
-                <div class="trampa" aria-hidden="true">
-                    <label>Sitio web (déjalo vacío)
-                        <input type="text" name="sitioWeb" tabindex="-1" autocomplete="off" data-campo="sitioWeb" value={sitioWeb} onchange={cambio} />
-                    </label>
                 </div>
-
-                <lightning-input type="checkbox" label="He leído y acepto el aviso de privacidad" data-campo="aceptaAviso" checked={aceptaAviso} onchange={cambio}></lightning-input>
-                <p class="aviso"><a href={avisoHref} target="_blank" rel="noopener">Ver aviso de privacidad</a></p>
-
-                <button type="button" class="btn btn-primario" onclick={enviar} disabled={botonDeshabilitado}>{etiquetaBoton}</button>
             </template>
         </div>
     </div>

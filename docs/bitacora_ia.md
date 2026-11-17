@@ -456,11 +456,23 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué se verificó y cómo:** 59 pruebas de Apex pasan en la org de desarrollo (5 nuevas). En UADY, como visitante, el formulario creó el Case 00001012 y mostró su número; los Cases de prueba se borraron después.
 - **Aceleración estimada:** ~1.5 h.
 
+### 38. ⚠ Error de la IA — las tarjetas de monto no coincidían con lo que logra cada campaña (SCRUM-143)
+- **Fecha:** 2026-11-16
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** feedback del panel sobre el flujo de donación (Eduardo: "se siente como una pasarela de pagos", Andrea: pasos claros, Gilbert: menos clics) — SCRUM-143
+- **Qué se pidió:** mejorar el flujo de donación con las recomendaciones del panel y mejorar el diseño visual.
+- **Qué se obtuvo:** el formulario en tres pasos numerados (aportación, cómo aparecer, datos), tarjetas de monto y de visibilidad en lugar de botones sueltos, un panel de resumen de la causa (imagen, avance, personas que ya donaron, lo que logra el monto elegido y tres señales de confianza), el botón con el monto ("Donar $1,500.00 MXN") y una versión móvil donde el resumen se compacta. Es solo interfaz: el servidor, las validaciones y los permisos no cambiaron.
+- **Qué falló:** la primera versión dejó las tarjetas de monto fijas ($1,000, $3,000 y $5,000) y el resumen buscaba un nivel de impacto con ese monto exacto. En la campaña de prueba los niveles son $250, $1,500 y $4,000, así que ninguna tarjeta explicaba nada y justo faltaba lo que el panel pidió (saber en qué se dona). Se vio al revisar la página como visitante. Además, un ajuste de CSS para móvil dejó una llave de más y hubo que reescribir ese bloque.
+- **Qué se cambió:** las tarjetas salen de los niveles de impacto de la campaña (hasta cuatro, con su descripción) y, si la campaña no tiene, de los paquetes fijos. Un monto que no es un paquete viaja como "Otro monto", que el servidor ya valida (mínimo y máximo).
+- **Qué se verificó y cómo:** desplegado y publicado en UADY; como visitante en escritorio y en móvil, con el monto que llega desde la página de la campaña ya elegido y el botón con el monto. No se probó el pago completo en esta pantalla (lo prueba el equipo con Stripe).
+- **Aceleración estimada:** ~2 h.
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 19 (1–9, 23–26 y 32–37) | 9 (entradas 1, 4, 5, 8, 9, 23, 24, 34 y 37) |
+| José Carlos Leo Fernández | 20 (1–9, 23–26 y 32–38) | 10 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37 y 38) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 
