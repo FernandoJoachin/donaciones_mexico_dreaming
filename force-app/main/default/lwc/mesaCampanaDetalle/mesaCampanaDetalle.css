@@ -338,3 +338,18 @@
         grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     }
 }
+
+/* Frases de confianza junto a Donar y en el muro (feedback del panel) */
+.nota-pago {
+    margin: 0.7rem 0 0;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    text-align: center;
+    color: #444444;
+}
+.nota-muro {
+    margin: -0.2rem 0 0.8rem;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: #444444;
+}

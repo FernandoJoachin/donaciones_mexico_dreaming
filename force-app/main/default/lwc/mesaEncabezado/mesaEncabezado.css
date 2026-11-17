@@ -1,0 +1,174 @@
+:host {
+    /* El tema deja ~44px sobre el contenido y los demás componentes lo compensan con margin-top: -44px.
+       El encabezado sube a ese hueco, reserva su propio alto (4rem) y deja 44px de margen abajo para que
+       el componente que sigue (que se sube 44px) no se meta debajo. La barra va con position: fixed
+       porque position: sticky no funcionaba dentro de los contenedores de Experience Cloud. */
+    display: block;
+    height: 4rem;
+    margin-top: -44px;
+    margin-bottom: 44px;
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --azul: #0176d3;
+    --azul-oscuro: #032d60;
+}
+
+.encabezado {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: #ffffff;
+    border-bottom: 1px solid #dde6f0;
+    box-shadow: 0 2px 10px rgba(3, 45, 96, 0.08);
+}
+.barra {
+    box-sizing: border-box;
+    min-height: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0.6rem 1.25rem;
+}
+.marca {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    color: var(--azul-oscuro);
+    text-decoration: none;
+    min-width: 0;
+}
+.marca-icono {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 12px;
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--azul-oscuro), var(--azul));
+}
+.marca-texto {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.2;
+}
+.marca-nombre {
+    font-size: 1.05rem;
+    font-weight: 800;
+}
+.marca-lema {
+    font-size: 0.78rem;
+    color: #444444;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.navegacion {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+.enlace {
+    white-space: nowrap;
+    padding: 0.5rem 0.8rem;
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--azul-oscuro);
+    text-decoration: none;
+    background: none;
+    border: 0;
+    border-radius: 999px;
+    cursor: pointer;
+}
+.enlace:hover {
+    background: #eaf5fe;
+}
+.enlace.activo {
+    background: #eaf5fe;
+    color: var(--azul);
+}
+.enlace:focus-visible,
+.donar:focus-visible,
+.hamburguesa:focus-visible,
+.marca:focus-visible {
+    outline: 3px solid #90d0fe;
+    outline-offset: 2px;
+}
+.donar {
+    white-space: nowrap;
+    margin-left: 0.5rem;
+    padding: 0.55rem 1.3rem;
+    font-weight: 800;
+    color: #ffffff;
+    text-decoration: none;
+    background: var(--azul);
+    border-radius: 999px;
+}
+.donar:hover {
+    background: #0b5cab;
+}
+
+.hamburguesa {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0 0.7rem;
+    background: #ffffff;
+    border: 2px solid #c9d6e4;
+    border-radius: 12px;
+    cursor: pointer;
+}
+.hamburguesa-linea {
+    display: block;
+    height: 2px;
+    background: var(--azul-oscuro);
+    border-radius: 2px;
+}
+
+.menu {
+    display: none;
+}
+
+@media (max-width: 1050px) {
+    .navegacion {
+        display: none;
+    }
+    .hamburguesa {
+        display: flex;
+    }
+    .marca-lema {
+        display: none;
+    }
+    .menu-abierto {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        padding: 0.6rem 1.25rem 1rem;
+        background: #ffffff;
+        border-top: 1px solid #e3ebf4;
+        box-shadow: 0 12px 24px rgba(3, 45, 96, 0.12);
+    }
+    .menu-abierto .enlace {
+        padding: 0.85rem 0.9rem;
+        font-size: 1.05rem;
+        text-align: left;
+        border-radius: 12px;
+    }
+    .donar-bloque {
+        margin: 0.4rem 0 0;
+        padding: 0.9rem;
+        font-size: 1.05rem;
+        text-align: center;
+    }
+}

@@ -35,6 +35,19 @@ export default class MesaPie extends LightningElement {
 
     ayudaAbierta = false;
 
+    // El encabezado pide abrir la ayuda con un evento de la ventana (están en componentes distintos).
+    _alAbrirAyuda = () => {
+        this.ayudaAbierta = true;
+    };
+
+    connectedCallback() {
+        window.addEventListener('mesa:abrir-ayuda', this._alAbrirAyuda);
+    }
+
+    disconnectedCallback() {
+        window.removeEventListener('mesa:abrir-ayuda', this._alAbrirAyuda);
+    }
+
     abrirAyuda() {
         this.ayudaAbierta = true;
     }

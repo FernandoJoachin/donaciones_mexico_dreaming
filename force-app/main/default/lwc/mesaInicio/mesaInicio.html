@@ -1,5 +1,6 @@
 <template>
     <div class="pagina">
+        <template lwc:if={verArriba}>
         <header class="hero">
             <span class="burbuja burbuja-a" aria-hidden="true"></span>
             <span class="burbuja burbuja-b" aria-hidden="true"></span>
@@ -16,7 +17,9 @@
                 <p class="ayuda">{ayuda}</p>
             </div>
         </header>
+        </template>
 
+        <template lwc:if={verAbajo}>
         <section class="seccion">
             <h2 class="seccion-titulo">Cómo sumarte</h2>
             <p class="seccion-sub">Tres pasos, a tu ritmo.</p>
@@ -52,6 +55,7 @@
                 <button type="button" class="btn btn-claro" onclick={irACampanas}>{textoBotonDonar}</button>
             </div>
         </section>
+        </template>
         </template>
     </div>
 </template>

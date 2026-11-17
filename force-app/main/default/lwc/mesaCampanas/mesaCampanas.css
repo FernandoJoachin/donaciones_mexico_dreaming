@@ -172,3 +172,8 @@
     font-weight: 700;
     color: var(--mesa-azul-medio);
 }
+
+/* Al bajar a la lista desde el encabezado, que las pestañas no queden tapadas por la barra fija. */
+.tabs {
+    scroll-margin-top: 100px;
+}
