@@ -631,11 +631,22 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué no se verificó:** pantallas entre 900 y 1099 px (2 columnas) ni otros navegadores; las propiedades del encabezado guardadas en Experience Builder podrían pisar los valores por defecto (aquí se vieron los nuevos).
 - **Aceleración estimada:** no aplica (cambio visual de ~30 min).
 
+### 53. Preguntas frecuentes: centradas, en dos columnas y con flecha (SCRUM-157)
+- **Fecha:** 2026-11-17
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** SCRUM-157 — pulido para la presentación
+- **Qué se pidió:** acomodar mejor las preguntas frecuentes, con una flecha que indique que se abren, aprovechando el espacio y centradas.
+- **Qué se hizo:** solo CSS de `mesaInicio`. La sección queda centrada (máx. 62 rem), en dos columnas desde 900 px y una en celular; cada pregunta lleva una flecha dibujada con bordes que gira al abrir, y el marcador nativo del navegador se oculta. Se conserva `<details>`/`<summary>`: abre con teclado y el alto táctil sigue siendo de 44 px.
+- **Qué se verificó y cómo:** como visitante en UADY a 1440 px: sección centrada (224 px a cada lado), 2 columnas de 486 px, flecha presente y apuntando hacia arriba con la primera pregunta abierta (captura). A 390 px: una columna y sin desborde horizontal.
+- **Qué no se verificó:** otros navegadores (el ocultar el marcador usa `list-style: none` y `::-webkit-details-marker`) ni lectores de pantalla.
+- **Aceleración estimada:** no aplica (cambio visual de ~15 min).
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 34 (1–9, 23–26 y 32–52) | 14 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47, 48 y 51) |
+| José Carlos Leo Fernández | 35 (1–9, 23–26 y 32–53) | 14 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47, 48 y 51) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 
