@@ -523,11 +523,21 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué se verificó y cómo:** cada hecho sale de entradas de esta bitácora (33, 34, 37 y 39), de `docs/seguridad.md` y de los PRs #27, #30 y #33; no se escribió nada que no conste ahí. La entrada 22 queda como pendiente a propósito, porque la decisión no se confirmó con el cliente. Las entradas de Daniel y Fernando no se tocaron: las escribe cada uno.
 - **Aceleración estimada:** ~30 min.
 
+### 44. Correo de facturas real en la sandbox (SCRUM-149)
+- **Fecha:** 2026-11-17
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** cierre de la Entrega 2 — SCRUM-149
+- **Qué se pidió:** poner una dirección real en lugar de `facturas@ejemplo.org` para la demo.
+- **Qué se obtuvo:** el correo aparece en dos sitios, y se cambiaron los dos en la sandbox UADY: la etiqueta `Mesa_Correo_Facturas` (la usa el correo del comprobante) y la propiedad `correoFacturas` de la página de facturas, que vive en la configuración del sitio y no en el código. Se usó la cuenta del equipo que ya envía los comprobantes, para que las respuestas lleguen a un buzón que se controla. No se subió la dirección al repositorio.
+- **Qué se verificó y cómo:** la página de facturas publicada muestra la dirección nueva. El correo del comprobante la toma de la etiqueta en el siguiente envío (no se reenvió uno).
+- **Aceleración estimada:** ~15 min.
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 25 (1–9, 23–26 y 32–43) | 10 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37 y 38) |
+| José Carlos Leo Fernández | 26 (1–9, 23–26 y 32–44) | 10 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37 y 38) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 
