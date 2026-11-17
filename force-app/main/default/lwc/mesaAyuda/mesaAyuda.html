@@ -1,0 +1,39 @@
+<template>
+    <div class="ayuda">
+        <template lwc:if={mostrarFormulario}>
+            <h2 class="titulo">¿Necesitas ayuda?</h2>
+            <p class="intro">Cuéntanos qué pasó con tu donativo o tu pago y te respondemos al correo que nos dejes.</p>
+
+            <template lwc:if={error}>
+                <p class="error" role="alert">{error}</p>
+            </template>
+
+            <lightning-input label="Nombre" data-campo="nombre" value={nombre} onchange={cambio} maxlength="80"></lightning-input>
+            <lightning-input type="email" label="Correo electrónico" data-campo="correo" value={correo} onchange={cambio} maxlength="80"></lightning-input>
+            <lightning-input
+                label="Referencia de tu donativo (opcional)"
+                field-level-help="La encuentras en tu comprobante o en la página de gracias, por ejemplo EIJPXYAU."
+                data-campo="referencia"
+                value={referencia}
+                onchange={cambio}
+                maxlength="20"
+            ></lightning-input>
+            <lightning-textarea label="¿En qué te ayudamos?" data-campo="mensaje" value={mensaje} onchange={cambio} maxlength="2000"></lightning-textarea>
+
+            <!-- Campo trampa: las personas no lo ven; los programas automáticos sí lo llenan. -->
+            <div class="trampa" aria-hidden="true">
+                <label>Sitio web (déjalo vacío)
+                    <input type="text" name="sitioWeb" tabindex="-1" autocomplete="off" data-campo="sitioWeb" value={sitioWeb} onchange={cambio} />
+                </label>
+            </div>
+
+            <button type="button" class="btn btn-primario" onclick={enviar} disabled={enviando}>{etiquetaBoton}</button>
+        </template>
+
+        <template lwc:if={enviado}>
+            <h2 class="titulo">¡Recibimos tu mensaje!</h2>
+            <p class="intro">Te responderemos al correo que nos dejaste. Si necesitas citar esta solicitud, su número es <strong>{numeroCaso}</strong>.</p>
+            <button type="button" class="btn btn-primario" onclick={cerrar}>Cerrar</button>
+        </template>
+    </div>
+</template>

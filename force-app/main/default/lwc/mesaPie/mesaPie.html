@@ -61,9 +61,21 @@
 
         <div class="pie-base">
             <p class="pie-legal">© {anio} {textoLegal}</p>
-            <template lwc:if={urlAviso}>
-                <a class="pie-enlace" href={urlAviso}>Aviso de privacidad</a>
-            </template>
+            <div class="pie-acciones">
+                <button type="button" class="pie-enlace pie-enlace-boton" onclick={abrirAyuda}>¿Necesitas ayuda?</button>
+                <template lwc:if={urlAviso}>
+                    <a class="pie-enlace" href={urlAviso}>Aviso de privacidad</a>
+                </template>
+            </div>
         </div>
     </footer>
+
+    <template lwc:if={ayudaAbierta}>
+        <div class="ayuda-fondo" onclick={cerrarAyuda}>
+            <div class="ayuda-caja" role="dialog" aria-modal="true" aria-label="Formulario de ayuda" onclick={detener} onkeydown={teclaAyuda}>
+                <button type="button" class="ayuda-cerrar" aria-label="Cerrar" onclick={cerrarAyuda}>×</button>
+                <c-mesa-ayuda oncerrar={cerrarAyuda}></c-mesa-ayuda>
+            </div>
+        </div>
+    </template>
 </template>
