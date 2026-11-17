@@ -468,11 +468,22 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué se verificó y cómo:** desplegado y publicado en UADY; como visitante en escritorio y en móvil, con el monto que llega desde la página de la campaña ya elegido y el botón con el monto. No se probó el pago completo en esta pantalla (lo prueba el equipo con Stripe).
 - **Aceleración estimada:** ~2 h.
 
+### 39. Simplificar "Tus datos" y acomodar las tarjetas de monto (SCRUM-144)
+- **Fecha:** 2026-11-16
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** feedback del panel ("ya te dije que soy anónimo y me preguntas otra vez", "más simple, directo al grano") — SCRUM-144
+- **Qué se pidió:** acomodar mejor las tarjetas de monto y hacer más simple el paso de datos, con el feedback de la clase.
+- **Qué se obtuvo:** el paso 3 pasó de seis elementos a tres: correo, una casilla opcional "Quiero enterarme de futuras campañas" y "Acepto el aviso de privacidad" con su enlace en la misma línea. Se quitó la casilla "Autorizo que mi donativo se publique…": la opción "Con mi nombre" del paso 2 ahora dice que al elegirla se autoriza publicar nombre y monto. Nombre y Apellidos van lado a lado, los títulos de los pasos son más cortos y las tarjetas de monto quedan en filas parejas (una fila si caben, 2×2 si no).
+- **Decisiones que la IA tomaría en silencio y que se dejaron explícitas:** (1) el consentimiento de publicación ya no es una casilla; el formulario envía `consentimientoPublicacion = true` en ambos modos y el texto de cada opción dice lo que se autoriza (el servidor no cambió y sigue exigiendo ese valor). (2) La casilla de novedades sin marcar guarda el consentimiento de avisos como «No»: el valor por defecto es no recibir, y recibir es una acción de la persona. (3) El enlace al aviso de privacidad sigue accesible, ahora dentro de la casilla.
+- **Qué se verificó y cómo:** desplegado y publicado en UADY; como visitante se revisó cada paso con "Con mi nombre" elegido (campos de nombre lado a lado, correo y casillas) y las tarjetas de monto. El servidor no cambió. No se probó un pago completo.
+- **Aceleración estimada:** ~1 h.
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 20 (1–9, 23–26 y 32–38) | 10 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37 y 38) |
+| José Carlos Leo Fernández | 21 (1–9, 23–26 y 32–39) | 10 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37 y 38) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 

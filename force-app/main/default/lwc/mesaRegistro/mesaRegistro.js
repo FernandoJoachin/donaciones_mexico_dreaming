@@ -135,8 +135,8 @@ export default class MesaRegistro extends LightningElement {
     apellidos = '';
     linkedinUrl = '';
     correo = '';
-    consentimientoAvisos = '';
-    consentimientoPublicacion = false;
+    /** Casilla opcional de novedades. Sin marcar equivale a consentimiento «No». */
+    quiereNovedades = false;
     aceptaAviso = false;
     sitioWeb = '';
 
@@ -145,11 +145,6 @@ export default class MesaRegistro extends LightningElement {
     pagoCancelado = false;
     donativoId;
     error;
-
-    opcionesConsentimiento = [
-        { label: 'Sí, pueden escribirme', value: 'Si' },
-        { label: 'No, solo usen mis datos para este donativo', value: 'No' }
-    ];
 
     // ---------- Presentación: tarjetas de monto, resumen de la causa y botón ----------
 
@@ -203,6 +198,12 @@ export default class MesaRegistro extends LightningElement {
             clase: otro ? 'monto seleccionado' : 'monto'
         });
         return tarjetas;
+    }
+
+    /** Columnas de las tarjetas: todas en una fila hasta 4; con 5 se reparten 3 y 2. */
+    get estiloMontos() {
+        const n = this.tarjetasMonto.length;
+        return `--columnas: ${n <= 4 ? n : 3}`;
     }
 
     elegirMonto(evento) {
@@ -368,12 +369,6 @@ export default class MesaRegistro extends LightningElement {
         if (!CORREO.test(this.correo.trim())) {
             return 'Escribe un correo válido.';
         }
-        if (!this.consentimientoAvisos) {
-            return 'Indica si podemos guardar tus datos para invitarte a futuras campañas.';
-        }
-        if (this.esPublico && !this.consentimientoPublicacion) {
-            return 'Para continuar necesitamos tu autorización para publicar tu donativo.';
-        }
         if (!this.aceptaAviso) {
             return 'Para continuar debes aceptar el aviso de privacidad.';
         }
@@ -432,9 +427,10 @@ export default class MesaRegistro extends LightningElement {
                     esEmpresa: comoEmpresa,
                     nombreEmpresa: comoEmpresa ? this.nombreEmpresa : null,
                     linkedinUrl: this.esPublico ? this.linkedinUrl : null,
-                    consentimientoAvisos: this.consentimientoAvisos,
-                    // En modo anónimo no hay casilla: al continuar se autoriza publicar solo «Anónimo» y el monto.
-                    consentimientoPublicacion: this.esAnonimo ? true : this.consentimientoPublicacion,
+                    consentimientoAvisos: this.quiereNovedades ? 'Si' : 'No',
+                    // No hay casilla aparte: elegir «Con mi nombre» o «Anónima» en el paso 2 ya autoriza publicar
+                    // lo que esa opción dice (nombre y monto, o «Anónimo» y monto). El servidor exige este valor.
+                    consentimientoPublicacion: true,
                     aceptaAviso: this.aceptaAviso,
                     versionAviso: this.versionAviso,
                     sitioWeb: this.sitioWeb
