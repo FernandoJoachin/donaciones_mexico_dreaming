@@ -11,6 +11,7 @@ Proyecto base para que las personas se registren en un solo formulario y hagan u
 
 ## Backlog y avance (Entrega 1)
 
+- **Modelo de datos (diagrama de objetos y guía para la demo):** [docs/modelo_datos.md](docs/modelo_datos.md).
 - **Backlog en el repo:** [docs/backlog.md](docs/backlog.md) (ID, RF que cubre, hito, historia, criterios, estado y evidencia).
 - **Tablero (Jira):** [backlog del proyecto](https://fernandojoachinp.atlassian.net/issues?jql=project%20%3D%20SCRUM%20ORDER%20BY%20key%20ASC).
   Cada historia (`US-xx`) tiene su descripción, sus criterios de aceptación (CA) y su estado; las historias de la entrega llevan la etiqueta `entrega-1`.
