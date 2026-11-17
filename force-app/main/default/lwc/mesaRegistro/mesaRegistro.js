@@ -107,6 +107,13 @@ export default class MesaRegistro extends LightningElement {
         if (this.montoAplicado || valor === undefined || valor === null) {
             return;
         }
+        if (String(valor).toLowerCase() === 'otro') {
+            this.montoAplicado = true;
+            this.otroElegido = true;
+            this.paquete = 'Abierto';
+            this.montoTexto = '';
+            return;
+        }
         const monto = parseMonto(valor);
         if (monto === null || monto <= 0) {
             return;
@@ -165,7 +172,7 @@ export default class MesaRegistro extends LightningElement {
         const impactos = ((this.campanaInfo && this.campanaInfo.impactos) || [])
             .map((i) => ({ monto: Number(i.monto), detalle: i.descripcion }))
             .filter((i) => i.monto >= MONTO_MINIMO)
-            .slice(0, 4);
+            .slice(0, 6);
         return impactos.length ? impactos : Object.keys(PAQUETES).map((k) => ({ monto: PAQUETES[k], detalle: '' }));
     }
 

@@ -189,7 +189,8 @@ private class MesaCampanasTest {
             new Nivel_Impacto__c(Campana__c = c.Id, Monto__c = 1000, Descripcion__c = 'Un boleto', Orden__c = 2),
             new Nivel_Impacto__c(Campana__c = c.Id, Monto__c = 250, Descripcion__c = 'Un mes de internet', Orden__c = 1),
             new Nivel_Impacto__c(Campana__c = c.Id, Monto__c = 5000, Descripcion__c = 'Hospedaje', Orden__c = null),
-            new Nivel_Impacto__c(Campana__c = c.Id, Monto__c = 0, Descripcion__c = 'Monto inválido', Orden__c = 3)
+            new Nivel_Impacto__c(Campana__c = c.Id, Monto__c = 0, Descripcion__c = 'Monto inválido', Orden__c = 3),
+            new Nivel_Impacto__c(Campana__c = c.Id, Monto__c = 50, Descripcion__c = 'Menos del mínimo', Orden__c = 4)
         };
 
         MesaRegalosController.CampanaDTO d = MesaRegalosController.obtenerCampana(String.valueOf(c.Id));
@@ -197,7 +198,7 @@ private class MesaCampanasTest {
         Assert.areEqual(new List<String>{ 'Primer párrafo.', 'Segundo párrafo.', 'Tercer párrafo.' }, d.historia);
         Assert.areEqual('Estudiantes de la facultad', d.paraQuien);
         Assert.areEqual('Comunidad de la facultad', d.organiza);
-        Assert.areEqual(3, d.impactos.size(), 'El nivel con monto 0 no se publica');
+        Assert.areEqual(3, d.impactos.size(), 'Los niveles con monto 0 o menor al mínimo ($100) no se publican');
         Assert.areEqual('Un mes de internet', d.impactos[0].descripcion);
         Assert.areEqual('Un boleto', d.impactos[1].descripcion);
         Assert.areEqual('Hospedaje', d.impactos[2].descripcion, 'Sin orden va al final');

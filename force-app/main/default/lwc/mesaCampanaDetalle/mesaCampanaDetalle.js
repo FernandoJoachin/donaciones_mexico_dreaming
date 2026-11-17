@@ -5,6 +5,8 @@ import obtenerMuro from '@salesforce/apex/MesaRegalosController.obtenerMuro';
 import { resolverUrl, irA, formatearMonto } from 'c/mesaUtil';
 
 const MS_DIA = 24 * 60 * 60 * 1000;
+// Debe coincidir con MONTO_MINIMO de MesaRegalosController.
+const MONTO_MINIMO = 100;
 
 /**
  * Página de presentación de una campaña (US-02). Lee el Id de la campaña de la dirección
@@ -211,6 +213,15 @@ export default class MesaCampanaDetalle extends LightningElement {
             `${resolverUrl(this.paginaDonar, null, false)}?campana=${encodeURIComponent(this.campanaId)}` +
                 `&monto=${encodeURIComponent(monto)}`
         );
+    }
+
+    get montoMinimo() {
+        return formatearMonto(MONTO_MINIMO);
+    }
+
+    /** "Otro monto": llega al formulario sin monto elegido y con el campo de monto libre abierto. */
+    elegirOtroMonto() {
+        irA(`${resolverUrl(this.paginaDonar, null, false)}?campana=${encodeURIComponent(this.campanaId)}&monto=otro`);
     }
 
     get hayDonantes() {

@@ -262,7 +262,7 @@ public without sharing class MesaRegalosController {
         ];
         CampanaDTO d = armarCampanaDTO(campanas[0], pagado, hoy);
         for (Nivel_Impacto__c n : campanas[0].Niveles_Impacto__r) {
-            if (n.Monto__c != null && n.Monto__c > 0 && String.isNotBlank(n.Descripcion__c)) {
+            if (n.Monto__c != null && n.Monto__c >= MONTO_MINIMO && String.isNotBlank(n.Descripcion__c)) {
                 ImpactoDTO i = new ImpactoDTO();
                 i.monto = n.Monto__c;
                 i.descripcion = n.Descripcion__c.trim();
