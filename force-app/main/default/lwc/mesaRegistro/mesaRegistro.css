@@ -33,3 +33,268 @@
     color: #dcecfb;
     line-height: 1.45;
 }
+
+/* ---------- Flujo de donación (SCRUM-143) ---------- */
+.contenedor.ancho {
+    max-width: 1040px;
+    padding: 2rem;
+}
+.disposicion {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 2rem;
+    align-items: start;
+}
+.formulario {
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+    order: 1;
+}
+.resumen {
+    order: 2;
+    position: sticky;
+    top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    padding: 1.1rem;
+    background: var(--mesa-cielo);
+    border: 1px solid #cfe3f7;
+    border-radius: 22px;
+}
+.resumen-imagen {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: 14px;
+}
+.resumen-titulo {
+    margin: 0;
+    font-size: 1.2rem;
+    line-height: 1.25;
+    color: var(--mesa-azul-oscuro);
+}
+.resumen-texto {
+    margin: 0;
+    line-height: 1.5;
+    color: #2b2b2b;
+    font-size: 0.95rem;
+}
+.resumen-cifras {
+    color: var(--mesa-azul-oscuro);
+}
+.resumen-cifras span {
+    margin-left: 0.35rem;
+    color: #444444;
+    font-size: 0.9rem;
+}
+.barra {
+    height: 10px;
+    margin-top: 0.4rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 1px solid #cfe3f7;
+}
+.barra-relleno {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--mesa-azul), var(--mesa-azul-claro));
+}
+.resumen-donantes {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--mesa-azul-medio);
+}
+.resumen-impacto {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.8rem 0.9rem;
+    background: #ffffff;
+    border-left: 4px solid var(--mesa-azul);
+    border-radius: 10px;
+    font-size: 0.92rem;
+    color: #2b2b2b;
+}
+.resumen-impacto-monto {
+    font-weight: 800;
+    color: var(--mesa-azul-oscuro);
+}
+.confianza {
+    margin: 0.2rem 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    font-size: 0.86rem;
+    color: #2b2b2b;
+}
+.confianza-icono {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.2rem;
+    height: 1.2rem;
+    margin-right: 0.3rem;
+    border-radius: 50%;
+    background: #2e844a;
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+/* Pasos */
+.paso {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid #e3ebf4;
+}
+.paso-titulo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0;
+    font-size: 1.05rem;
+    color: var(--mesa-azul-oscuro);
+}
+.paso-numero {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 50%;
+    background: var(--mesa-azul);
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 800;
+}
+
+/* Tarjetas de monto */
+.montos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.7rem;
+}
+.monto {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    min-height: 5.2rem;
+    padding: 0.8rem 0.9rem;
+    font: inherit;
+    text-align: left;
+    color: var(--mesa-texto);
+    background: #ffffff;
+    border: 2px solid #c9d6e4;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+.monto:hover {
+    border-color: var(--mesa-azul);
+}
+.monto:focus-visible {
+    outline: 3px solid #90d0fe;
+    outline-offset: 2px;
+}
+.monto.seleccionado {
+    border-color: var(--mesa-azul);
+    background: var(--mesa-cielo);
+    box-shadow: 0 0 0 3px rgba(1, 118, 211, 0.18);
+}
+.monto-cifra {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--mesa-azul-oscuro);
+}
+.monto-detalle {
+    font-size: 0.82rem;
+    line-height: 1.35;
+    color: #444444;
+}
+
+/* Opciones de aparición */
+.opciones {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.7rem;
+}
+.opcion {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    padding: 0.8rem 0.9rem;
+    background: #ffffff;
+    border: 2px solid #c9d6e4;
+    border-radius: 16px;
+    cursor: pointer;
+}
+.opcion:hover {
+    border-color: var(--mesa-azul);
+}
+.opcion.seleccionada {
+    border-color: var(--mesa-azul);
+    background: var(--mesa-cielo);
+    box-shadow: 0 0 0 3px rgba(1, 118, 211, 0.18);
+}
+.opcion input {
+    margin-top: 0.3rem;
+    accent-color: var(--mesa-azul);
+}
+.opcion-texto {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    font-size: 0.88rem;
+    color: #444444;
+}
+.opcion-texto strong {
+    font-size: 1rem;
+    color: var(--mesa-azul-oscuro);
+}
+
+.btn-donar {
+    align-self: stretch;
+    padding: 1rem 1.8rem;
+    font-size: 1.1rem;
+}
+.seguro {
+    margin: -0.6rem 0 0;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #444444;
+}
+
+@media (max-width: 860px) {
+    .contenedor.ancho {
+        padding: 1.25rem;
+    }
+    .disposicion {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1.25rem;
+    }
+    .resumen {
+        order: 1;
+        position: static;
+        gap: 0.5rem;
+        padding: 0.9rem;
+    }
+    /* En pantallas chicas el resumen se compacta para que el formulario quede a la vista. */
+    .resumen-imagen,
+    .resumen-texto,
+    .confianza {
+        display: none;
+    }
+    .formulario {
+        order: 2;
+    }
+}
