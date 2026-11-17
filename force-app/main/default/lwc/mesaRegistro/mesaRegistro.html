@@ -16,7 +16,7 @@
                 <lightning-spinner alternative-text="Enviando" size="medium"></lightning-spinner>
             </template>
 
-            <template lwc:if={error}>
+            <template lwc:if={errorSuperior}>
                 <p class="error" role="alert">{error}</p>
             </template>
 
@@ -69,6 +69,9 @@
 
                         <section class="paso" aria-labelledby="paso1">
                             <h3 id="paso1" class="paso-titulo"><span class="paso-numero" aria-hidden="true">1</span> Tu aportación</h3>
+                            <template lwc:if={errorPaso1}>
+                                <p class="error error-formulario" role="alert">{error}</p>
+                            </template>
                             <div class="montos" role="group" aria-label="Montos sugeridos" style={estiloMontos}>
                                 <template for:each={tarjetasMonto} for:item="t">
                                     <button key={t.valor} type="button" class={t.clase} data-valor={t.valor} aria-pressed={t.pulsada} onclick={elegirMonto}>{t.etiqueta}</button>
@@ -87,6 +90,9 @@
 
                         <section class="paso" aria-labelledby="paso2">
                             <h3 id="paso2" class="paso-titulo"><span class="paso-numero" aria-hidden="true">2</span> ¿Cómo quieres aparecer en el muro?</h3>
+                            <template lwc:if={errorPaso2}>
+                                <p class="error error-formulario" role="alert">{error}</p>
+                            </template>
                             <div class="opciones" role="radiogroup" aria-labelledby="paso2">
                                 <label class={clasePublica}>
                                     <input type="radio" name="visibilidad" value="Publica" checked={esPublico} onchange={cambioVisibilidad} />
@@ -129,6 +135,9 @@
 
                         <section class="paso" aria-labelledby="paso3">
                             <h3 id="paso3" class="paso-titulo"><span class="paso-numero" aria-hidden="true">3</span> Tus datos</h3>
+                            <template lwc:if={errorPaso3}>
+                                <p class="error error-formulario" role="alert">{error}</p>
+                            </template>
                             <lightning-input type="email" label="Correo electrónico" field-level-help="Aquí te enviamos tu comprobante. Nunca se muestra en el muro." data-campo="correo" value={correo} onchange={cambio} maxlength="80"></lightning-input>
 
                             <label class="casilla">
@@ -149,6 +158,9 @@
                             </label>
                         </section>
 
+                        <template lwc:if={errorBoton}>
+                            <p class="error error-formulario" role="alert">{error}</p>
+                        </template>
                         <button type="button" class="btn btn-primario btn-donar" onclick={enviar} disabled={botonDeshabilitado}>{etiquetaBoton}</button>
                         <p class="seguro">🔒 Pagas en el sitio seguro de Stripe: los datos de tu tarjeta solo los ve Stripe.</p>
                     </div>

@@ -180,10 +180,12 @@ export default class MesaRegistro extends LightningElement {
     }
 
     elegirMonto(evento) {
+        this.limpiarError();
         this.montoTexto = evento.currentTarget.dataset.valor;
     }
 
     cambioMonto(evento) {
+        this.limpiarError();
         this.montoTexto = evento.target.value;
     }
 
@@ -215,6 +217,7 @@ export default class MesaRegistro extends LightningElement {
     }
 
     cambioVisibilidad(evento) {
+        this.limpiarError();
         this.visibilidad = evento.target.value;
     }
 
@@ -310,6 +313,7 @@ export default class MesaRegistro extends LightningElement {
 
 
     cambio(evento) {
+        this.limpiarError();
         const campo = evento.target.dataset.campo;
         if (evento.target.type === 'checkbox') {
             this[campo] = evento.target.checked;
@@ -320,31 +324,80 @@ export default class MesaRegistro extends LightningElement {
 
     /** Revisión rápida para no hacer viajes al servidor. El servidor vuelve a validar todo. */
     validar() {
+        this.pasoError = 0;
         if (!this.montoValido) {
-            return `Escribe un monto de ${formatearMonto(MONTO_MINIMO)} o más.`;
+            return this.fallo(1, `Escribe un monto de ${formatearMonto(MONTO_MINIMO)} o más.`);
         }
         if (!this.visibilidad) {
-            return 'Elige si tu donativo será público o anónimo.';
+            return this.fallo(2, 'Elige si tu donativo será público o anónimo.');
         }
         if (this.esPublico) {
             if (this.esEmpresa) {
                 if (!this.nombreEmpresa.trim()) {
-                    return 'Escribe el nombre de la empresa.';
+                    return this.fallo(2, 'Escribe el nombre de la empresa.');
                 }
             } else if (!this.nombre.trim() || !this.apellidos.trim()) {
-                return 'Escribe tu nombre y apellidos.';
+                return this.fallo(2, 'Escribe tu nombre y apellidos.');
             }
             if (this.linkedinUrl.trim() && !LINKEDIN.test(this.linkedinUrl.trim())) {
-                return 'La dirección de LinkedIn no es válida (https://www.linkedin.com/in/... o /company/...).';
+                return this.fallo(2, 'La dirección de LinkedIn no es válida (https://www.linkedin.com/in/... o /company/...).');
             }
         }
         if (!CORREO.test(this.correo.trim())) {
-            return 'Escribe un correo válido.';
+            return this.fallo(3, 'Escribe un correo válido.');
         }
         if (!this.aceptaAviso) {
-            return 'Para continuar debes aceptar el aviso de privacidad.';
+            return this.fallo(3, 'Para continuar debes aceptar el aviso de privacidad.');
         }
         return undefined;
+    }
+
+    // ---------- Errores junto al paso con el problema ----------
+
+    /** Paso donde se muestra el error: 1, 2 o 3 del formulario; 4 = junto al botón; 0 = arriba (otros estados). */
+    pasoError = 0;
+
+    fallo(paso, mensaje) {
+        this.pasoError = paso;
+        return mensaje;
+    }
+
+    get errorSuperior() {
+        return !!this.error && this.pasoError === 0;
+    }
+
+    get errorPaso1() {
+        return !!this.error && this.pasoError === 1;
+    }
+
+    get errorPaso2() {
+        return !!this.error && this.pasoError === 2;
+    }
+
+    get errorPaso3() {
+        return !!this.error && this.pasoError === 3;
+    }
+
+    get errorBoton() {
+        return !!this.error && this.pasoError === 4;
+    }
+
+    /** Baja la página hasta el mensaje de error, para que la persona vea qué falta sin buscarlo. */
+    mostrarError() {
+        requestAnimationFrame(() => {
+            const aviso = this.template.querySelector('.error-formulario');
+            if (aviso) {
+                aviso.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    }
+
+    /** En cuanto la persona edita algo, el error anterior ya no aplica. */
+    limpiarError() {
+        if (this.error && this.pasoError !== 0) {
+            this.error = undefined;
+            this.pasoError = 0;
+        }
     }
 
     reintentarPago() {
@@ -356,6 +409,7 @@ export default class MesaRegistro extends LightningElement {
      * El monto lo pone el servidor con lo guardado; aquí solo viaja el Id del donativo.
      */
     async abrirPago() {
+        this.pasoError = 0;
         this.error = undefined;
         this.enviando = true;
         try {
@@ -381,6 +435,7 @@ export default class MesaRegistro extends LightningElement {
     async enviar() {
         this.error = this.validar();
         if (this.error) {
+            this.mostrarError();
             return;
         }
         const comoEmpresa = this.esPublico && this.esEmpresa;
@@ -409,7 +464,9 @@ export default class MesaRegistro extends LightningElement {
                 })
             });
         } catch (e) {
+            this.pasoError = 4;
             this.error = mensajeError(e);
+            this.mostrarError();
             return;
         } finally {
             this.enviando = false;
