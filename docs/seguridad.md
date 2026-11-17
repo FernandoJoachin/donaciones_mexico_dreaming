@@ -199,6 +199,7 @@ Decisiones del 7 de noviembre: se piden siempre nombre, apellidos y correo; "an�
 | **Proceso ajeno que se dispara con Cases de origen «Web»** | Mitigado | `NuevoCasoDesdeFormularioCommunity` (2020, de otra persona) falla al crear esos Cases. No se modificó; el Case de ayuda no usa ese origen |
 | **Remitente del comprobante** | Aceptado (demo) | Sale como «Mesa de regalos · México Dreamin» desde una dirección de toda la organización verificada. Para uso real hay que usar una dirección del dominio de la organización y configurar DKIM |
 | **Correo del comprobante a un contacto reutilizado** | Abierto | El saludo usa el nombre público del donativo, no el del contacto (un contacto creado en un donativo anónimo se llama «Anónimo»). El sitio no actualiza el nombre de un contacto reutilizado |
+| **Consentimiento de publicación implícito** | Aceptado | Desde SCRUM-144 no hay casilla aparte: elegir «Con mi nombre» o «Anónima» autoriza lo que esa opción dice (visible en pantalla). El formulario sigue enviando y guardando `Consentimiento_Publicacion__c` y la versión del aviso. La casilla de novedades sin marcar guarda el consentimiento de avisos como «No» |
 | Datos personales en los registros de depuración | **Cerrado** | Los `System.debug` con datos de personas ya no existen en `entrega-1` |
 
 ## 6. Cómo comprobar que no hay claves en el código

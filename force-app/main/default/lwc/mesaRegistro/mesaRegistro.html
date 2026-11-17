@@ -75,7 +75,7 @@
 
                         <section class="paso" aria-labelledby="paso1">
                             <h3 id="paso1" class="paso-titulo"><span class="paso-numero" aria-hidden="true">1</span> Tu aportación</h3>
-                            <div class="montos" role="group" aria-label="Aportación">
+                            <div class="montos" role="group" aria-label="Aportación" style={estiloMontos}>
                                 <template for:each={tarjetasMonto} for:item="t">
                                     <button key={t.valor} type="button" class={t.clase} data-valor={t.valor} aria-pressed={t.pulsada} onclick={elegirMonto}>
                                         <span class="monto-cifra">{t.etiqueta}</span>
@@ -99,11 +99,11 @@
                         </section>
 
                         <section class="paso" aria-labelledby="paso2">
-                            <h3 id="paso2" class="paso-titulo"><span class="paso-numero" aria-hidden="true">2</span> Cómo quieres aparecer en el muro de agradecimiento</h3>
+                            <h3 id="paso2" class="paso-titulo"><span class="paso-numero" aria-hidden="true">2</span> ¿Cómo quieres aparecer en el muro?</h3>
                             <div class="opciones" role="radiogroup" aria-labelledby="paso2">
                                 <label class={clasePublica}>
                                     <input type="radio" name="visibilidad" value="Publica" checked={esPublico} onchange={cambioVisibilidad} />
-                                    <span class="opcion-texto"><strong>Con mi nombre</strong><span>Mi nombre (o el de mi empresa) y el monto.</span></span>
+                                    <span class="opcion-texto"><strong>Con mi nombre</strong><span>Aparecen mi nombre (o el de mi empresa) y el monto. Al elegirla autorizo publicarlos.</span></span>
                                 </label>
                                 <label class={claseAnonima}>
                                     <input type="radio" name="visibilidad" value="Anonima" checked={esAnonimo} onchange={cambioVisibilidad} />
@@ -122,12 +122,15 @@
                                         <lightning-input label="Nombre de la empresa" data-campo="nombreEmpresa" value={nombreEmpresa} onchange={cambio} maxlength="80"></lightning-input>
                                     </template>
                                     <template lwc:else>
-                                        <lightning-input label="Nombre" data-campo="nombre" value={nombre} onchange={cambio} maxlength="40"></lightning-input>
-                                        <lightning-input label="Apellidos" data-campo="apellidos" value={apellidos} onchange={cambio} maxlength="80"></lightning-input>
+                                        <div class="fila-nombres">
+                                            <lightning-input label="Nombre" data-campo="nombre" value={nombre} onchange={cambio} maxlength="40"></lightning-input>
+                                            <lightning-input label="Apellidos" data-campo="apellidos" value={apellidos} onchange={cambio} maxlength="80"></lightning-input>
+                                        </div>
                                     </template>
                                     <lightning-input
                                         type="url"
-                                        label="LinkedIn (opcional). Si lo agregas, te mencionamos en la publicación de agradecimiento"
+                                        label="LinkedIn (opcional)"
+                                        field-level-help="Si lo agregas, te mencionamos en la publicación de agradecimiento."
                                         placeholder="https://www.linkedin.com/in/..."
                                         data-campo="linkedinUrl"
                                         value={linkedinUrl}
@@ -139,21 +142,12 @@
 
                         <section class="paso" aria-labelledby="paso3">
                             <h3 id="paso3" class="paso-titulo"><span class="paso-numero" aria-hidden="true">3</span> Tus datos</h3>
-                            <lightning-input type="email" label="Correo electrónico (aquí te enviamos tu comprobante)" data-campo="correo" value={correo} onchange={cambio} maxlength="80"></lightning-input>
+                            <lightning-input type="email" label="Correo electrónico" field-level-help="Aquí te enviamos tu comprobante. Nunca se muestra en el muro." data-campo="correo" value={correo} onchange={cambio} maxlength="80"></lightning-input>
 
-                            <lightning-radio-group
-                                name="consentimientoAvisos"
-                                label="¿Podemos guardar tus datos para invitarte a futuras campañas?"
-                                options={opcionesConsentimiento}
-                                value={consentimientoAvisos}
-                                type="radio"
-                                data-campo="consentimientoAvisos"
-                                onchange={cambio}
-                            ></lightning-radio-group>
-
-                            <template lwc:if={esPublico}>
-                                <lightning-input type="checkbox" label="Autorizo que mi donativo se publique en el muro de agradecimiento (mi nombre y el monto)" data-campo="consentimientoPublicacion" checked={consentimientoPublicacion} onchange={cambio}></lightning-input>
-                            </template>
+                            <label class="casilla">
+                                <input type="checkbox" data-campo="quiereNovedades" checked={quiereNovedades} onchange={cambio} />
+                                <span>Quiero enterarme de futuras campañas (opcional)</span>
+                            </label>
 
                             <!-- Campo trampa: las personas no lo ven; los programas automáticos sí lo llenan. -->
                             <div class="trampa" aria-hidden="true">
@@ -162,8 +156,10 @@
                                 </label>
                             </div>
 
-                            <lightning-input type="checkbox" label="He leído y acepto el aviso de privacidad" data-campo="aceptaAviso" checked={aceptaAviso} onchange={cambio}></lightning-input>
-                            <p class="aviso"><a href={avisoHref} target="_blank" rel="noopener">Ver aviso de privacidad</a></p>
+                            <label class="casilla">
+                                <input type="checkbox" data-campo="aceptaAviso" checked={aceptaAviso} onchange={cambio} />
+                                <span>Acepto el <a href={avisoHref} target="_blank" rel="noopener">aviso de privacidad</a></span>
+                            </label>
                         </section>
 
                         <button type="button" class="btn btn-primario btn-donar" onclick={enviar} disabled={botonDeshabilitado}>{etiquetaBoton}</button>
