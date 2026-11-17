@@ -1,5 +1,5 @@
 import { LightningElement, api } from 'lwc';
-import { resolverUrl } from 'c/mesaUtil';
+import { resolverUrl, bajarALista } from 'c/mesaUtil';
 
 /**
  * Pie de pagina del sitio. Todo lo que cambia de una organizacion a otra se edita en
@@ -67,6 +67,11 @@ export default class MesaPie extends LightningElement {
         }
     }
 
+    /** Estando en el inicio, «Donar» baja a la lista de campañas sin recargar la página. */
+    alNavegar(evento) {
+        bajarALista(evento);
+    }
+
     get anio() {
         return new Date().getFullYear();
     }
@@ -75,7 +80,7 @@ export default class MesaPie extends LightningElement {
         const lista = [
             { id: 'inicio', texto: 'Inicio', url: resolverUrl('', null, false) },
             { id: 'campanas', texto: 'Campañas', pagina: this.paginaCampanas },
-            { id: 'donar', texto: 'Donar', url: this.urlDonar },
+            { id: 'donar', texto: 'Donar', url: this.urlDonar, lista: 'activas' },
             { id: 'muro', texto: 'Quién ya se sumó', pagina: this.paginaMuro },
             { id: 'reencuentro', texto: 'Reencuentro', pagina: this.paginaReencuentro },
             { id: 'facturas', texto: 'Facturas', pagina: this.paginaFacturas }

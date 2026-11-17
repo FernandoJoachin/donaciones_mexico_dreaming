@@ -86,3 +86,31 @@ export function irA(url) {
 export function mensajeError(e) {
     return (e && e.body && e.body.message) || 'Ocurrió un error. Intenta de nuevo en unos minutos.';
 }
+
+/** Verdadero si la página actual es el inicio del sitio (donde vive la lista de campañas). */
+export function esPaginaInicio() {
+    const ruta = window.location.pathname.replace(/\/+$/, '');
+    const tramo = ruta.substring(ruta.lastIndexOf('/') + 1);
+    return tramo === '' || tramo === 's' || tramo === 'inicio';
+}
+
+/**
+ * Los enlaces «Donar» / «Campañas» (encabezado y pie) llaman a esto con el evento del clic. Si ya estamos
+ * en el inicio, la lista de campañas baja sola, sin recargar la página. Si no hay quien escuche el aviso
+ * (o estamos en otra página), no se hace nada y el enlace navega como siempre.
+ * Devuelve verdadero si el desplazamiento se hizo aquí.
+ */
+export function bajarALista(evento) {
+    const enlace = evento.currentTarget;
+    const pestana = enlace && enlace.dataset ? enlace.dataset.lista : undefined;
+    if (!pestana || !esPaginaInicio()) {
+        return false;
+    }
+    const aviso = new CustomEvent('mesa:ir-a-campanas', { detail: { pestana, manejado: false } });
+    window.dispatchEvent(aviso);
+    if (aviso.detail.manejado) {
+        evento.preventDefault();
+        return true;
+    }
+    return false;
+}

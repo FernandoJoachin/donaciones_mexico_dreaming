@@ -1,5 +1,5 @@
 import { LightningElement, api } from 'lwc';
-import { resolverUrl } from 'c/mesaUtil';
+import { resolverUrl, bajarALista } from 'c/mesaUtil';
 
 /**
  * Encabezado del sitio: marca, navegación y botón Donar. En pantallas chicas la navegación se abre
@@ -42,7 +42,7 @@ export default class MesaEncabezado extends LightningElement {
      */
     get enlaces() {
         const inicio = resolverUrl('', null, false);
-        const lista = [{ id: 'campanas', texto: 'Campañas', url: `${inicio}?pestana=activas` }];
+        const lista = [{ id: 'campanas', texto: 'Campañas', url: `${inicio}?pestana=activas`, lista: 'activas' }];
         if (this.campanaActual) {
             lista.push({
                 id: 'muro',
@@ -77,6 +77,13 @@ export default class MesaEncabezado extends LightningElement {
 
     get expandido() {
         return this.menuAbierto ? 'true' : 'false';
+    }
+
+    /** Estando en el inicio, «Campañas» y «Donar» bajan a la lista sin recargar la página. */
+    alNavegar(evento) {
+        if (bajarALista(evento)) {
+            this.menuAbierto = false;
+        }
     }
 
     alternarMenu() {

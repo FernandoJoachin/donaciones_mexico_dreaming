@@ -15,14 +15,14 @@
 
             <nav class="navegacion" aria-label="Principal">
                 <template for:each={enlaces} for:item="e">
-                    <a key={e.id} class={e.clase} href={e.url} aria-current={e.actual}>{e.texto}</a>
+                    <a key={e.id} class={e.clase} href={e.url} aria-current={e.actual} data-lista={e.lista} onclick={alNavegar}>{e.texto}</a>
                 </template>
                 <button type="button" class="enlace enlace-boton" onclick={abrirAyuda}>Ayuda</button>
-                <a class="donar" href={urlDonar}>Donar</a>
+                <a class="donar" href={urlDonar} data-lista="activas" onclick={alNavegar}>Donar</a>
             </nav>
 
             <div class="acciones-movil">
-                <a class="donar donar-movil" href={urlDonar}>Donar</a>
+                <a class="donar donar-movil" href={urlDonar} data-lista="activas" onclick={alNavegar}>Donar</a>
                 <button type="button" class="hamburguesa" aria-expanded={expandido} aria-controls="menu-movil" aria-label={etiquetaBoton} onclick={alternarMenu}>
                 <span class="hamburguesa-linea"></span>
                 <span class="hamburguesa-linea"></span>
@@ -33,7 +33,7 @@
 
         <nav id="menu-movil" class={claseMenu} aria-label="Menú móvil">
             <template for:each={enlaces} for:item="e">
-                <a key={e.id} class={e.clase} href={e.url} aria-current={e.actual}>{e.texto}</a>
+                <a key={e.id} class={e.clase} href={e.url} aria-current={e.actual} data-lista={e.lista} onclick={alNavegar}>{e.texto}</a>
             </template>
             <button type="button" class="enlace enlace-boton" onclick={abrirAyuda}>Ayuda</button>
         </nav>
