@@ -655,11 +655,23 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Lección para el proceso:** probar un enlace estando en la misma página de destino, no solo viniendo de otra.
 - **Aceleración estimada:** no aplica (arreglo de ~20 min).
 
+### 55. Campañas: activas primero y pasadas plegadas al final, sin pestañas (SCRUM-159)
+- **Fecha:** 2026-11-17
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** SCRUM-159 — pulido para la presentación
+- **Qué se pidió:** que Activas/Pasadas no fueran lo primero que se ve; una propuesta de cómo mejorarlo.
+- **Qué se propuso y se eligió:** quitar las pestañas; título «Campañas activas» con la cuadrícula, y al final una sección plegable «Campañas pasadas (N)» con la misma flecha de las preguntas frecuentes. Se descartaron un interruptor «Activas · Todas» y mezclar todas con las cerradas atenuadas.
+- **Qué se hizo:** solo `mesaCampanas` (HTML, CSS y JS). Las pasadas salen en filas compactas (nombre, fecha de cierre, «Cerrada» y lo recaudado), sin barra ni botón; si no hay pasadas la sección no aparece. `?pestana=pasadas` abre la sección y baja a ella; `?pestana=activas` y los clics de «Donar»/«Campañas» siguen bajando al título. Sin cambios de Apex.
+- **Qué se verificó y cómo:** como visitante en UADY: sin pestañas, título «Campañas activas», 5 tarjetas con botón y sin sección de pasadas (hoy ninguna campaña ha cerrado); el aviso de «Campañas» baja y deja el título a 100 px de la barra.
+- **Qué no se verificó:** el aspecto de la sección de pasadas desplegada, porque en el sandbox no hay campañas cerradas (no se alteraron datos de otros); tampoco la bajada al llegar desde otra página con `?pestana=` (el panel del navegador estaba oculto y el desplazamiento no se completó en la prueba).
+- **Aceleración estimada:** no aplica (cambio visual de ~30 min).
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 36 (1–9, 23–26 y 32–54) | 14 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47, 48 y 51) |
+| José Carlos Leo Fernández | 37 (1–9, 23–26 y 32–55) | 14 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47, 48 y 51) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 
