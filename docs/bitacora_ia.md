@@ -422,11 +422,23 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Confirmado y mejorado:** con la dirección `contact.devxstudio@gmail.com` verificada como dirección de toda la organización, el comprobante llegó a Outlook: la causa era el remitente. Después se rediseñó el correo (encabezado, monto destacado, botón al muro de la campaña, aviso de factura) y se corrigió el saludo: decía "Hola, Anónimo" porque el contacto se había creado antes en un donativo anónimo y conservó ese nombre; ahora el saludo usa el nombre público del donativo y, si no es confiable, va sin nombre. Queda pendiente, y es código de otros integrantes, que el sitio no actualiza el nombre de un contacto reutilizado.
 - **Aceleración estimada:** ~1 h.
 
+### 35. Feedback del panel: formulario más claro, mensaje de pago fallido y página de gracias (SCRUM-138, 139 y 140)
+- **Fecha:** 2026-11-16
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** US-02 / US-07 (CA2) — SCRUM-138, SCRUM-139 y SCRUM-140
+- **Qué se pidió:** aplicar el feedback del panel (Gilbert, Andrea y Eduardo) a partir de la transcripción de la sesión: quitar "Paquete", no preguntar dos veces lo mismo a quien dona de forma anónima, redactar mejor la pregunta de avisos, explicar qué pasó cuando el pago falla y agradecer mejor después de pagar.
+- **Qué se obtuvo:** las opciones de monto dicen "$1,000 MXN", etc. Con visibilidad Anónima ya no aparece la casilla de autorización del muro; al continuar se autoriza publicar solo «Anónimo» y el monto, y el texto lo dice. La pregunta de avisos ahora es "¿Podemos guardar tus datos para invitarte a futuras campañas?" (el panel señaló que ser anónimo no significa no guardar los datos). El mensaje de pago no completado distingue entre cancelar y rechazo del banco. La página de gracias, solo cuando el webhook ya confirmó el pago, muestra la referencia, avisa del comprobante por correo y enlaza a otras campañas.
+- **Decisión que la IA tomaría en silencio y que se dejó explícita:** al ocultar la casilla, el formulario envía `consentimientoPublicacion = true` por el donante anónimo. Se hizo así porque el servidor exige ese valor y el reconocimiento y la tarjeta "Aportaciones anónimas" dependen de él; el servidor no cambió, y el texto en pantalla avisa de lo que se autoriza.
+- **Qué se verificó y cómo:** desplegado y publicado en la sandbox UADY. Como visitante: las opciones dicen "$1,000 MXN"; con "Anónima" aparece el aviso y no la casilla; con "Pública" sí aparece la casilla. No se probó un pago completo (lo prueba el equipo con Stripe).
+- **Lo que ya estaba resuelto:** el listado ya tenía las pestañas "Activas" y "Pasadas", y cada campaña ya tiene descripción propia en la org; por eso SCRUM-139 solo cambió el mensaje de pago fallido.
+- **Aceleración estimada:** ~1 h.
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 16 (1–9, 23–26 y 32–34) | 8 (entradas 1, 4, 5, 8, 9, 23, 24 y 34) |
+| José Carlos Leo Fernández | 17 (1–9, 23–26 y 32–35) | 8 (entradas 1, 4, 5, 8, 9, 23, 24 y 34) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 

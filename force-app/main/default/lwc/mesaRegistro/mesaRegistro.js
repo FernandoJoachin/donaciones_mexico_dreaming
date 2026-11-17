@@ -147,9 +147,9 @@ export default class MesaRegistro extends LightningElement {
     error;
 
     opcionesPaquete = [
-        { label: 'Paquete $1,000', value: 'P1000' },
-        { label: 'Paquete $3,000', value: 'P3000' },
-        { label: 'Paquete $5,000', value: 'P5000' },
+        { label: '$1,000 MXN', value: 'P1000' },
+        { label: '$3,000 MXN', value: 'P3000' },
+        { label: '$5,000 MXN', value: 'P5000' },
         { label: 'Otro monto', value: 'Abierto' }
     ];
 
@@ -159,8 +159,8 @@ export default class MesaRegistro extends LightningElement {
     ];
 
     opcionesConsentimiento = [
-        { label: 'Sí, avísenme', value: 'Si' },
-        { label: 'No, gracias', value: 'No' }
+        { label: 'Sí, pueden escribirme', value: 'Si' },
+        { label: 'No, solo usen mis datos para este donativo', value: 'No' }
     ];
 
     get mostrarFormulario() {
@@ -247,9 +247,9 @@ export default class MesaRegistro extends LightningElement {
             return 'Escribe un correo válido.';
         }
         if (!this.consentimientoAvisos) {
-            return 'Indica si quieres recibir avisos de próximos eventos y donaciones.';
+            return 'Indica si podemos guardar tus datos para invitarte a futuras campañas.';
         }
-        if (!this.consentimientoPublicacion) {
+        if (this.esPublico && !this.consentimientoPublicacion) {
             return 'Para continuar necesitamos tu autorización para publicar tu donativo.';
         }
         if (!this.aceptaAviso) {
@@ -311,7 +311,8 @@ export default class MesaRegistro extends LightningElement {
                     nombreEmpresa: comoEmpresa ? this.nombreEmpresa : null,
                     linkedinUrl: this.esPublico ? this.linkedinUrl : null,
                     consentimientoAvisos: this.consentimientoAvisos,
-                    consentimientoPublicacion: this.consentimientoPublicacion,
+                    // En modo anónimo no hay casilla: al continuar se autoriza publicar solo «Anónimo» y el monto.
+                    consentimientoPublicacion: this.esAnonimo ? true : this.consentimientoPublicacion,
                     aceptaAviso: this.aceptaAviso,
                     versionAviso: this.versionAviso,
                     sitioWeb: this.sitioWeb
