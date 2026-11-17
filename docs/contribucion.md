@@ -58,7 +58,35 @@ Estado a **10 de noviembre de 2026**. Los hashes son de commits del repositorio;
 
 ## Entrega 2 (martes 17 de noviembre)
 
-Se llena al cierre de la Entrega 2, con la misma estructura.
+Estado a **16 de noviembre de 2026**. Los PR están en el fork de entrega: `https://github.com/FernandoJoachin/donaciones_mexico_dreaming/pull/<número>`.
+Se anota lo que se puede comprobar en el historial; lo que hizo cada persona fuera de Git lo completa y confirma esa persona.
+
+### José Carlos Leo Fernández
+
+| Qué | Ticket | Evidencia |
+|---|---|---|
+| Maqueta de la pasarela y agradecimiento en el muro (después sustituida por Stripe) | SCRUM-77 (US-11) | PR #13 |
+| Datos de demostración del muro y prueba del visitante repetida | SCRUM-90 | PR #14 |
+| Avance de la Entrega 1 y video demo (3:25) | SCRUM-91, SCRUM-95 | PRs #15 y #16 |
+| Quitar la etiqueta de ex-alumnos; imágenes y campañas de demostración más realistas; imágenes como recurso estático | SCRUM-5 | PRs #18, #21 y #22 |
+| Llevar a `entrega-1` la administración de campañas y los roles | SCRUM-62 (US-10) | PR #20 |
+| Quitar espacios en blanco arriba y abajo de las páginas | SCRUM-8 | PR #23 |
+| Historia de cada campaña: resumen, historia, a quién ayuda e impacto por monto | SCRUM-132 (US-22) | PR #24 |
+| Textos orientados a la causa y muro de la campaña donada | SCRUM-133 | PR #25 |
+| Corregir la prueba del muro (llaves Decimal en el Map) | SCRUM-134 | PR #26 |
+| Revisión del PR de Stripe antes de mergearlo (bitácora entrada 32) | SCRUM-9 | Revisión antes de mergear el PR #27; bitácora IA entrada 32 (no hay comentarios en el PR) |
+| El muro se abre desde cada campaña, no desde el inicio | SCRUM-135 | PR #28 |
+| Comprobante por correo con la leyenda de factura; envío desde un usuario interno con un evento de plataforma; remitente verificado y nuevo diseño del correo | SCRUM-136, SCRUM-137 (US-07) | PRs #29 y #30 |
+| Formulario más claro, mensaje de pago no completado y página de gracias, a partir del feedback del panel | SCRUM-138, 139 y 140 | PR #31 |
+| Diagrama de objetos y guía de registros para la demo (`docs/modelo_datos.md`) | SCRUM-142 | PR #32 |
+| Formulario «¿Necesitas ayuda?» que crea un Case | SCRUM-141 | PR #33 |
+| Actualización de backlog, seguridad y este documento para la Entrega 2 | — | PR de `docs/` de esta fecha |
+
+### Daniel Amaya
+
+| Qué | Ticket | Evidencia |
+|---|---|---|
+| Administración de campañas (US-10) | SCRUM-62 | PR #17 |
 
 ### Fernando Joachín
 
@@ -66,3 +94,5 @@ Se llena al cierre de la Entrega 2, con la misma estructura.
 |---|---|---|
 | Integración de pagos con Stripe: registro pendiente, pasarela con el monto guardado, confirmación por webhook, pruebas y configuración | SCRUM-9 (US-05) | Rama `feature/SCRUM-9-us-05-registrar-la-donacion-y-pagar-en-la-pasarela-de-pago` (commit y PR pendientes); bitácora IA entradas 26–30 |
 | Guía de pruebas con Stripe y actualización de la documentación | SCRUM-9 (US-05) | `docs/guia_pruebas_stripe.md`, `README.md`, `docs/seguridad.md` |
+| Integración con Stripe, ya mergeada | SCRUM-9 (US-05) | PR #27 (16-nov) |
+| Monto total de donantes anónimos | SCRUM-131 (US-21) | PR #19 |
