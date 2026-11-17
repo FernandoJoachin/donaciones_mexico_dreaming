@@ -47,6 +47,18 @@
             </ul>
         </section>
 
+        <section class="seccion">
+            <h2 class="seccion-titulo">Preguntas frecuentes</h2>
+            <div class="faq">
+                <template for:each={preguntas} for:item="p">
+                    <details key={p.id} class="faq-item">
+                        <summary class="faq-pregunta">{p.pregunta}</summary>
+                        <p class="faq-respuesta">{p.respuesta}</p>
+                    </details>
+                </template>
+            </div>
+        </section>
+
         <template lwc:if={mostrarCierre}>
         <section class="seccion cierre">
             <div class="cierre-tarjeta">

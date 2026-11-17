@@ -76,6 +76,22 @@
     font-size: 0.8125rem;
     font-weight: 700;
 }
+.aviso {
+    flex: none;
+    padding: 0.2rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.aviso-cierre {
+    background: #fff1de;
+    color: #8a4b00;
+}
+.aviso-meta {
+    background: #dff5e6;
+    color: #1b6b3a;
+}
 .campana-texto {
     margin: 0;
     color: var(--mesa-gris);

@@ -595,11 +595,22 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Una decisión que la IA habría tomado en silencio:** bajar el porcentaje de la Entrega 1 en lugar de dejar el anterior. Se hizo porque el documento dice que sigue lo que marque Jira; si el equipo prefiere otro criterio, se cambia con la nota que explica el cálculo.
 - **Aceleración estimada:** ~1 h.
 
+### 50. Etiquetas de cierre y meta en las tarjetas, y preguntas frecuentes (SCRUM-154)
+- **Fecha:** 2026-11-17
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** retroalimentación del panel (confianza y urgencia para el donante) — SCRUM-154
+- **Qué se pidió:** etiquetas «Cierra en N días» y «Meta superada» en las tarjetas de campaña, y una sección corta de preguntas frecuentes en el inicio.
+- **Qué se obtuvo:** una etiqueta en `mesaCampanas` (solo campañas activas; «Cierra en N días» cuando faltan 7 o menos, «Cierra hoy», «Cierra mañana» y «Meta superada» cuando lo recaudado alcanza la meta) y seis preguntas en `mesaInicio` con `<details>` nativo, accesible con teclado.
+- **Qué se verificó y cómo:** como visitante en UADY, las 5 campañas cargan (se comprobó que `li.campana` > 0, por la lección de la entrada 47), 2 tienen la etiqueta «Cierra en 3 días» y las 6 preguntas se muestran. Las respuestas se contrastaron con el comportamiento real: pago pendiente que no suma al avance, «Anónimo» con monto en el muro, correo solo para el comprobante.
+- **Una decisión que la IA tomó en silencio:** mostrar la etiqueta solo en los últimos 7 días, para que no aparezca en todas las campañas. Se quitó además la leyenda «Faltan N días» cuando ya hay etiqueta, porque repetía lo mismo.
+- **Aceleración estimada:** ~40 min.
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 31 (1–9, 23–26 y 32–49) | 13 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47 y 48) |
+| José Carlos Leo Fernández | 32 (1–9, 23–26 y 32–50) | 13 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47 y 48) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 
