@@ -686,11 +686,22 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué no se verificó del reporte y el tablero:** el acceso de otros usuarios (la carpeta es pública de solo lectura, pero no se probó con otro perfil) ni el tablero con la actualización automática: se actualiza al abrirlo o con «Actualizar».
 - **Aceleración estimada:** no aplica (~3.5 h entre las pasadas).
 
+### 57. ⚠ Panel interno por permisos: cada persona ve solo lo que puede usar (SCRUM-161)
+- **Fecha:** 2026-11-17
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** SCRUM-161 — mientras el PR #48 de Daniel se corrige, adelantar el panel por roles sin tocar sus permission sets
+- **Qué se hizo:** el menú del panel muestra Campañas, Moderar muro y Donativos solo si la persona puede leer Campaign, Reconocimiento_Publico__c u Opportunity; los botones de escribir (Nueva campaña, Editar, Pausar, Ocultar…) solo si puede crear/editar, y el Resumen oculta las tarjetas de lo que no puede ver. En Apex, `obtenerResumen` calcula cada parte solo si el objeto es legible (y con `WITH USER_MODE`), para que un moderador o tesorería no reciba errores. Los permisos se leen con la API de información de objetos de Salesforce, no con nombres de rol.
+- **Error de la IA (⚠):** al pasar la lista de objetos a `getObjectInfos` usó un parámetro con nombre equivocado (`objectApis`, no `objectApiNames`). No dio error: no llegó ningún dato de permisos y el menú se quedó solo con «Resumen», es decir, un fallo silencioso que habría dejado a todos sin las secciones. Se detectó probando en Chrome; además se añadió un respaldo: si no se pueden leer los permisos, no se esconde nada (el servidor igual los aplica).
+- **Qué se verificó y cómo:** despliegue sin errores; prueba Apex pasa; en Chrome con el usuario de José (todos los permisos) siguen apareciendo las 4 secciones, las 4 cifras, las 2 tarjetas, «Nueva campaña» y los botones de las campañas.
+- **Qué no se verificó:** el panel con un usuario de permisos reducidos (moderador, gestor o tesorería): no se inicia sesión como otras personas ni se asignan permisos de prueba. Queda como prueba pendiente para quien tenga esos usuarios.
+- **Aceleración estimada:** no aplica (~30 min).
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 38 (1–9, 23–26 y 32–56) | 14 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47, 48 y 51) |
+| José Carlos Leo Fernández | 39 (1–9, 23–26 y 32–57) | 16 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47, 48, 51, 56 y 57) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 

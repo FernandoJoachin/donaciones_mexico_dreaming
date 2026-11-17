@@ -33,67 +33,83 @@ public with sharing class MesaPanelController {
         @AuraEnabled public Boolean visible;
     }
 
+    /**
+     * Resumen del panel. Tolerante a permisos: cada parte se calcula solo si la persona puede leer ese objeto;
+     * si no, queda en cero/vacía y el componente la oculta (no hay error). Así un moderador o tesorería abre
+     * el panel sin que falle lo que no les corresponde.
+     */
     @AuraEnabled
     public static ResumenDTO obtenerResumen() {
         ResumenDTO r = new ResumenDTO();
         r.totalRecaudado = 0;
         r.donativosPagados = 0;
+        r.campanasActivas = 0;
+        r.visiblesEnMuro = 0;
+        r.ocultosDelMuro = 0;
 
         Map<Id, Decimal> totalPorCampana = new Map<Id, Decimal>();
-        for (AggregateResult ar : [
-            SELECT CampaignId cid, SUM(Amount) total, COUNT(Id) n
-            FROM Opportunity
-            WHERE StageName = 'Closed Won' AND CampaignId != null
-            GROUP BY CampaignId
-        ]) {
-            Decimal t = (Decimal) ar.get('total');
-            t = t == null ? 0 : t;
-            totalPorCampana.put((Id) ar.get('cid'), t);
-            r.totalRecaudado += t;
-            r.donativosPagados += (Integer) ar.get('n');
-        }
-
-        Date hoy = Date.today();
-        r.campanasActivas = 0;
-        for (Campaign c : [
-            SELECT Id, Name, ExpectedRevenue, EndDate, IsActive
-            FROM Campaign
-            WHERE IsActive = true
-            ORDER BY StartDate DESC NULLS LAST, Name
-            LIMIT 50
-        ]) {
-            Boolean activa = c.EndDate == null || c.EndDate >= hoy;
-            if (activa) {
-                r.campanasActivas++;
+        if (Schema.sObjectType.Opportunity.isAccessible()) {
+            for (AggregateResult ar : [
+                SELECT CampaignId cid, SUM(Amount) total, COUNT(Id) n
+                FROM Opportunity
+                WHERE StageName = 'Closed Won' AND CampaignId != null
+                WITH USER_MODE
+                GROUP BY CampaignId
+            ]) {
+                Decimal t = (Decimal) ar.get('total');
+                t = t == null ? 0 : t;
+                totalPorCampana.put((Id) ar.get('cid'), t);
+                r.totalRecaudado += t;
+                r.donativosPagados += (Integer) ar.get('n');
             }
-            CampanaResumenDTO d = new CampanaResumenDTO();
-            d.id = c.Id;
-            d.nombre = c.Name;
-            d.total = totalPorCampana.containsKey(c.Id) ? totalPorCampana.get(c.Id) : 0;
-            d.meta = c.ExpectedRevenue == null ? 0 : c.ExpectedRevenue;
-            Decimal pct = d.meta > 0 ? (d.total * 100 / d.meta) : 0;
-            d.porcentaje = Math.min(100, pct.intValue());
-            d.activa = activa;
-            r.campanas.add(d);
         }
 
-        r.visiblesEnMuro = [SELECT COUNT() FROM Reconocimiento_Publico__c WHERE Mostrar_En_Muro__c = true];
-        r.ocultosDelMuro = [SELECT COUNT() FROM Reconocimiento_Publico__c WHERE Mostrar_En_Muro__c = false];
+        if (Schema.sObjectType.Campaign.isAccessible()) {
+            Date hoy = Date.today();
+            for (Campaign c : [
+                SELECT Id, Name, ExpectedRevenue, EndDate, IsActive
+                FROM Campaign
+                WHERE IsActive = true
+                WITH USER_MODE
+                ORDER BY StartDate DESC NULLS LAST, Name
+                LIMIT 50
+            ]) {
+                Boolean activa = c.EndDate == null || c.EndDate >= hoy;
+                if (activa) {
+                    r.campanasActivas++;
+                }
+                CampanaResumenDTO d = new CampanaResumenDTO();
+                d.id = c.Id;
+                d.nombre = c.Name;
+                d.total = totalPorCampana.containsKey(c.Id) ? totalPorCampana.get(c.Id) : 0;
+                d.meta = c.ExpectedRevenue == null ? 0 : c.ExpectedRevenue;
+                Decimal pct = d.meta > 0 ? (d.total * 100 / d.meta) : 0;
+                d.porcentaje = Math.min(100, pct.intValue());
+                d.activa = activa;
+                r.campanas.add(d);
+            }
+        }
 
-        for (Reconocimiento_Publico__c x : [
-            SELECT Id, Name, Monto__c, Campana__r.Name, CreatedDate, Mostrar_En_Muro__c
-            FROM Reconocimiento_Publico__c
-            ORDER BY CreatedDate DESC
-            LIMIT 6
-        ]) {
-            RecienteDTO d = new RecienteDTO();
-            d.id = x.Id;
-            d.nombre = x.Name;
-            d.monto = x.Monto__c;
-            d.campana = x.Campana__r == null ? '' : x.Campana__r.Name;
-            d.fecha = x.CreatedDate;
-            d.visible = x.Mostrar_En_Muro__c;
-            r.recientes.add(d);
+        if (Schema.sObjectType.Reconocimiento_Publico__c.isAccessible()) {
+            r.visiblesEnMuro = [SELECT COUNT() FROM Reconocimiento_Publico__c WHERE Mostrar_En_Muro__c = true WITH USER_MODE];
+            r.ocultosDelMuro = [SELECT COUNT() FROM Reconocimiento_Publico__c WHERE Mostrar_En_Muro__c = false WITH USER_MODE];
+
+            for (Reconocimiento_Publico__c x : [
+                SELECT Id, Name, Monto__c, Campana__r.Name, CreatedDate, Mostrar_En_Muro__c
+                FROM Reconocimiento_Publico__c
+                WITH USER_MODE
+                ORDER BY CreatedDate DESC
+                LIMIT 6
+            ]) {
+                RecienteDTO d = new RecienteDTO();
+                d.id = x.Id;
+                d.nombre = x.Name;
+                d.monto = x.Monto__c;
+                d.campana = x.Campana__r == null ? '' : x.Campana__r.Name;
+                d.fecha = x.CreatedDate;
+                d.visible = x.Mostrar_En_Muro__c;
+                r.recientes.add(d);
+            }
         }
         return r;
     }
