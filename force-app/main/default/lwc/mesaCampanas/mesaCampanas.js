@@ -54,16 +54,22 @@ export default class MesaCampanas extends LightningElement {
 
     renderedCallback() {
         // Una sola vez: se espera un momento a que el sitio termine de pintarse (si se baja antes, la
-        // página vuelve arriba) y se baja hasta la lista de campañas.
-        if (this._irALista && !this._yaDesplazado) {
-            const lista = this.template.querySelector('.tabs');
-            if (lista) {
-                this._yaDesplazado = true;
-                // eslint-disable-next-line @lwc/lwc/no-async-operation
-                setTimeout(() => lista.scrollIntoView({ behavior: 'smooth', block: 'start' }), 1300);
-            }
+        // página vuelve arriba) y se baja hasta la lista de campañas. El elemento se busca otra vez al
+        // bajar, porque al llegar los datos la lista se vuelve a pintar.
+        if (this._irALista && !this._yaDesplazado && this.template.querySelector('.tabs')) {
+            this._yaDesplazado = true;
+            // eslint-disable-next-line @lwc/lwc/no-async-operation
+            setTimeout(() => {
+                const lista = this.template.querySelector('.tabs');
+                if (lista) {
+                    lista.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 1300);
         }
     }
+
+    @wire(obtenerCampanas)
+    campanas;
 
     get hayError() {
         return !!(this.campanas && this.campanas.error);
