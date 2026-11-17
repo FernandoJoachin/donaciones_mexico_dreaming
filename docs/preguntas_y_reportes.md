@@ -114,7 +114,7 @@ Cada entrada sigue las cinco partes de un buen reporte, más un campo "Después"
 
 ## Entradas de José Carlos Leo Fernández
 
-Semanas: S1 = 2 a 8 de noviembre; S2 = 9 a 15 de noviembre. Mismo formato de cinco partes.
+Semanas: S1 = 2 a 8 de noviembre; S2 = 9 a 15 de noviembre; S3 = 16 y 17 de noviembre. Mismo formato de cinco partes.
 
 ## Entrada 11 — ¿El anónimo pide solo el correo o siempre nombre y correo? (mockup contra la reunión)
 
@@ -195,6 +195,7 @@ Semanas: S1 = 2 a 8 de noviembre; S2 = 9 a 15 de noviembre. Mismo formato de cin
 4. **Qué pasó:** un Payment Link con "los clientes eligen cuánto pagar" lo permite, con monto sugerido, mínimo y máximo opcionales.
 5. **Qué consultaron con la IA o la documentación y qué resultó:** Documentación de Stripe sobre Payment Links y monedas.
 - **Después:** **[Pendiente]** Daniel crea el link de prueba y se comprueba el mínimo en pesos.
+  **Actualización 2026-11-17:** ya no se usa un Payment Link: el pago se crea por API con una sesión de Stripe Checkout y el monto sale de lo guardado en la donación (PR #27, bitácora de IA entradas 26 a 31). El mínimo en pesos lo valida el formulario ($100) y el servidor. **Resuelto.**
 
 ## Entrada 19 — ¿Cómo pasar a Stripe el monto que el donante ya eligió en nuestro formulario?
 
@@ -205,3 +206,34 @@ Semanas: S1 = 2 a 8 de noviembre; S2 = 9 a 15 de noviembre. Mismo formato de cin
 4. **Qué pasó:** solo confirmaron el correo pre-llenado y el `client_reference_id`; el monto en la URL no se pudo confirmar.
 5. **Qué consultaron con la IA o la documentación y qué resultó:** Documentación de Stripe (parte de la información es de guías de la comunidad).
 - **Después:** **[Pendiente]** opciones: 9 links (8 montos fijos y uno libre) para la Entrega 1, o crear la sesión desde Salesforce en la Entrega 2; falta decidirlo con Daniel.
+  **Actualización 2026-11-17:** se eligió la segunda opción: la sesión de pago la crea Salesforce (`MesaPagosStripe`) con el monto guardado, y el navegador solo envía el Id del donativo (PR #27). **Resuelto.**
+
+## Entrada 20 — Después de un pago real de prueba, el correo del comprobante no llegaba
+
+- **Autor:** José Carlos Leo Fernández · **Fecha:** 2026-11-16 **Dónde** Sitio publicado en la sandbox UADY, Setup de Salesforce y un chat con la IA (Claude Code)
+1. **Qué intentaban lograr:** que el donante recibiera por correo su comprobante, con la leyenda para pedir factura, en cuanto se confirma el pago (US-07, criterios 3 y 4).
+2. **Qué hicieron:** hicieron un pago de prueba real con la tarjeta de prueba de Stripe y esperaron el correo. Al no llegar revisaron el trabajo asíncrono que lo enviaba (terminaba sin error), el correo del donante y los permisos del usuario guest, y repitieron el mismo envío como administrador.
+3. **Qué esperaban que pasara:** que el correo llegara a la bandeja del donante.
+4. **Qué pasó:** eran dos causas encadenadas. (1) El envío corría como el usuario guest del sitio, que no tiene el permiso «Send Email»; el error se atrapaba a propósito para no deshacer el pago, por eso el trabajo terminaba «sin error». Se movió el envío a un usuario interno con un evento de plataforma y un trigger. (2) Con eso Salesforce marcaba el donativo como «Enviado» pero el correo seguía sin llegar a Outlook: el usuario interno (Automated Process) tiene un correo sin dominio y Setup avisaba que no había ninguna dirección verificada. Con una dirección de toda la organización verificada, el correo llegó.
+5. **Qué consultaron con la IA o la documentación y qué resultó:** consultas a la org (permisos del guest, trabajos asíncronos, direcciones de toda la organización), la pantalla de Setup y la bitácora de IA, entradas 33 y 34. La segunda causa se dedujo del aviso de Setup y se confirmó cuando el correo llegó.
+- **Después:** **Resuelto** en el PR #30 y con la dirección verificada, que se configura en una etiqueta personalizada. **Abierto:** para un uso real hay que enviar desde una dirección del dominio de la organización y configurar DKIM (`docs/seguridad.md`).
+
+## Entrada 21 — Al enviar el formulario de ayuda como visitante sale «Ocurrió un error»
+
+- **Autor:** José Carlos Leo Fernández · **Fecha:** 2026-11-16 **Dónde** Sitio publicado en la sandbox UADY, como visitante, y Apex anónimo como administrador
+1. **Qué intentaban lograr:** que un visitante pudiera pedir ayuda y que se creara un Case, sin darle permisos nuevos sobre Case (SCRUM-141).
+2. **Qué hicieron:** enviaron el formulario en el navegador, repitieron la misma llamada como administrador en Apex anónimo para ver el error real y recuperaron el proceso que se disparaba.
+3. **Qué esperaban que pasara:** que se creara el Case y se mostrara su número.
+4. **Qué pasó:** el Case fallaba con `CANNOT_EXECUTE_FLOW_TRIGGER`: un proceso de 2020 de otra persona (`NuevoCasoDesdeFormularioCommunity`) se dispara con todo Case de origen «Web» y manda una alerta que falla. La IA había puesto ese origen por ser el valor estándar.
+5. **Qué consultaron con la IA o la documentación y qué resultó:** Apex anónimo como administrador, metadata del proceso recuperada con la CLI, bitácora de IA entrada 37 y `docs/seguridad.md`.
+- **Después:** **Resuelto** en el PR #33: el Case ya no lleva origen y se reconoce por su asunto; el proceso ajeno no se tocó. En UADY el visitante creó el Case 00001012 y los Cases de prueba se borraron.
+
+## Entrada 22 — ¿Basta con elegir «Con mi nombre» como autorización para publicar, sin una casilla aparte?
+
+- **Autor:** José Carlos Leo Fernández · **Fecha:** 2026-11-16 **Dónde** Chat con la IA (Claude Code) y la sesión de retroalimentación del panel del 16 de noviembre
+1. **Qué intentaban lograr:** simplificar el formulario, como pidió el panel («ya te dije que soy anónimo y me preguntas otra vez»), sin perder el registro del consentimiento.
+2. **Qué hicieron:** quitaron la casilla «Autorizo que mi donativo se publique…». La opción elegida en el paso 2 dice qué se publica y el formulario envía el consentimiento en ambos casos; la casilla de novedades pasó a ser opcional y, sin marcar, guarda «No».
+3. **Qué esperaban que pasara:** que el servidor y las pruebas siguieran funcionando y que el consentimiento quedara registrado.
+4. **Qué pasó:** funciona y se verificó como visitante, pero es una decisión de privacidad que tomó el equipo sin confirmarla con el cliente: el consentimiento ahora es implícito en una opción con el texto visible.
+5. **Qué consultaron con la IA o la documentación y qué resultó:** feedback del panel, bitácora de IA entrada 39 y `docs/seguridad.md` (riesgo «Consentimiento de publicación implícito»).
+- **Después:** **[Pendiente]** confirmar con el cliente que esta forma de consentimiento es aceptable. Si no lo es, se regresa la casilla (el servidor ya exige ese valor).

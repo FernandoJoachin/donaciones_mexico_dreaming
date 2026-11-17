@@ -513,11 +513,21 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué se verificó y cómo:** desplegado y publicado en UADY; como visitante se eligió un monto y "Anónima", se dejó el correo vacío y se pulsó Donar: apareció «Escribe un correo válido.» bajo el título del paso 3, la página pasó de 0 a 611 px de desplazamiento y el mensaje quedó dentro de la pantalla. Al escribir en el correo, el mensaje se quitó. No se probó un error del servidor. El servidor no cambió.
 - **Aceleración estimada:** ~30 min.
 
+### 43. Entradas de preguntas y reportes de José de la semana del 16 y 17 de noviembre (SCRUM-148)
+- **Fecha:** 2026-11-17
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** documentación de la Entrega 2 — SCRUM-148
+- **Qué se pidió:** escribir las entradas de preguntas y reportes de José para la Entrega 2 (cada integrante necesita al menos una de esta semana).
+- **Qué se obtuvo:** tres entradas nuevas (20: el comprobante no llegaba; 21: el formulario de ayuda fallaba por un proceso ajeno; 22: pregunta abierta sobre el consentimiento implícito), el encabezado con la semana S3 y una actualización de las entradas 18 y 19, que ya se resolvieron con Stripe Checkout.
+- **Qué se verificó y cómo:** cada hecho sale de entradas de esta bitácora (33, 34, 37 y 39), de `docs/seguridad.md` y de los PRs #27, #30 y #33; no se escribió nada que no conste ahí. La entrada 22 queda como pendiente a propósito, porque la decisión no se confirmó con el cliente. Las entradas de Daniel y Fernando no se tocaron: las escribe cada uno.
+- **Aceleración estimada:** ~30 min.
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 24 (1–9, 23–26 y 32–42) | 10 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37 y 38) |
+| José Carlos Leo Fernández | 25 (1–9, 23–26 y 32–43) | 10 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37 y 38) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 
