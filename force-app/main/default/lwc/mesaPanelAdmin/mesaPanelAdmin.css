@@ -418,3 +418,43 @@
         grid-template-columns: minmax(0, 1fr) auto;
     }
 }
+
+/* ---------- Buscador y paginación ---------- */
+.buscador {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+.buscador-campo {
+    font: inherit;
+    width: 100%;
+    max-width: 22rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid #c9d8e8;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #181818;
+}
+.buscador-campo:focus {
+    outline: 3px solid #90d0fe;
+    outline-offset: 1px;
+    border-color: var(--mesa-azul-claro);
+}
+.buscador-total {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--mesa-gris);
+}
+.paginas {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.25rem;
+}
+.paginas-texto {
+    font-weight: 700;
+    color: var(--mesa-azul-oscuro);
+}

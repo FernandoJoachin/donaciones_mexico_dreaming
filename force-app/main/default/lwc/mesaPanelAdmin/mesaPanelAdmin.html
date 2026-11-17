@@ -37,6 +37,15 @@
                 </div>
             </template>
 
+            <template lwc:if={paginada}>
+                <div class="buscador">
+                    <input type="search" class="buscador-campo" placeholder={marcadorBusqueda} aria-label="Buscar" oninput={escribirBusqueda} />
+                    <template lwc:if={lista.cargado}>
+                        <span class="buscador-total">{textoTotal}</span>
+                    </template>
+                </div>
+            </template>
+
             <template lwc:if={hayError}>
                 <p class="aviso-error">No pudimos cargar esta sección: {error}</p>
             </template>
@@ -151,7 +160,7 @@
 
             <!-- ============ MODERAR MURO ============ -->
             <template lwc:if={esMuro}>
-                <template lwc:if={muroLista}>
+                <template lwc:if={listas.muro.cargado}>
                     <template lwc:if={sinReconocimientos}>
                         <p class="vacio">No hay reconocimientos con este filtro.</p>
                     </template>
@@ -171,12 +180,18 @@
                             </li>
                         </template>
                     </ul>
+                    <div class="paginas">
+                        <button type="button" class="btn-sec" data-delta="-1" disabled={sinAnterior} onclick={irAPagina}>← Anterior</button>
+                        <span class="paginas-texto">{textoPagina}</span>
+                        <button type="button" class="btn-sec" data-delta="1" disabled={sinSiguiente} onclick={irAPagina}>Siguiente →</button>
+                    </div>
+
                 </template>
             </template>
 
             <!-- ============ DONATIVOS ============ -->
             <template lwc:if={esDonativos}>
-                <template lwc:if={donativosLista}>
+                <template lwc:if={listas.donativos.cargado}>
                     <template lwc:if={sinDonativos}>
                         <p class="vacio">No hay donativos con este filtro.</p>
                     </template>
@@ -195,6 +210,12 @@
                             </li>
                         </template>
                     </ul>
+                    <div class="paginas">
+                        <button type="button" class="btn-sec" data-delta="-1" disabled={sinAnterior} onclick={irAPagina}>← Anterior</button>
+                        <span class="paginas-texto">{textoPagina}</span>
+                        <button type="button" class="btn-sec" data-delta="1" disabled={sinSiguiente} onclick={irAPagina}>Siguiente →</button>
+                    </div>
+
                 </template>
             </template>
         </main>

@@ -677,7 +677,10 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Decisiones que tomó la IA y quedan a la vista:** (1) la primera entrega solo hizo Resumen y dejó las demás secciones como atajos a las listas estándar; José lo notó, no la IA; (2) app nueva en vez de editar `Gestion_Donation_Campanas`, porque el PR #48 de Daniel la modifica; (3) no se tocaron permission sets: la app y la pestaña se activaron a mano en el perfil Administrador del sistema (lo hizo José); (4) el recaudado cuenta solo `Closed Won`, igual que el sitio; (5) «ocultar» cambia `Mostrar_En_Muro__c`, no borra, como pidió Daniel.
 - **Qué se verificó y cómo:** despliegue a UADY sin errores; prueba Apex pasa (2/2); en Chrome, con sesión de José, las cuatro secciones cargan con datos reales (13 donativos en México Dreamin, 5 campañas activas y 1 pausada, reconocimientos «Anónimo» sin campaña visibles).
 - **Qué no se verificó:** los botones que escriben (Pausar, Reactivar, Ocultar, Mostrar), para no alterar datos de demostración; el acceso de los roles Gestor, Moderador y Tesorería; pantallas chicas; la sección Donativos solo en su primera pantalla.
-- **Aceleración estimada:** no aplica (~2.5 h entre ambas pasadas).
+- **Tercera pasada (paginación):** José advirtió que las listas de muro y donativos traían todo y que con millones de filas se saturarían. La IA había puesto `LIMIT 200` sin paginar: un tope que oculta filas, no una solución. Ahora muro y donativos se leen de a **20 filas** con **paginación por cursor** en el servidor (`CreatedDate` + `Id`, no `OFFSET`, que se topa en 2,000 filas), con total, «Página N de M», Anterior/Siguiente, filtros y buscador por nombre aplicados en la consulta. Campañas sigue cargando todas (son pocas).
+- **Verificación de la paginación:** prueba Apex (2/2); en Chrome, donativos: 51 en total, páginas de 20 + 20 + 11 sin repetir filas, «Siguiente» se desactiva en la última, filtros (15 pendientes, 36 pagados) y búsqueda («Charritos» → 1); muro: 39 reconocimientos en 2 páginas.
+- **No se verificó con millones de filas:** solo con 51 donativos y 39 reconocimientos. El conteo total (`COUNT()`) y la búsqueda con `LIKE '%…%'` pueden volverse lentos con millones; habría que revisar índices o usar búsqueda SOSL.
+- **Aceleración estimada:** no aplica (~3 h entre las tres pasadas).
 
 ## Pendiente por integrante
 

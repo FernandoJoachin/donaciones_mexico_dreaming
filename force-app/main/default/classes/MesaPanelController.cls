@@ -118,6 +118,7 @@ public with sharing class MesaPanelController {
         @AuraEnabled public Decimal monto;
         @AuraEnabled public String campana;
         @AuraEnabled public Datetime fecha;
+        @AuraEnabled public Datetime creado;
         @AuraEnabled public Boolean visible;
     }
 
@@ -129,6 +130,20 @@ public with sharing class MesaPanelController {
         @AuraEnabled public Boolean pagado;
         @AuraEnabled public String campana;
         @AuraEnabled public Date fecha;
+        @AuraEnabled public Datetime creado;
+    }
+
+    /** Una página de resultados: las filas, cuántas hay en total con el filtro y si hay otra página después. */
+    public class PaginaReconocimientosDTO {
+        @AuraEnabled public List<ReconocimientoFilaDTO> filas = new List<ReconocimientoFilaDTO>();
+        @AuraEnabled public Integer total;
+        @AuraEnabled public Boolean haySiguiente;
+    }
+
+    public class PaginaDonativosDTO {
+        @AuraEnabled public List<DonativoFilaDTO> filas = new List<DonativoFilaDTO>();
+        @AuraEnabled public Integer total;
+        @AuraEnabled public Boolean haySiguiente;
     }
 
     /** Todas las campañas (activas, pausadas y cerradas) con lo recaudado de cada una. */
@@ -170,41 +185,104 @@ public with sharing class MesaPanelController {
         return filas;
     }
 
-    /** Reconocimientos públicos, los más recientes primero (para moderar el muro). */
+    private static Integer tamanoPagina(Integer tamano) {
+        return tamano == null || tamano < 1 ? 20 : Math.min(tamano, 100);
+    }
+
+    /** Condición de cursor: "lo que viene después" de la última fila vista (más recientes primero). */
+    private static void agregarCursor(List<String> cond, Map<String, Object> binds, Datetime cursorFecha, Id cursorId) {
+        if (cursorFecha != null && cursorId != null) {
+            cond.add('(CreatedDate < :cursorFecha OR (CreatedDate = :cursorFecha AND Id < :cursorId))');
+            binds.put('cursorFecha', cursorFecha);
+            binds.put('cursorId', cursorId);
+        }
+    }
+
+    private static String dondeDe(List<String> cond) {
+        return cond.isEmpty() ? '' : ' WHERE ' + String.join(cond, ' AND ');
+    }
+
+    /**
+     * Reconocimientos públicos para moderar el muro, de a una página. Paginación por cursor (no por OFFSET):
+     * sirve con millones de filas. Filtros: todos / visibles / ocultos; búsqueda por nombre.
+     */
     @AuraEnabled
-    public static List<ReconocimientoFilaDTO> listarReconocimientos() {
-        List<ReconocimientoFilaDTO> filas = new List<ReconocimientoFilaDTO>();
-        for (Reconocimiento_Publico__c x : [
-            SELECT Id, Name, Monto__c, Campana__r.Name, CreatedDate, Mostrar_En_Muro__c
-            FROM Reconocimiento_Publico__c
-            WITH USER_MODE
-            ORDER BY CreatedDate DESC
-            LIMIT 200
-        ]) {
+    public static PaginaReconocimientosDTO listarReconocimientos(
+        String filtro, String buscar, Integer tamano, Datetime cursorFecha, Id cursorId
+    ) {
+        Integer n = tamanoPagina(tamano);
+        Map<String, Object> binds = new Map<String, Object>();
+        List<String> cond = new List<String>();
+        if (filtro == 'visibles') {
+            cond.add('Mostrar_En_Muro__c = true');
+        } else if (filtro == 'ocultos') {
+            cond.add('Mostrar_En_Muro__c = false');
+        }
+        if (String.isNotBlank(buscar)) {
+            cond.add('Name LIKE :buscar');
+            binds.put('buscar', '%' + buscar.trim() + '%');
+        }
+        PaginaReconocimientosDTO pagina = new PaginaReconocimientosDTO();
+        pagina.total = Database.countQueryWithBinds(
+            'SELECT COUNT() FROM Reconocimiento_Publico__c' + dondeDe(cond), binds, AccessLevel.USER_MODE
+        );
+        agregarCursor(cond, binds, cursorFecha, cursorId);
+        binds.put('limite', n + 1);
+        List<Reconocimiento_Publico__c> filas = (List<Reconocimiento_Publico__c>) Database.queryWithBinds(
+            'SELECT Id, Name, Monto__c, Campana__r.Name, CreatedDate, Mostrar_En_Muro__c FROM Reconocimiento_Publico__c'
+            + dondeDe(cond) + ' ORDER BY CreatedDate DESC, Id DESC LIMIT :limite',
+            binds, AccessLevel.USER_MODE
+        );
+        pagina.haySiguiente = filas.size() > n;
+        for (Integer i = 0; i < Math.min(filas.size(), n); i++) {
+            Reconocimiento_Publico__c x = filas[i];
             ReconocimientoFilaDTO f = new ReconocimientoFilaDTO();
             f.id = x.Id;
             f.nombre = x.Name;
             f.monto = x.Monto__c;
             f.campana = x.Campana__r == null ? '' : x.Campana__r.Name;
             f.fecha = x.CreatedDate;
+            f.creado = x.CreatedDate;
             f.visible = x.Mostrar_En_Muro__c;
-            filas.add(f);
+            pagina.filas.add(f);
         }
-        return filas;
+        return pagina;
     }
 
-    /** Donativos (oportunidades) con su estado de pago, los más recientes primero. */
+    /**
+     * Donativos (oportunidades) de a una página, con paginación por cursor. Filtros: todos / pagados /
+     * pendientes; búsqueda por nombre.
+     */
     @AuraEnabled
-    public static List<DonativoFilaDTO> listarDonativos() {
-        List<DonativoFilaDTO> filas = new List<DonativoFilaDTO>();
-        for (Opportunity o : [
-            SELECT Id, Name, Amount, StageName, Campaign.Name, CloseDate
-            FROM Opportunity
-            WHERE CampaignId != null
-            WITH USER_MODE
-            ORDER BY CreatedDate DESC
-            LIMIT 200
-        ]) {
+    public static PaginaDonativosDTO listarDonativos(
+        String filtro, String buscar, Integer tamano, Datetime cursorFecha, Id cursorId
+    ) {
+        Integer n = tamanoPagina(tamano);
+        Map<String, Object> binds = new Map<String, Object>();
+        List<String> cond = new List<String>{ 'CampaignId != null' };
+        if (filtro == 'pagados') {
+            cond.add('StageName = \'Closed Won\'');
+        } else if (filtro == 'pendientes') {
+            cond.add('StageName != \'Closed Won\'');
+        }
+        if (String.isNotBlank(buscar)) {
+            cond.add('Name LIKE :buscar');
+            binds.put('buscar', '%' + buscar.trim() + '%');
+        }
+        PaginaDonativosDTO pagina = new PaginaDonativosDTO();
+        pagina.total = Database.countQueryWithBinds(
+            'SELECT COUNT() FROM Opportunity' + dondeDe(cond), binds, AccessLevel.USER_MODE
+        );
+        agregarCursor(cond, binds, cursorFecha, cursorId);
+        binds.put('limite', n + 1);
+        List<Opportunity> filas = (List<Opportunity>) Database.queryWithBinds(
+            'SELECT Id, Name, Amount, StageName, Campaign.Name, CloseDate, CreatedDate FROM Opportunity'
+            + dondeDe(cond) + ' ORDER BY CreatedDate DESC, Id DESC LIMIT :limite',
+            binds, AccessLevel.USER_MODE
+        );
+        pagina.haySiguiente = filas.size() > n;
+        for (Integer i = 0; i < Math.min(filas.size(), n); i++) {
+            Opportunity o = filas[i];
             DonativoFilaDTO f = new DonativoFilaDTO();
             f.id = o.Id;
             f.nombre = o.Name;
@@ -213,8 +291,9 @@ public with sharing class MesaPanelController {
             f.pagado = o.StageName == 'Closed Won';
             f.campana = o.Campaign == null ? '' : o.Campaign.Name;
             f.fecha = o.CloseDate;
-            filas.add(f);
+            f.creado = o.CreatedDate;
+            pagina.filas.add(f);
         }
-        return filas;
+        return pagina;
     }
 }

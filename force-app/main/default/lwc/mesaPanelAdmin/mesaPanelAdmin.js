@@ -11,6 +11,13 @@ const MXN = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' 
 const FECHA_HORA = new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 const FECHA = new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'short', year: 'numeric' });
 
+/** Filas por página en las listas que pueden crecer mucho (muro y donativos). */
+const TAM_PAGINA = 20;
+
+function listaVacia() {
+    return { cargado: false, filas: [], total: 0, haySiguiente: false, cursores: [null], indice: 0, buscar: '' };
+}
+
 const SECCIONES = [
     { clave: 'resumen', texto: 'Resumen' },
     { clave: 'campanas', texto: 'Campañas' },
@@ -64,10 +71,12 @@ export default class MesaPanelAdmin extends NavigationMixin(LightningElement) {
 
     resumen;
     campanasLista;
-    muroLista;
-    donativosLista;
+    /** Muro y donativos se leen de a una página (paginación por cursor en el servidor). */
+    listas = { muro: listaVacia(), donativos: listaVacia() };
     error;
     ocupado = false;
+    _peticion = 0;
+    _temporizador;
 
     connectedCallback() {
         this.cargar('resumen');
@@ -82,14 +91,38 @@ export default class MesaPanelAdmin extends NavigationMixin(LightningElement) {
                 this.resumen = await obtenerResumen();
             } else if (clave === 'campanas') {
                 this.campanasLista = await listarCampanas();
-            } else if (clave === 'muro') {
-                this.muroLista = await listarReconocimientos();
-            } else if (clave === 'donativos') {
-                this.donativosLista = await listarDonativos();
+            } else if (clave === 'muro' || clave === 'donativos') {
+                await this.cargarPagina(clave);
             }
         } catch (e) {
             this.error = mensajeError(e);
         }
+    }
+
+    /** Lee la página actual de una lista paginada (con el filtro y la búsqueda vigentes). */
+    async cargarPagina(clave) {
+        const e = this.listas[clave];
+        const cursor = e.cursores[e.indice];
+        const peticion = ++this._peticion;
+        const parametros = {
+            filtro: this.filtros[clave],
+            buscar: e.buscar || null,
+            tamano: TAM_PAGINA,
+            cursorFecha: cursor ? cursor.fecha : null,
+            cursorId: cursor ? cursor.id : null
+        };
+        const r = clave === 'muro' ? await listarReconocimientos(parametros) : await listarDonativos(parametros);
+        if (peticion !== this._peticion) {
+            return; // llegó una respuesta más nueva (otro filtro o búsqueda)
+        }
+        this.listas = {
+            ...this.listas,
+            [clave]: { ...this.listas[clave], cargado: true, filas: r.filas, total: r.total, haySiguiente: r.haySiguiente }
+        };
+    }
+
+    reiniciarLista(clave) {
+        this.listas = { ...this.listas, [clave]: { ...listaVacia(), buscar: this.listas[clave].buscar } };
     }
 
     get menu() {
@@ -102,6 +135,9 @@ export default class MesaPanelAdmin extends NavigationMixin(LightningElement) {
 
     irASeccion(evento) {
         this.seccion = evento.currentTarget.dataset.clave;
+        if (this.seccion === 'muro' || this.seccion === 'donativos') {
+            this.reiniciarLista(this.seccion);
+        }
         this.cargar(this.seccion);
     }
 
@@ -127,8 +163,13 @@ export default class MesaPanelAdmin extends NavigationMixin(LightningElement) {
     }
 
     get cargando() {
-        const datos = { resumen: this.resumen, campanas: this.campanasLista, muro: this.muroLista, donativos: this.donativosLista };
-        return !this.error && !datos[this.seccion];
+        if (this.error) {
+            return false;
+        }
+        if (this.paginada) {
+            return !this.listas[this.seccion].cargado;
+        }
+        return !(this.seccion === 'resumen' ? this.resumen : this.campanasLista);
     }
 
     get hayError() {
@@ -156,6 +197,78 @@ export default class MesaPanelAdmin extends NavigationMixin(LightningElement) {
 
     cambiarFiltro(evento) {
         this.filtros = { ...this.filtros, [this.seccion]: evento.currentTarget.dataset.clave };
+        if (this.paginada) {
+            this.reiniciarLista(this.seccion);
+            this.cargar(this.seccion);
+        }
+    }
+
+    // ---------- Páginas y búsqueda (muro y donativos) ----------
+
+    get paginada() {
+        return this.seccion === 'muro' || this.seccion === 'donativos';
+    }
+
+    get lista() {
+        return this.listas[this.seccion];
+    }
+
+    get totalPaginas() {
+        return Math.max(1, Math.ceil(this.lista.total / TAM_PAGINA));
+    }
+
+    get textoPagina() {
+        return `Página ${this.lista.indice + 1} de ${this.totalPaginas}`;
+    }
+
+    get textoTotal() {
+        const n = this.lista.total;
+        const nombre = this.seccion === 'muro' ? 'reconocimiento' : 'donativo';
+        return `${new Intl.NumberFormat('es-MX').format(n)} ${nombre}${n === 1 ? '' : 's'}`;
+    }
+
+    get sinAnterior() {
+        return this.lista.indice === 0 || this.ocupado;
+    }
+
+    get sinSiguiente() {
+        return !this.lista.haySiguiente || this.ocupado;
+    }
+
+    get marcadorBusqueda() {
+        return this.seccion === 'muro' ? 'Buscar por nombre…' : 'Buscar donativo…';
+    }
+
+    escribirBusqueda(evento) {
+        const texto = evento.target.value;
+        const clave = this.seccion;
+        // eslint-disable-next-line @lwc/lwc/no-async-operation
+        clearTimeout(this._temporizador);
+        // eslint-disable-next-line @lwc/lwc/no-async-operation
+        this._temporizador = setTimeout(() => {
+            this.listas = { ...this.listas, [clave]: { ...listaVacia(), buscar: texto.trim() } };
+            this.cargar(clave);
+        }, 350);
+    }
+
+    async irAPagina(evento) {
+        const delta = Number(evento.currentTarget.dataset.delta);
+        const clave = this.seccion;
+        const e = this.listas[clave];
+        const cursores = e.cursores.slice();
+        if (delta > 0) {
+            const ultima = e.filas[e.filas.length - 1];
+            cursores[e.indice + 1] = { fecha: ultima.creado, id: ultima.id };
+        }
+        this.listas = { ...this.listas, [clave]: { ...e, cursores, indice: e.indice + delta } };
+        this.ocupado = true;
+        try {
+            await this.cargarPagina(clave);
+        } catch (err) {
+            this.error = mensajeError(err);
+        } finally {
+            this.ocupado = false;
+        }
     }
 
     // ---------- Resumen ----------
@@ -283,14 +396,11 @@ export default class MesaPanelAdmin extends NavigationMixin(LightningElement) {
     // ---------- Muro ----------
 
     get reconocimientos() {
-        const filtro = this.filtros.muro;
-        return (this.muroLista || [])
-            .map((r) => this.armarReconocimiento(r))
-            .filter((r) => filtro === 'todos' || (filtro === 'visibles' ? r.visible : !r.visible));
+        return this.listas.muro.filas.map((r) => this.armarReconocimiento(r));
     }
 
     get sinReconocimientos() {
-        return this.muroLista && this.reconocimientos.length === 0;
+        return this.listas.muro.cargado && this.listas.muro.filas.length === 0;
     }
 
     async alternarMuro(evento) {
@@ -306,8 +416,7 @@ export default class MesaPanelAdmin extends NavigationMixin(LightningElement) {
     // ---------- Donativos ----------
 
     get donativos() {
-        const filtro = this.filtros.donativos;
-        return (this.donativosLista || [])
+        return this.listas.donativos.filas
             .map((d) => ({
                 id: d.id,
                 nombre: d.nombre,
@@ -316,12 +425,11 @@ export default class MesaPanelAdmin extends NavigationMixin(LightningElement) {
                 pagado: d.pagado,
                 etapa: d.pagado ? 'Pagado' : d.etapa,
                 claseEtapa: d.pagado ? 'etiqueta etiqueta-ok' : 'etiqueta etiqueta-aviso'
-            }))
-            .filter((d) => filtro === 'todos' || (filtro === 'pagados' ? d.pagado : !d.pagado));
+            }));
     }
 
     get sinDonativos() {
-        return this.donativosLista && this.donativos.length === 0;
+        return this.listas.donativos.cargado && this.listas.donativos.filas.length === 0;
     }
 
     // ---------- Escritura (respeta los permisos de la persona) ----------
