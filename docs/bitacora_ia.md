@@ -619,11 +619,23 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Lección para el proceso:** al terminar un componente, comprobar el destino de cada enlace y botón, no solo que se vea.
 - **Aceleración estimada:** no aplica (arreglo de ~10 min).
 
+### 52. Vista de escritorio: tres campañas por fila, portada más vistosa y marca «Comunidad Salesforce» (SCRUM-156)
+- **Fecha:** 2026-11-17
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** SCRUM-156 — pulido para la presentación
+- **Qué se pidió:** tres campañas a la vez en escritorio, una portada más amigable y vistosa, y en el encabezado «Comunidad Salesforce» con «Facultad de Matemáticas» debajo y un ícono relacionado con Salesforce en lugar del corazón.
+- **Qué se hizo:** `mesaEncabezado` (marca, lema y un ícono de nube; valores por defecto también en el `.js-meta.xml`), `mesaCampanas.css` (3 columnas desde 1100 px, 2 entre 900 y 1099 px, tarjetas blancas con elevación y zoom suave de la imagen al pasar el cursor) y `mesaInicio.css` (portada más grande en escritorio y burbujas que flotan despacio). Todo el movimiento se apaga con «reducir movimiento».
+- **Decisión de la IA que conviene saber:** se usó una nube genérica, no el logotipo de Salesforce, que es marca registrada.
+- **Qué se verificó y cómo:** como visitante en UADY (1440 px): marca y lema nuevos, 5 tarjetas en 3 columnas (378 px cada una). En 390 px sigue una sola columna y no hay desborde horizontal.
+- **Qué no se verificó:** pantallas entre 900 y 1099 px (2 columnas) ni otros navegadores; las propiedades del encabezado guardadas en Experience Builder podrían pisar los valores por defecto (aquí se vieron los nuevos).
+- **Aceleración estimada:** no aplica (cambio visual de ~30 min).
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 33 (1–9, 23–26 y 32–51) | 14 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47, 48 y 51) |
+| José Carlos Leo Fernández | 34 (1–9, 23–26 y 32–52) | 14 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47, 48 y 51) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 

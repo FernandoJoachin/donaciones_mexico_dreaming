@@ -9,8 +9,8 @@
     </targets>
     <targetConfigs>
         <targetConfig targets="lightningCommunity__Default">
-            <property name="marca" type="String" label="Nombre del sitio" default="Mesa de regalos"/>
-            <property name="lema" type="String" label="Frase bajo el nombre" default="Comunidad Salesforce · Facultad de Matemáticas"/>
+            <property name="marca" type="String" label="Nombre del sitio" default="Comunidad Salesforce"/>
+            <property name="lema" type="String" label="Frase bajo el nombre" default="Facultad de Matemáticas"/>
             <property name="paginaMuro" type="String" label="Página del muro (nombre como en la URL)" default="muro"/>
             <property name="paginaFacturas" type="String" label="Página de facturas (nombre como en la URL)" default="facturas"/>
         </targetConfig>

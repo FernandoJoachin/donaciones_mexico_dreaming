@@ -212,6 +212,49 @@
     color: #e6f2fd;
 }
 
+/* Escritorio: portada con más presencia y burbujas que flotan despacio. */
+@media (min-width: 900px) {
+    .hero {
+        padding: 6rem 1.5rem 7.5rem;
+        border-bottom-left-radius: 72px;
+        border-bottom-right-radius: 72px;
+    }
+    .hero-contenido {
+        max-width: 860px;
+        gap: 1.4rem;
+    }
+    .titulo {
+        font-size: clamp(3.25rem, 5.5vw, 4.75rem);
+        letter-spacing: -0.02em;
+        text-shadow: 0 4px 24px rgba(3, 45, 96, 0.35);
+    }
+    .descripcion {
+        max-width: 700px;
+        font-size: 1.375rem;
+    }
+    .hero .btn-claro {
+        padding: 1rem 2.6rem;
+        font-size: 1.125rem;
+        box-shadow: 0 10px 28px rgba(3, 45, 96, 0.35);
+    }
+    .hero .btn-claro:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 32px rgba(3, 45, 96, 0.45);
+    }
+    .burbuja-a { width: 380px; height: 380px; }
+    .burbuja-b { width: 260px; height: 260px; }
+    .burbuja-c { width: 170px; height: 170px; }
+    .burbuja {
+        animation: mesa-flotar 9s ease-in-out infinite;
+    }
+    .burbuja-b { animation-duration: 11s; animation-delay: -3s; }
+    .burbuja-c { animation-duration: 13s; animation-delay: -6s; }
+}
+@keyframes mesa-flotar {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-18px); }
+}
+
 @media (max-width: 600px) {
     /* Portada compacta en móvil: las campañas, que es lo que se viene a buscar, deben verse en la primera
        pantalla. El botón Donar ya está en la barra de arriba, así que no se repite aquí. */
@@ -240,6 +283,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+    .burbuja {
+        animation: none;
+    }
     .opcion {
         transition: none;
     }

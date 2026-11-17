@@ -147,8 +147,8 @@
     align-self: flex-start;
 }
 
-/* Pantallas grandes: no se queda la columna angosta de celular. Dos campañas por fila
-   (no cuatro: cada tarjeta lleva imagen, cifras y barra, y se aprieta). */
+/* Pantallas grandes: no se queda la columna angosta de celular. Dos campañas por fila desde 900px y
+   tres desde 1100px; las tarjetas suben un poco al pasar el cursor y la imagen se acerca. */
 @media (min-width: 900px) {
     .contenedor {
         max-width: 980px;
@@ -157,6 +157,46 @@
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 1.25rem;
+    }
+}
+@media (min-width: 1100px) {
+    .contenedor {
+        max-width: 1240px;
+    }
+    .lista {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1.5rem;
+    }
+    .campana {
+        padding: 1.25rem 1.4rem 1.5rem;
+        background: #ffffff;
+        border: 1px solid #dde6f0;
+        box-shadow: 0 6px 18px rgba(3, 45, 96, 0.07);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .campana:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 16px 34px rgba(3, 45, 96, 0.16);
+    }
+    .campana-imagen {
+        transition: transform 0.35s ease;
+    }
+    .campana:hover .campana-imagen {
+        transform: scale(1.03);
+    }
+    .campana .btn {
+        align-self: stretch;
+        text-align: center;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .campana,
+    .campana-imagen {
+        transition: none;
+    }
+    .campana:hover,
+    .campana:hover .campana-imagen {
+        transform: none;
     }
 }
 
