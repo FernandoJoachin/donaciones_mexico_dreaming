@@ -7,8 +7,8 @@ import { resolverUrl } from 'c/mesaUtil';
  * pasadas», no un genérico «Campañas» que no dice qué lista.
  */
 export default class MesaEncabezado extends LightningElement {
-    @api marca = 'Mesa de regalos';
-    @api lema = 'Comunidad Salesforce · Facultad de Matemáticas';
+    @api marca = 'Comunidad Salesforce';
+    @api lema = 'Facultad de Matemáticas';
     @api paginaMuro = 'muro';
     @api paginaFacturas = 'facturas';
 
