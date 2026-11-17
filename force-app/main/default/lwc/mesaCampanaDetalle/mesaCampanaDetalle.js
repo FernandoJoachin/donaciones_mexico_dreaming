@@ -213,6 +213,11 @@ export default class MesaCampanaDetalle extends LightningElement {
         );
     }
 
+    /** "Otro monto": al formulario sin monto elegido, para que la persona escriba el suyo. */
+    elegirOtroMonto() {
+        irA(`${resolverUrl(this.paginaDonar, null, false)}?campana=${encodeURIComponent(this.campanaId)}`);
+    }
+
     get hayDonantes() {
         return this.donantes.length > 0;
     }

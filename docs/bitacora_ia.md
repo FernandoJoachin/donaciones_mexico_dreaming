@@ -491,11 +491,23 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué se verificó y cómo:** desplegado y publicado en UADY; como visitante en escritorio: la tarjeta de $500 llena el campo y se marca, escribir $1,200 quita la marca y actualiza el mensaje, y $50 muestra el mínimo en rojo; en móvil las tarjetas quedan en una fila. Un primer intento de revisar con tamaño de ventana emulado desacomodó los clics y se repitió con el tamaño normal. No se probó un pago completo.
 - **Aceleración estimada:** ~1.5 h.
 
+### 41. "Otro monto" en la página de la campaña y enlaces en el correo (SCRUM-146)
+- **Fecha:** 2026-11-16
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** observaciones del equipo en el chat (Daniel) — SCRUM-146
+- **Qué se pidió:** revisar lo que habían hecho Daniel y Joachín y continuar con los cambios que discutieron: que quien llega a "Lo que logra tu aportación" sepa que puede dar otro monto, y que el correo lleve un enlace al sitio y otro a la página de facturas.
+- **Qué se obtuvo:** la revisión del repo y de Jira no encontró commits ni PRs nuevos de Daniel ni de Joachín desde la tarde (solo SCRUM-144 y 145 pasaron a Finalizado al mergear). Se agregó la tarjeta «Otro monto» (borde punteado) junto a los niveles de impacto de la página de la campaña, que lleva al formulario sin monto elegido. En el correo, el aviso de factura ahora tiene «Ver los pasos para pedir tu factura», que lleva a la página de facturas, y debajo del botón hay «Conocer las demás campañas» con el enlace al sitio. Ambos enlaces salen solo si la URL del sitio está configurada.
+- **Una interpretación que se corrigió:** el mensaje del chat «apóyate de los pasos en esta página» no era claro; la IA no lo adivinó y se preguntó. La respuesta fue que se refería al correo y a la factura, y de ahí salió el enlace a la página de facturas.
+- **Qué se verificó y cómo:** 10 pruebas de `MesaComprobanteTest` pasan en la org de desarrollo (una nueva para los enlaces). En UADY, como visitante, la tarjeta aparece en la campaña y lleva a `/registro?campana=…` sin `monto`. Se reenvió el correo de un donativo de prueba y se envió sin error.
+- **Lo que no se tocó:** el scroll al error del formulario, que Daniel dijo que haría él.
+- **Aceleración estimada:** ~45 min.
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 22 (1–9, 23–26 y 32–40) | 10 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37 y 38) |
+| José Carlos Leo Fernández | 23 (1–9, 23–26 y 32–41) | 10 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37 y 38) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 
