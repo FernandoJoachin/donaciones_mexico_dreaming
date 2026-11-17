@@ -74,7 +74,7 @@ Se anota lo que se puede comprobar en el historial; lo que hizo cada persona fue
 | Historia de cada campaña: resumen, historia, a quién ayuda e impacto por monto | SCRUM-132 (US-22) | PR #24 |
 | Textos orientados a la causa y muro de la campaña donada | SCRUM-133 | PR #25 |
 | Corregir la prueba del muro (llaves Decimal en el Map) | SCRUM-134 | PR #26 |
-| Revisión del PR de Stripe antes de mergearlo (bitácora entrada 32) | SCRUM-9 | Comentarios del PR #27; `docs/bitacora_ia.md` |
+| Revisión del PR de Stripe antes de mergearlo (bitácora entrada 32) | SCRUM-9 | Revisión antes de mergear el PR #27; bitácora IA entrada 32 (no hay comentarios en el PR) |
 | El muro se abre desde cada campaña, no desde el inicio | SCRUM-135 | PR #28 |
 | Comprobante por correo con la leyenda de factura; envío desde un usuario interno con un evento de plataforma; remitente verificado y nuevo diseño del correo | SCRUM-136, SCRUM-137 (US-07) | PRs #29 y #30 |
 | Formulario más claro, mensaje de pago no completado y página de gracias, a partir del feedback del panel | SCRUM-138, 139 y 140 | PR #31 |
