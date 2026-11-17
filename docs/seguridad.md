@@ -88,7 +88,7 @@ El donativo de prueba (correo ficticio `prueba.visitante@example.com`, $1,000, p
 
 | Elemento | Permiso | Por qué |
 |---|---|---|
-| Clase `MesaRegalosController` | Acceso habilitado | Es el único canal del sitio. Los métodos que el visitante puede llamar son `obtenerMuro`, `obtenerAvance`, `obtenerCampanas`, `obtenerCampana`, `guardarDonativo` y `darseDeBaja` |
+| Clase `MesaRegalosController` | Acceso habilitado | Es el único canal del sitio. Los métodos que el visitante puede llamar son `obtenerMuro`, `obtenerAvance`, `obtenerCampanas`, `obtenerCampana`, `guardarDonativo`, `darseDeBaja`, `estadoPago`, `iniciarPago` y `enviarAyuda` |
 | Clase `MesaRegalosService` | **Sin acceso** | Contiene `confirmarPago` y el avance de estados; solo debe usarlo el personal o un Flow |
 | Objetos `Contact`, `CampaignMember`, `Opportunity` y `Reconocimiento_Publico__c` | **Ningún permiso directo** | Contienen datos personales y de pagos |
 | Permission set `Mesa_Regalos_Admin` | Solo personal interno | Administra campañas, donativos y reconocimientos |
@@ -106,6 +106,19 @@ la clase).
 **Pendiente:** el perfil guest y el sitio (`Mexico Dreaming Test Perfil` en la org de pruebas y `Mesa de regalos Perfil` en la UADY,
 con su red y sitio) no están en el repositorio; la lista de permisos de esta tabla sale de lo observado en las orgs y de la
 prueba de la sección 1. Falta incluirlos en el respaldo de metadata.
+
+**Formulario de ayuda (SCRUM-141, 16 de noviembre de 2026).** El visitante tampoco recibe permisos nuevos: `enviarAyuda` es otro
+método de `MesaRegalosController` (clase a la que ya tiene acceso, en modo sistema), así que no hace falta darle permisos sobre
+`Case`. Valida nombre, correo, referencia (solo letras y números) y mensaje (10 a 2000 caracteres), tiene campo trampa
+(`sitioWeb`) y un tope de 20 solicitudes por hora, y solo devuelve el número del Case. El Case no lleva origen «Web» porque la
+sandbox trae un proceso antiguo ajeno que se dispara con ese origen y falla; se reconoce por el asunto «Ayuda desde el sitio».
+
+**Comprobante por correo (SCRUM-137, 16 de noviembre de 2026).** El usuario guest **no** tiene el permiso «Send Email» y no se
+le dio. `confirmarPago` (que corre como guest) solo publica un evento de plataforma `Comprobante_Pago__e` con el Id del
+donativo, sin datos personales; el trigger `ComprobantePagoTrigger` lo atiende como usuario interno (Automated Process) y manda
+el correo. Se comprobó con un pago real de prueba que el guest puede publicar el evento sin permiso adicional sobre el objeto.
+El resultado queda en `Opportunity.Comprobante_Estado__c` («Enviado» o el código de error, sin correos ni nombres) y evita un
+segundo envío si Stripe repite el aviso.
 
 **Historia de cada campaña (US-22, 15 de noviembre de 2026).** El visitante no recibe permisos nuevos: la historia, los
 niveles de impacto y el número de donantes salen por los mismos métodos de `MesaRegalosController` (`obtenerCampanas` y
@@ -131,6 +144,13 @@ HTML). Editar la historia y los niveles es del permission set `Gestor_Campanas` 
 - **Qué viaja a Stripe:** el Id del donativo (`client_reference_id` y metadata), el monto, el nombre de la campaña y el correo del
   donante (para el recibo). No se envían datos fiscales ni de LinkedIn. Los datos de tarjeta solo los ve Stripe.
 - **`estadoPago`:** devuelve solo `pagado` o `pendiente` para un Id de donativo; ningún otro dato.
+- **«Protected» no es un secreto (matiz):** `Stripe_Config__c` está como configuración personalizada *Protected*, pero esa visibilidad
+  solo oculta el objeto a quien instala un paquete administrado. En esta org, un administrador o cualquier Apex de la org puede leer
+  `Webhook_Secret__c`. Por eso el control real es: el valor no está en el repositorio, ningún componente ni método devuelve esos
+  campos al navegador (se comprobó con una búsqueda en `force-app/main/default/lwc`: sin resultados) y solo lo lee
+  `MesaPagosStripe`. Quien tenga acceso de administración a la org puede verlo; si se sospecha una fuga, se rota el secreto en
+  Stripe y aquí.
+
 
 ## 4. Clasificación de datos personales
 
@@ -147,6 +167,10 @@ HTML). Editar la historia y los niveles es del permission set `Gestor_Campanas` 
 | Consentimiento de publicación y versión del aviso | `Opportunity` | No (registro legal) | Sí | Probar el consentimiento | Personal interno |
 | Identificador del pago | `Opportunity.Stripe_Pago_Id__c` | Sensible (vincula con la pasarela) | Sí, lo guarda el webhook | Conciliar el pago | Personal interno |
 | Datos fiscales (RFC, constancia) | **No se piden ni se guardan** | Sí | **No** | Factura por correo | Solo en el correo que el donante envía |
+| Nombre, correo, referencia y mensaje del formulario de ayuda (SCRUM-141) | `Case` (`SuppliedName`, `SuppliedEmail`, `Description`); se liga al `Contact` si el correo ya existe | Sí | Sí | Responder a quien pide ayuda | Personal con acceso a Case (administradores); no se publica |
+| Comprobante por correo (SCRUM-136/137) | Se arma en el momento y se envía a `Contact.Email`; no se guarda como actividad (`setSaveAsActivity(false)`) | Sí (nombre, monto, campaña, id del pago) | No se guarda copia en Salesforce | Confirmar el pago | Solo quien recibe el correo; sale desde una dirección verificada de la organización |
+| Estado del comprobante | `Opportunity.Comprobante_Estado__c` | No (solo «Enviado» o un código de error) | Sí | Saber si llegó y por qué falló | Personal interno (Tesorería y Administración, solo lectura) |
+| Aviso interno «donativo pagado» | Evento `Comprobante_Pago__e` (solo el Id del donativo) | No | No (es transitorio) | Disparar el envío del correo | Sistema |
 | Historia, resumen, a quién ayuda y quién organiza (US-22) | Campaign: `Resumen__c`, `Historia__c`, `Para_Quien__c`, `Organiza__c` | No | Sí | Contar la causa en el sitio | Público (visitante sin login) |
 | Niveles de impacto (US-22) | `Nivel_Impacto__c` (monto y qué logra) | No | Sí | Montos sugeridos de cada campaña | Público |
 | Número de personas que donaron (US-22) | Se calcula al vuelo con las donaciones pagadas | No (es un conteo, sin nombres) | No | Mostrar participación | Público |
@@ -171,6 +195,10 @@ Decisiones del 7 de noviembre: se piden siempre nombre, apellidos y correo; "an�
 | Correo de facturas de ejemplo (`facturas@ejemplo.org`) | Abierto | Sustituirlo por el real antes de entregar |
 | Automatizaciones de otros proyectos en la sandbox UADY | Mitigado | Un trigger y una regla ajenos impedían donar. Se desactivaron `OpportunityTrigger`, un flujo, 4 reglas de validación de Campaign y `PreApproveStudent`, con respaldo y reversibles. Si alguien las usa, hay que acordarlo con el equipo |
 | Datos de demostración visibles en el muro público | Aceptado | Los donativos de demostración se dejan a propósito (nombres ficticios, `DEMO MURO | …`) para la demostración. La donación pendiente de $99,000 no se muestra porque el muro solo lista `Closed Won`. Se quitan con `limpiar-datos-prueba-muro.apex` antes de usar el sitio con donantes reales |
+| **Spam en el formulario de ayuda** | Parcial | Campo trampa, validación de correo, referencia y largo, y tope global de 20 Cases por hora (`maxAyudasPorHora`). Igual que en el donativo, quien lo llene puede agotar el cupo; falta limitar por origen |
+| **Proceso ajeno que se dispara con Cases de origen «Web»** | Mitigado | `NuevoCasoDesdeFormularioCommunity` (2020, de otra persona) falla al crear esos Cases. No se modificó; el Case de ayuda no usa ese origen |
+| **Remitente del comprobante** | Aceptado (demo) | Sale como «Mesa de regalos · México Dreamin» desde una dirección de toda la organización verificada. Para uso real hay que usar una dirección del dominio de la organización y configurar DKIM |
+| **Correo del comprobante a un contacto reutilizado** | Abierto | El saludo usa el nombre público del donativo, no el del contacto (un contacto creado en un donativo anónimo se llama «Anónimo»). El sitio no actualiza el nombre de un contacto reutilizado |
 | Datos personales en los registros de depuración | **Cerrado** | Los `System.debug` con datos de personas ya no existen en `entrega-1` |
 
 ## 6. Cómo comprobar que no hay claves en el código
@@ -183,7 +211,16 @@ Ver la sección 3 para el historial y, para el código vigente, `git grep -inE "
 Se retiró el **token de acceso** y las llamadas que dependían de él (`obtenerInvitacion`, `registrarPromesa`, `actualizarDatos`):
 la prueba ahora verifica que ya no existen. Se agregaron el formulario único, la baja de avisos y los enlaces de pago, con sus riesgos.
 
-## 8. Entrega 2 (pendiente de actualizar)
+## 8. Entrega 2
 
-Aviso de la pasarela: dónde se guarda el secreto de firma, cómo se rechazan avisos falsos o repetidos (incluidos los pagos
-diferidos como OXXO o SPEI) y los permisos del usuario de integración que lo recibe.
+- **Aviso de la pasarela (webhook):** el secreto de firma vive en `Stripe_Config__c` (ver el matiz sobre «Protected» en la sección 3);
+  se rechazan avisos con firma inválida, fuera de la tolerancia de 5 minutos, con monto o moneda distintos, o que confirmen otro
+  donativo, y un aviso repetido no cambia nada (pruebas en `MesaPagosStripeTest`). Los pagos diferidos (OXXO, SPEI) no se confirman con
+  el primer aviso: solo cuenta `checkout.session.completed` ya pagado. El usuario que lo recibe es el guest, con el permission set
+  `Mesa_Sitio_Pagos` (solo la clase del webhook, la credencial de Stripe y lectura de `UserExternalCredential`).
+- **Comprobante por correo:** evento de plataforma atendido por un usuario interno, sin dar «Send Email» al guest (sección 2). Datos
+  del correo en la sección 4.
+- **Formulario de ayuda:** crea un Case sin permisos nuevos para el guest (sección 2).
+- **Pendiente:** el aviso rechazado solo queda en el registro de depuración, no visible para staff (US-08 y US-17 CA1); repetir la
+  prueba del visitante por REST y SOQL en UADY después de estos cambios; sustituir `facturas@ejemplo.org`; incluir el perfil guest
+  y el sitio en el respaldo de metadata.
