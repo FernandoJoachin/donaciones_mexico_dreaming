@@ -572,11 +572,23 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Lección para el proceso:** no editar archivos con reemplazos por posición sin revisar el `git diff` después, y verificar que la lista **cargue datos**, no solo que la página abra: este error pasó el despliegue y no deja rastro en la consola.
 - **Aceleración estimada:** no aplica (tiempo perdido: ~30 min).
 
+### 48. ⚠ Error de la IA — el muro en la barra general y dos enlaces para la misma lista (SCRUM-152)
+- **Fecha:** 2026-11-17
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** observaciones de Daniel en el chat sobre el encabezado nuevo — SCRUM-152
+- **Qué se pidió:** revisar lo que dijo Daniel de la barra de navegación: que debía decir solo «Campañas» (con el filtro «Activas / Pasadas» dentro de la página) y que «Quién ya se sumó» no iba en la pantalla general.
+- **Qué falló (error de la IA):** (1) la IA puso en la barra «Campañas activas» y «Campañas pasadas» como dos enlaces a la misma página, copiando el estilo del Equipo 4, sin ver que el panel había señalado justo lo contrario: no llamar «Campañas» a una lista que solo trae las activas, y que un solo «Campañas» con un filtro adentro lo resuelve. (2) Puso «Quién ya se sumó» en la barra y en el pie del sitio general, aunque el muro es de **cada campaña** y esa decisión ya estaba tomada: en SCRUM-135 se había quitado el botón del muro del inicio. Sin una campaña en la dirección, ese enlace no lleva a ningún muro concreto. Daniel lo vio al revisar capturas; la IA no lo contrastó con la decisión anterior.
+- **Qué se cambió:** la barra tiene un solo «Campañas»; el filtro queda dentro de la página como «Activas» y «Pasadas» (la dirección `?pestana=` sigue funcionando). El enlace al muro aparece solo cuando hay una campaña en la dirección y se llama «Muro de esta campaña», con el Id de esa campaña, tanto en la barra como en el pie.
+- **Qué se verificó y cómo:** como visitante en UADY: en el inicio la barra es «Campañas, Facturas, Ayuda, Donar», el pie no trae el muro y las pestañas dicen «Activas» y «Pasadas»; en la página de una campaña la barra y el pie traen «Muro de esta campaña» con el enlace `/muro?campana=<Id>`. No se probó el flujo de pago.
+- **Un hallazgo de paso:** la lista pública muestra ahora una campaña de prueba, «Prueba Campaign Desde Admin Panel», que Daniel creó desde el panel de administración. Confirma que el panel crea campañas con el tipo `Donacion` y salen en el sitio; hay que desactivarla antes de presentar.
+- **Aceleración estimada:** ~30 min.
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 29 (1–9, 23–26 y 32–47) | 12 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46 y 47) |
+| José Carlos Leo Fernández | 30 (1–9, 23–26 y 32–48) | 13 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47 y 48) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 

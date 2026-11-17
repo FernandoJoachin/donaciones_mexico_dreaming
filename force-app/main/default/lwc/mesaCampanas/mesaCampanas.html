@@ -26,8 +26,8 @@
         </template>
         <div class={claseContenedor}>
             <div class="tabs">
-                <button type="button" class={claseActivas} data-pestana="activas" aria-pressed={pulsadaActivas} onclick={cambiarPestana}>Campañas activas</button>
-                <button type="button" class={clasePasadas} data-pestana="pasadas" aria-pressed={pulsadaPasadas} onclick={cambiarPestana}>Campañas pasadas</button>
+                <button type="button" class={claseActivas} data-pestana="activas" aria-pressed={pulsadaActivas} onclick={cambiarPestana}>Activas</button>
+                <button type="button" class={clasePasadas} data-pestana="pasadas" aria-pressed={pulsadaPasadas} onclick={cambiarPestana}>Pasadas</button>
             </div>
 
             <template lwc:if={cargando}>

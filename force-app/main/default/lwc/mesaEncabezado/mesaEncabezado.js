@@ -14,13 +14,18 @@ export default class MesaEncabezado extends LightningElement {
 
     menuAbierto = false;
 
-    /** Pestaña/página donde estamos, para marcar el enlace activo. */
+    /** Id de la campaña en la dirección (?campana=), si la página es de una campaña; si no, undefined. */
+    get campanaActual() {
+        const id = new URLSearchParams(window.location.search).get('campana');
+        return id && /^[A-Za-z0-9]{15}([A-Za-z0-9]{3})?$/.test(id) ? id : undefined;
+    }
+
+    /** Página donde estamos, para marcar el enlace activo. */
     get actual() {
         const ruta = window.location.pathname.replace(/\/+$/, '');
         const tramo = ruta.substring(ruta.lastIndexOf('/') + 1);
-        const consulta = new URLSearchParams(window.location.search);
         if (tramo === '' || tramo === 's' || tramo === 'inicio') {
-            return consulta.get('pestana') === 'pasadas' ? 'pasadas' : 'activas';
+            return 'campanas';
         }
         if (tramo === this.paginaMuro) {
             return 'muro';
@@ -31,14 +36,21 @@ export default class MesaEncabezado extends LightningElement {
         return '';
     }
 
+    /**
+     * «Campañas» es un solo enlace; el filtro Activas / Pasadas está dentro de la página. El muro es de
+     * cada campaña, así que su enlace solo aparece dentro de una campaña y lleva al muro de ESA campaña.
+     */
     get enlaces() {
         const inicio = resolverUrl('', null, false);
-        const lista = [
-            { id: 'activas', texto: 'Campañas activas', url: `${inicio}?pestana=activas` },
-            { id: 'pasadas', texto: 'Campañas pasadas', url: `${inicio}?pestana=pasadas` },
-            { id: 'muro', texto: 'Quién ya se sumó', url: resolverUrl(this.paginaMuro, null, false) },
-            { id: 'facturas', texto: 'Facturas', url: resolverUrl(this.paginaFacturas, null, false) }
-        ];
+        const lista = [{ id: 'campanas', texto: 'Campañas', url: `${inicio}?pestana=activas` }];
+        if (this.campanaActual) {
+            lista.push({
+                id: 'muro',
+                texto: 'Muro de esta campaña',
+                url: `${resolverUrl(this.paginaMuro, null, false)}?campana=${encodeURIComponent(this.campanaActual)}`
+            });
+        }
+        lista.push({ id: 'facturas', texto: 'Facturas', url: resolverUrl(this.paginaFacturas, null, false) });
         return lista.map((e) => ({
             ...e,
             clase: e.id === this.actual ? 'enlace activo' : 'enlace',
