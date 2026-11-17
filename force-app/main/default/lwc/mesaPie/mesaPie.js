@@ -80,8 +80,21 @@ export default class MesaPie extends LightningElement {
             { id: 'reencuentro', texto: 'Reencuentro', pagina: this.paginaReencuentro },
             { id: 'facturas', texto: 'Facturas', pagina: this.paginaFacturas }
         ];
+        // El muro es de cada campaña: el enlace solo aparece dentro de una campaña y lleva al muro de esa campaña.
+        const idCampana = new URLSearchParams(window.location.search).get('campana');
+        const campanaValida = idCampana && /^[A-Za-z0-9]{15}([A-Za-z0-9]{3})?$/.test(idCampana);
         return lista
-            .map((e) => (e.pagina !== undefined ? { ...e, url: e.pagina ? resolverUrl(e.pagina, null, false) : null } : e))
+            .filter((e) => e.id !== 'muro' || (campanaValida && this.paginaMuro))
+            .map((e) => {
+                if (e.id === 'muro') {
+                    return {
+                        ...e,
+                        texto: 'Muro de esta campaña',
+                        url: `${resolverUrl(this.paginaMuro, null, false)}?campana=${encodeURIComponent(idCampana)}`
+                    };
+                }
+                return e.pagina !== undefined ? { ...e, url: e.pagina ? resolverUrl(e.pagina, null, false) : null } : e;
+            })
             .filter((e) => e.url);
     }
 
