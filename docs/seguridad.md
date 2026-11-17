@@ -200,6 +200,7 @@ Decisiones del 7 de noviembre: se piden siempre nombre, apellidos y correo; "an�
 | **Remitente del comprobante** | Aceptado (demo) | Sale como «Mesa de regalos · México Dreamin» desde una dirección de toda la organización verificada. Para uso real hay que usar una dirección del dominio de la organización y configurar DKIM |
 | **Correo del comprobante a un contacto reutilizado** | Abierto | El saludo usa el nombre público del donativo, no el del contacto (un contacto creado en un donativo anónimo se llama «Anónimo»). El sitio no actualiza el nombre de un contacto reutilizado |
 | **Consentimiento de publicación implícito** | Aceptado | Desde SCRUM-144 no hay casilla aparte: elegir «Con mi nombre» o «Anónima» autoriza lo que esa opción dice (visible en pantalla). El formulario sigue enviando y guardando `Consentimiento_Publicacion__c` y la versión del aviso. La casilla de novedades sin marcar guarda el consentimiento de avisos como «No» |
+| **Código desplegado en UADY distinto del repo** | Abierto | El 17-nov se desplegó a la sandbox, desde una copia local, un filtro que publica solo las campañas del tipo de registro `Donacion` (más una clase de pruebas `MesaTestDatos`). No está en ningún PR y dejó el sitio sin campañas hasta que se asignó ese tipo a las campañas. Hay que abrirlo como PR con su ticket; mientras tanto una redistribución desde el repo quitaría el filtro. Las campañas nuevas deben nacer con ese tipo |
 | Datos personales en los registros de depuración | **Cerrado** | Los `System.debug` con datos de personas ya no existen en `entrega-1` |
 
 ## 6. Cómo comprobar que no hay claves en el código
@@ -213,6 +214,8 @@ Se retiró el **token de acceso** y las llamadas que dependían de él (`obtener
 la prueba ahora verifica que ya no existen. Se agregaron el formulario único, la baja de avisos y los enlaces de pago, con sus riesgos.
 
 ## 8. Entrega 2
+
+Los diagramas de las piezas y del flujo de pago, con quién corre cada cosa, están en [arquitectura.md](arquitectura.md).
 
 - **Aviso de la pasarela (webhook):** el secreto de firma vive en `Stripe_Config__c` (ver el matiz sobre «Protected» en la sección 3);
   se rechazan avisos con firma inválida, fuera de la tolerancia de 5 minutos, con monto o moneda distintos, o que confirmen otro
