@@ -503,11 +503,21 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Lo que no se tocó:** el scroll al error del formulario, que Daniel dijo que haría él.
 - **Aceleración estimada:** ~45 min.
 
+### 42. El error del formulario aparece junto al paso y la página baja sola (SCRUM-147)
+- **Fecha:** 2026-11-17
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** observación del equipo en el chat (Daniel) — SCRUM-147
+- **Qué se pidió:** Daniel había dicho que haría el scroll al error del formulario; se pidió revisar si lo subió y, si no, arreglarlo.
+- **Qué se obtuvo:** la revisión no encontró PRs ni commits suyos, así que se hizo aquí. El problema era real: todos los errores salían en un solo mensaje arriba de la página, lejos del botón, y nada desplazaba la vista. Ahora el error aparece dentro del paso con el problema (monto en el 1, forma de aparecer o nombre en el 2, correo o aviso en el 3) y los errores del servidor justo arriba del botón. Al fallar, la página baja sola hasta el mensaje y lo centra, y el mensaje desaparece en cuanto la persona edita algo. El banner superior queda solo para el estado de pago no completado.
+- **Qué se verificó y cómo:** desplegado y publicado en UADY; como visitante se eligió un monto y "Anónima", se dejó el correo vacío y se pulsó Donar: apareció «Escribe un correo válido.» bajo el título del paso 3, la página pasó de 0 a 611 px de desplazamiento y el mensaje quedó dentro de la pantalla. Al escribir en el correo, el mensaje se quitó. No se probó un error del servidor. El servidor no cambió.
+- **Aceleración estimada:** ~30 min.
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 23 (1–9, 23–26 y 32–41) | 10 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37 y 38) |
+| José Carlos Leo Fernández | 24 (1–9, 23–26 y 32–42) | 10 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37 y 38) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 
