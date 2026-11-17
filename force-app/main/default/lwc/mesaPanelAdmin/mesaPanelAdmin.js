@@ -1,8 +1,10 @@
 import { LightningElement, wire } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { updateRecord } from 'lightning/uiRecordApi';
-import { getObjectInfo } from 'lightning/uiObjectInfoApi';
+import { getObjectInfo, getObjectInfos } from 'lightning/uiObjectInfoApi';
 import CAMPAIGN_OBJETO from '@salesforce/schema/Campaign';
+import RECONOCIMIENTO_OBJETO from '@salesforce/schema/Reconocimiento_Publico__c';
+import OPORTUNIDAD_OBJETO from '@salesforce/schema/Opportunity';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import obtenerResumen from '@salesforce/apex/MesaPanelController.obtenerResumen';
 import listarCampanas from '@salesforce/apex/MesaPanelController.listarCampanas';
@@ -127,8 +129,52 @@ export default class MesaPanelAdmin extends NavigationMixin(LightningElement) {
         this.listas = { ...this.listas, [clave]: { ...listaVacia(), buscar: this.listas[clave].buscar } };
     }
 
+    // ---------- Permisos: cada persona ve solo lo que puede usar ----------
+
+    @wire(getObjectInfos, { objectApiNames: [CAMPAIGN_OBJETO, RECONOCIMIENTO_OBJETO, OPORTUNIDAD_OBJETO] })
+    infos;
+
+    permisos(objeto) {
+        const lista = (this.infos && this.infos.data && this.infos.data.results) || [];
+        const r = lista.find((x) => x.result && x.result.apiName === objeto.objectApiName);
+        return r ? r.result : undefined;
+    }
+
+    puede(objeto, accion) {
+        if (this.infos && this.infos.error) {
+            return true; // si no se pueden leer los permisos no se esconde nada: el servidor igual los aplica
+        }
+        const info = this.permisos(objeto);
+        return !!info && !!info[accion];
+    }
+
+    get verCampanas() {
+        return this.puede(CAMPAIGN_OBJETO, 'queryable');
+    }
+    get verMuro() {
+        return this.puede(RECONOCIMIENTO_OBJETO, 'queryable');
+    }
+    get verDonativos() {
+        return this.puede(OPORTUNIDAD_OBJETO, 'queryable');
+    }
+    get puedeCrearCampana() {
+        return this.puede(CAMPAIGN_OBJETO, 'createable');
+    }
+    get puedeEditarCampana() {
+        return this.puede(CAMPAIGN_OBJETO, 'updateable');
+    }
+    get puedeEditarMuro() {
+        return this.puede(RECONOCIMIENTO_OBJETO, 'updateable');
+    }
+    /** Mientras no se sepan los permisos no se muestra nada de más. */
+    get sinPermisosSeccion() {
+        const necesita = { campanas: this.verCampanas, muro: this.verMuro, donativos: this.verDonativos };
+        return this.seccion in necesita && !!this.infos && !!this.infos.data && !necesita[this.seccion];
+    }
+
     get menu() {
-        return this.secciones.map((s) => ({
+        const visibles = { resumen: true, campanas: this.verCampanas, muro: this.verMuro, donativos: this.verDonativos };
+        return this.secciones.filter((s) => visibles[s.clave]).map((s) => ({
             ...s,
             clase: s.clave === this.seccion ? 'menu-item menu-activo' : 'menu-item',
             actual: s.clave === this.seccion ? 'page' : 'false'
@@ -153,6 +199,9 @@ export default class MesaPanelAdmin extends NavigationMixin(LightningElement) {
 
     get esResumen() {
         return this.seccion === 'resumen';
+    }
+    get mostrarNueva() {
+        return this.seccion === 'campanas' && this.puedeCrearCampana;
     }
     get esCampanas() {
         return this.seccion === 'campanas';

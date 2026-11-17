@@ -24,7 +24,7 @@
                     <h1 class="titulo">{titulo}</h1>
                     <p class="subtitulo">{subtitulo}</p>
                 </div>
-                <template lwc:if={esCampanas}>
+                <template lwc:if={mostrarNueva}>
                     <button type="button" class="btn-primario" onclick={nuevaCampana}>+ Nueva campaña</button>
                 </template>
             </header>
@@ -46,6 +46,10 @@
                 </div>
             </template>
 
+            <template lwc:if={sinPermisosSeccion}>
+                <p class="vacio">Tu usuario no tiene acceso a esta sección.</p>
+            </template>
+
             <template lwc:if={hayError}>
                 <p class="aviso-error">No pudimos cargar esta sección: {error}</p>
             </template>
@@ -57,26 +61,33 @@
             <template lwc:if={esResumen}>
                 <template lwc:if={resumen}>
                     <section class="cifras" aria-label="Cifras principales">
-                        <div class="cifra cifra-principal">
-                            <span class="cifra-etiqueta">Recaudado</span>
-                            <span class="cifra-valor">{totalTexto}</span>
-                            <span class="cifra-nota">{donativosTexto}</span>
-                        </div>
-                        <div class="cifra">
-                            <span class="cifra-etiqueta">Campañas activas</span>
-                            <span class="cifra-valor">{resumen.campanasActivas}</span>
-                        </div>
-                        <div class="cifra">
-                            <span class="cifra-etiqueta">Visibles en el muro</span>
-                            <span class="cifra-valor">{resumen.visiblesEnMuro}</span>
-                        </div>
-                        <div class="cifra">
-                            <span class="cifra-etiqueta">Ocultos del muro</span>
-                            <span class="cifra-valor">{resumen.ocultosDelMuro}</span>
-                        </div>
+                        <template lwc:if={verDonativos}>
+                            <div class="cifra cifra-principal">
+                                <span class="cifra-etiqueta">Recaudado</span>
+                                <span class="cifra-valor">{totalTexto}</span>
+                                <span class="cifra-nota">{donativosTexto}</span>
+                            </div>
+                        </template>
+                        <template lwc:if={verCampanas}>
+                            <div class="cifra">
+                                <span class="cifra-etiqueta">Campañas activas</span>
+                                <span class="cifra-valor">{resumen.campanasActivas}</span>
+                            </div>
+                        </template>
+                        <template lwc:if={verMuro}>
+                            <div class="cifra">
+                                <span class="cifra-etiqueta">Visibles en el muro</span>
+                                <span class="cifra-valor">{resumen.visiblesEnMuro}</span>
+                            </div>
+                            <div class="cifra">
+                                <span class="cifra-etiqueta">Ocultos del muro</span>
+                                <span class="cifra-valor">{resumen.ocultosDelMuro}</span>
+                            </div>
+                        </template>
                     </section>
 
                     <div class="columnas">
+                        <template lwc:if={verCampanas}>
                         <section class="tarjeta">
                             <h2 class="tarjeta-titulo">Campañas</h2>
                             <ul class="lista">
@@ -99,7 +110,9 @@
                                 </template>
                             </ul>
                         </section>
+                        </template>
 
+                        <template lwc:if={verMuro}>
                         <section class="tarjeta">
                             <h2 class="tarjeta-titulo">Últimos reconocimientos</h2>
                             <template lwc:if={sinRecientes}>
@@ -120,6 +133,7 @@
                                 </template>
                             </ul>
                         </section>
+                        </template>
                     </div>
                 </template>
             </template>
@@ -149,8 +163,10 @@
                                 </template>
                                 <p class="reciente-sub">{c.donativosTexto}</p>
                                 <div class="acciones">
-                                    <button type="button" class="btn-sec" data-id={c.id} data-objeto="Campaign" onclick={editarRegistro}>Editar</button>
-                                    <button type="button" class="btn-sec" data-id={c.id} data-activa={c.activa} disabled={ocupado} onclick={alternarCampana}>{c.textoPausa}</button>
+                                    <template lwc:if={puedeEditarCampana}>
+                                        <button type="button" class="btn-sec" data-id={c.id} data-objeto="Campaign" onclick={editarRegistro}>Editar</button>
+                                        <button type="button" class="btn-sec" data-id={c.id} data-activa={c.activa} disabled={ocupado} onclick={alternarCampana}>{c.textoPausa}</button>
+                                    </template>
                                 </div>
                             </li>
                         </template>
@@ -174,8 +190,10 @@
                                 <strong>{r.montoTexto}</strong>
                                 <span class={r.claseVisible}>{r.visibleTexto}</span>
                                 <div class="acciones">
-                                    <button type="button" class="btn-sec" data-id={r.id} data-objeto="Reconocimiento_Publico__c" onclick={editarRegistro}>Editar nombre</button>
-                                    <button type="button" class="btn-sec" data-id={r.id} data-visible={r.visible} disabled={ocupado} onclick={alternarMuro}>{r.textoAccion}</button>
+                                    <template lwc:if={puedeEditarMuro}>
+                                        <button type="button" class="btn-sec" data-id={r.id} data-objeto="Reconocimiento_Publico__c" onclick={editarRegistro}>Editar nombre</button>
+                                        <button type="button" class="btn-sec" data-id={r.id} data-visible={r.visible} disabled={ocupado} onclick={alternarMuro}>{r.textoAccion}</button>
+                                    </template>
                                 </div>
                             </li>
                         </template>
