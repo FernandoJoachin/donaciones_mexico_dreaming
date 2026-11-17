@@ -25,10 +25,7 @@
             </div>
         </template>
         <div class={claseContenedor}>
-            <div class="tabs">
-                <button type="button" class={claseActivas} data-pestana="activas" aria-pressed={pulsadaActivas} onclick={cambiarPestana}>Activas</button>
-                <button type="button" class={clasePasadas} data-pestana="pasadas" aria-pressed={pulsadaPasadas} onclick={cambiarPestana}>Pasadas</button>
-            </div>
+            <h2 class="lista-titulo">Campañas activas</h2>
 
             <template lwc:if={cargando}>
                 <p class="info">Cargando campañas…</p>
@@ -48,9 +45,6 @@
                         </template>
                         <div class="campana-cabeza">
                             <h2 class="campana-nombre">{c.nombre}</h2>
-                            <template lwc:if={c.cerrada}>
-                                <span class="insignia">Cerrada</span>
-                            </template>
                             <template lwc:if={c.aviso}>
                                 <span class={c.claseAviso}>{c.aviso}</span>
                             </template>
@@ -79,12 +73,28 @@
                         <template lwc:if={c.leyenda}>
                             <p class="leyenda">{c.leyenda}</p>
                         </template>
-                        <template lwc:if={c.puedeDonar}>
-                            <button type="button" class="btn btn-primario" data-id={c.id} onclick={verCampana}>{textoBotonVer}</button>
-                        </template>
+                        <button type="button" class="btn btn-primario" data-id={c.id} onclick={verCampana}>{textoBotonVer}</button>
                     </li>
                 </template>
             </ul>
+
+            <template lwc:if={hayPasadas}>
+                <details class="pasadas" open={pasadasAbiertas} ontoggle={alAlternarPasadas}>
+                    <summary class="pasadas-resumen">{tituloPasadas}</summary>
+                    <ul class="pasadas-lista">
+                        <template for:each={pasadas} for:item="p">
+                            <li key={p.id} class="pasada">
+                                <div class="pasada-datos">
+                                    <span class="pasada-nombre">{p.nombre}</span>
+                                    <span class="pasada-fecha">{p.leyenda}</span>
+                                </div>
+                                <span class="insignia">Cerrada</span>
+                                <span class="pasada-monto">{p.montoTexto}</span>
+                            </li>
+                        </template>
+                    </ul>
+                </details>
+            </template>
         </div>
         <template lwc:if={incluirPortada}>
             <c-mesa-inicio parte="abajo"></c-mesa-inicio>

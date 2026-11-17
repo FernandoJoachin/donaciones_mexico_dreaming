@@ -7,28 +7,10 @@
     margin-top: -44px;
 }
 
-.tabs {
-    display: flex;
-    gap: 0.25rem;
-    align-self: flex-start;
-}
-.tab {
-    font: inherit;
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
-    padding: 0.35rem 0.9rem;
-    border: 0;
-    border-radius: 999px;
-    background: transparent;
-    color: var(--mesa-gris);
-}
-.tab:focus-visible {
-    outline: 3px solid #90d0fe;
-    outline-offset: 2px;
-}
-.tab-activa {
-    background: var(--mesa-cielo);
+.lista-titulo {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 800;
     color: var(--mesa-azul-oscuro);
 }
 .lista {
@@ -229,7 +211,88 @@
     color: var(--mesa-azul-medio);
 }
 
-/* Al bajar a la lista desde el encabezado, que las pestañas no queden tapadas por la barra fija. */
-.tabs {
+/* Al bajar desde el encabezado, que el título y las pasadas no queden tapados por la barra fija. */
+.lista-titulo,
+.pasadas {
     scroll-margin-top: 100px;
+}
+
+/* Campañas pasadas: sección plegable al final, con filas compactas (ya no se puede donar). */
+.pasadas {
+    margin-top: 1.25rem;
+    border-top: 1px solid #dde6f0;
+}
+.pasadas-resumen {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 1rem 0.25rem;
+    cursor: pointer;
+    list-style: none;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--mesa-azul-oscuro);
+}
+.pasadas-resumen::-webkit-details-marker {
+    display: none;
+}
+.pasadas-resumen::after {
+    content: '';
+    flex: none;
+    width: 0.55rem;
+    height: 0.55rem;
+    margin-right: 0.2rem;
+    border-right: 2.5px solid var(--mesa-azul);
+    border-bottom: 2.5px solid var(--mesa-azul);
+    transform: rotate(45deg);
+    transition: transform 0.2s ease;
+}
+.pasadas[open] > .pasadas-resumen::after {
+    transform: rotate(-135deg);
+}
+.pasadas-resumen:focus-visible {
+    outline: 3px solid #90d0fe;
+    outline-offset: 2px;
+    border-radius: 12px;
+}
+.pasadas-lista {
+    list-style: none;
+    margin: 0 0 0.5rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.pasada {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    padding: 0.75rem 1rem;
+    background: #f3f8fd;
+    border-radius: 14px;
+}
+.pasada-datos {
+    flex: 1 1 12rem;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.pasada-nombre {
+    font-weight: 700;
+    color: var(--mesa-azul-oscuro);
+}
+.pasada-fecha {
+    font-size: 0.8125rem;
+    color: var(--mesa-gris);
+}
+.pasada-monto {
+    font-weight: 700;
+    color: var(--mesa-azul-medio);
+}
+@media (prefers-reduced-motion: reduce) {
+    .pasadas-resumen::after {
+        transition: none;
+    }
 }

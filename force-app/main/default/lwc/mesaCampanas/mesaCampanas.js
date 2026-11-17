@@ -15,8 +15,8 @@ const MS_DIA = 24 * 60 * 60 * 1000;
 
 /**
  * Sitio central (US-01): lista las campañas con su meta y su avance.
- *  - Por defecto muestra las campañas activas; la pestaña "Campañas pasadas" muestra las que ya
- *    cerraron, con la etiqueta "Cerrada" y sin botón para donar.
+ *  - Muestra primero las campañas activas; las que ya cerraron quedan abajo en una sección plegable
+ *    "Campañas pasadas", en filas compactas y sin botón para donar.
  *  - Qué campañas se publican y cuáles están activas lo decide el servidor (obtenerCampanas).
  *  - El botón lleva a la página de presentación de la campaña con ?campana=<Id>.
  * Los textos y la página de destino se editan en Experience Builder, sin tocar código.
@@ -35,41 +35,51 @@ export default class MesaCampanas extends LightningElement {
     /** Nombre de la página de presentación (como aparece en la URL) o ruta completa que empiece con "/". */
     @api paginaCampana = 'campana';
 
-    pestana = 'activas';
+    pasadasAbiertas = false;
+    _pedida = 'activas';
     _irALista = false;
     _yaDesplazado = false;
 
     /**
-     * Desde el encabezado se llega con ?pestana=activas o ?pestana=pasadas: se abre esa pestaña y la
-     * página baja sola hasta la lista, que es lo que la persona fue a buscar.
+     * Desde el encabezado se llega con ?pestana=activas o ?pestana=pasadas: la página baja sola hasta
+     * esa parte (con "pasadas" la sección plegable se abre), que es lo que la persona fue a buscar.
      */
     @wire(CurrentPageReference)
     leerPestanaDeLaDireccion(ref) {
         const pedida = ref && ref.state ? ref.state.pestana : undefined;
         if (pedida === 'activas' || pedida === 'pasadas') {
-            this.pestana = pedida;
+            this._pedida = pedida;
+            this.pasadasAbiertas = pedida === 'pasadas';
             this._irALista = true;
         }
     }
 
     // Aviso de la ventana (lo mandan «Donar» y «Campañas» del encabezado y del pie): ya estamos aquí, así que
-    // se abre la pestaña pedida y se baja a la lista de inmediato, sin recargar la página.
+    // se baja a la parte pedida de inmediato (abriendo las pasadas si hace falta), sin recargar la página.
     _alPedirLista = (evento) => {
         const pedida = evento.detail && evento.detail.pestana;
         if (pedida === 'activas' || pedida === 'pasadas') {
-            this.pestana = pedida;
+            this._pedida = pedida;
+            this.pasadasAbiertas = pedida === 'pasadas';
         }
         if (evento.detail) {
             evento.detail.manejado = true;
         }
         // eslint-disable-next-line @lwc/lwc/no-async-operation
         requestAnimationFrame(() => {
-            const lista = this.template.querySelector('.tabs');
-            if (lista) {
-                lista.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
+            this.bajarAlAncla();
         });
     };
+
+    /** Baja hasta el título de las activas, o hasta las pasadas si eso fue lo pedido. */
+    bajarAlAncla() {
+        const destino =
+            (this._pedida === 'pasadas' && this.template.querySelector('.pasadas')) ||
+            this.template.querySelector('.lista-titulo');
+        if (destino) {
+            destino.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
 
     connectedCallback() {
         window.addEventListener('mesa:ir-a-campanas', this._alPedirLista);
@@ -83,15 +93,10 @@ export default class MesaCampanas extends LightningElement {
         // Una sola vez: se espera un momento a que el sitio termine de pintarse (si se baja antes, la
         // página vuelve arriba) y se baja hasta la lista de campañas. El elemento se busca otra vez al
         // bajar, porque al llegar los datos la lista se vuelve a pintar.
-        if (this._irALista && !this._yaDesplazado && this.template.querySelector('.tabs')) {
+        if (this._irALista && !this._yaDesplazado && this.template.querySelector('.lista-titulo')) {
             this._yaDesplazado = true;
             // eslint-disable-next-line @lwc/lwc/no-async-operation
-            setTimeout(() => {
-                const lista = this.template.querySelector('.tabs');
-                if (lista) {
-                    lista.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            }, 1300);
+            setTimeout(() => this.bajarAlAncla(), 1300);
         }
     }
 
@@ -106,29 +111,27 @@ export default class MesaCampanas extends LightningElement {
         return !this.campanas || (!this.campanas.data && !this.campanas.error);
     }
 
-    get esActivas() {
-        return this.pestana === 'activas';
-    }
-
-    get pulsadaActivas() {
-        return this.esActivas ? 'true' : 'false';
-    }
-
-    get pulsadaPasadas() {
-        return this.esActivas ? 'false' : 'true';
-    }
-
-    get claseActivas() {
-        return this.esActivas ? 'tab tab-activa' : 'tab';
-    }
-
-    get clasePasadas() {
-        return this.esActivas ? 'tab' : 'tab tab-activa';
-    }
-
     get tarjetas() {
         const datos = (this.campanas && this.campanas.data) || [];
-        return datos.filter((c) => c.activa === this.esActivas).map((c) => this.armarTarjeta(c));
+        return datos.filter((c) => c.activa).map((c) => this.armarTarjeta(c));
+    }
+
+    get pasadas() {
+        const datos = (this.campanas && this.campanas.data) || [];
+        return datos
+            .filter((c) => !c.activa)
+            .map((c) => {
+                const t = this.armarTarjeta(c);
+                return { ...t, montoTexto: c.total > 0 ? `${t.recaudado} recaudados` : 'Sin donaciones' };
+            });
+    }
+
+    get hayPasadas() {
+        return this.pasadas.length > 0;
+    }
+
+    get tituloPasadas() {
+        return `Campañas pasadas (${this.pasadas.length})`;
     }
 
     get sinTarjetas() {
@@ -136,9 +139,7 @@ export default class MesaCampanas extends LightningElement {
     }
 
     get mensajeVacio() {
-        return this.esActivas
-            ? 'Por ahora no hay campañas activas. Vuelve pronto.'
-            : 'Todavía no hay campañas pasadas.';
+        return 'Por ahora no hay campañas activas. Vuelve pronto.';
     }
 
     armarTarjeta(c) {
@@ -150,7 +151,6 @@ export default class MesaCampanas extends LightningElement {
             nombre: c.nombre,
             descripcion: c.resumen || c.descripcion,
             donantes: textoDonantes(c.donantes),
-            cerrada: !c.activa,
             conMeta,
             hayRecaudado: c.total > 0,
             recaudado: formatearMonto(c.total),
@@ -159,9 +159,7 @@ export default class MesaCampanas extends LightningElement {
             estiloBarra: `width: ${c.porcentaje}%`,
             // Si ya hay etiqueta de cierre, no se repite la leyenda de días.
             leyenda: aviso.aviso ? '' : this.leyenda(c),
-            ...aviso,
-            // CA7: las campañas cerradas se muestran sin opción de donar (no llevan botón).
-            puedeDonar: c.activa
+            ...aviso
         };
     }
 
@@ -213,8 +211,9 @@ export default class MesaCampanas extends LightningElement {
         evento.target.style.display = 'none';
     }
 
-    cambiarPestana(evento) {
-        this.pestana = evento.currentTarget.dataset.pestana;
+    /** Mantiene sincronizado el estado cuando la persona abre o cierra la sección con un clic. */
+    alAlternarPasadas(evento) {
+        this.pasadasAbiertas = evento.target.open;
     }
 
     verCampana(evento) {
