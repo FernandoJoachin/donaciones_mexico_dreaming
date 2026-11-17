@@ -642,11 +642,24 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué no se verificó:** otros navegadores (el ocultar el marcador usa `list-style: none` y `::-webkit-details-marker`) ni lectores de pantalla.
 - **Aceleración estimada:** no aplica (cambio visual de ~15 min).
 
+### 54. «Donar» y «Campañas» bajan a la lista sin recargar la página (SCRUM-158)
+- **Fecha:** 2026-11-17
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** SCRUM-158 — observación de José al probar el encabezado
+- **Qué se pidió:** al dar clic en «Donar» de la barra superior, la página cargaba (parecía ir a otra página) y hasta después bajaba; que no fuera así.
+- **Causa:** los enlaces eran simples direcciones al inicio con `?pestana=activas`: aun estando en el inicio, el navegador recargaba la página y la lista esperaba 1.3 s antes de bajar. Era una decisión de la IA de una entrega anterior que no se probó haciendo clic estando ya en el inicio.
+- **Qué se cambió:** estando en el inicio, el clic en «Donar» o «Campañas» (encabezado y pie, también en el menú móvil) avisa a `mesaCampanas` con un evento de la ventana; esa lista abre la pestaña y baja suavemente de inmediato. Si nadie atiende el aviso, o se está en otra página, el enlace navega como antes. Archivos: `mesaUtil`, `mesaEncabezado`, `mesaPie`, `mesaCampanas`.
+- **Qué se verificó y cómo:** como visitante en UADY: tras el clic la dirección no cambia, una marca puesta en la ventana antes del clic sigue ahí (no hubo recarga) y la lista queda justo bajo la barra (100 px).
+- **Qué no se verificó:** el menú móvil y el pie con clic real; desde otra página (campaña, facturas) sigue habiendo un cambio de página con la espera de 1.3 s al llegar, porque ahí navegar es inevitable. El panel del navegador estaba oculto, así que el tiempo de la animación (1.4 s) no es representativo.
+- **Lección para el proceso:** probar un enlace estando en la misma página de destino, no solo viniendo de otra.
+- **Aceleración estimada:** no aplica (arreglo de ~20 min).
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 35 (1–9, 23–26 y 32–53) | 14 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47, 48 y 51) |
+| José Carlos Leo Fernández | 36 (1–9, 23–26 y 32–54) | 14 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47, 48 y 51) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 

@@ -52,6 +52,33 @@ export default class MesaCampanas extends LightningElement {
         }
     }
 
+    // Aviso de la ventana (lo mandan «Donar» y «Campañas» del encabezado y del pie): ya estamos aquí, así que
+    // se abre la pestaña pedida y se baja a la lista de inmediato, sin recargar la página.
+    _alPedirLista = (evento) => {
+        const pedida = evento.detail && evento.detail.pestana;
+        if (pedida === 'activas' || pedida === 'pasadas') {
+            this.pestana = pedida;
+        }
+        if (evento.detail) {
+            evento.detail.manejado = true;
+        }
+        // eslint-disable-next-line @lwc/lwc/no-async-operation
+        requestAnimationFrame(() => {
+            const lista = this.template.querySelector('.tabs');
+            if (lista) {
+                lista.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    };
+
+    connectedCallback() {
+        window.addEventListener('mesa:ir-a-campanas', this._alPedirLista);
+    }
+
+    disconnectedCallback() {
+        window.removeEventListener('mesa:ir-a-campanas', this._alPedirLista);
+    }
+
     renderedCallback() {
         // Una sola vez: se espera un momento a que el sitio termine de pintarse (si se baja antes, la
         // página vuelve arriba) y se baja hasta la lista de campañas. El elemento se busca otra vez al

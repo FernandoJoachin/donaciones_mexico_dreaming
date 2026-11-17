@@ -18,7 +18,7 @@
                 <p class="pie-encabezado">Explora</p>
                 <ul class="pie-lista">
                     <template for:each={enlaces} for:item="e">
-                        <li key={e.id}><a class="pie-enlace" href={e.url}>{e.texto}</a></li>
+                        <li key={e.id}><a class="pie-enlace" href={e.url} data-lista={e.lista} onclick={alNavegar}>{e.texto}</a></li>
                     </template>
                 </ul>
             </nav>
@@ -54,7 +54,7 @@
                 <div class="pie-columna pie-cta">
                     <p class="pie-encabezado">Súmate</p>
                     <p class="pie-texto">{textoCta}</p>
-                    <a class="pie-boton" href={urlDonar}>{textoBotonCta}</a>
+                    <a class="pie-boton" href={urlDonar} data-lista="activas" onclick={alNavegar}>{textoBotonCta}</a>
                 </div>
             </template>
         </div>
