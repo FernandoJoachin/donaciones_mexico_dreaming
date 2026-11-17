@@ -41,7 +41,7 @@
 }
 .disposicion {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 340px;
+    grid-template-columns: 340px minmax(0, 1fr);
     gap: 2rem;
     align-items: start;
 }
@@ -49,10 +49,10 @@
     display: flex;
     flex-direction: column;
     gap: 1.4rem;
-    order: 1;
+    order: 2;
 }
 .resumen {
-    order: 2;
+    order: 1;
     position: sticky;
     top: 1rem;
     display: flex;
@@ -185,17 +185,17 @@
 }
 .monto {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.25rem;
-    min-height: 4.6rem;
-    padding: 0.7rem 0.8rem;
+    align-items: center;
+    justify-content: center;
+    min-height: 3.2rem;
+    padding: 0.6rem 0.5rem;
     font: inherit;
-    text-align: left;
-    color: var(--mesa-texto);
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--mesa-azul-oscuro);
     background: #ffffff;
     border: 2px solid #c9d6e4;
-    border-radius: 16px;
+    border-radius: 14px;
     cursor: pointer;
     transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
@@ -210,16 +210,6 @@
     border-color: var(--mesa-azul);
     background: var(--mesa-cielo);
     box-shadow: 0 0 0 3px rgba(1, 118, 211, 0.18);
-}
-.monto-cifra {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: var(--mesa-azul-oscuro);
-}
-.monto-detalle {
-    font-size: 0.78rem;
-    line-height: 1.35;
-    color: #444444;
 }
 
 /* Opciones de aparición */
@@ -331,9 +321,70 @@
     }
 }
 
-/* Si el formulario queda angosto, las tarjetas de monto se acomodan de dos en dos. */
-@media (max-width: 1100px) {
-    .montos {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+/* En pantallas angostas las tarjetas siguen en una fila, con letra un poco más chica. */
+@media (max-width: 420px) {
+    .monto {
+        font-size: 0.98rem;
+        padding: 0.6rem 0.25rem;
     }
+    .montos {
+        gap: 0.4rem;
+    }
+}
+
+/* Campo de monto siempre visible (SCRUM-145) */
+.campo-monto {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+.campo-monto-titulo {
+    font-size: 0.9rem;
+    color: #444444;
+}
+.campo-monto-caja {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0 1rem;
+    background: #ffffff;
+    border: 2px solid #c9d6e4;
+    border-radius: 14px;
+}
+.campo-monto-caja:focus-within {
+    border-color: var(--mesa-azul);
+    box-shadow: 0 0 0 3px rgba(1, 118, 211, 0.18);
+}
+.campo-monto-signo,
+.campo-monto-moneda {
+    font-weight: 700;
+    color: #444444;
+}
+.campo-monto-signo {
+    font-size: 1.3rem;
+}
+.campo-monto-caja input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.8rem 0;
+    font: inherit;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--mesa-azul-oscuro);
+    background: transparent;
+    border: 0;
+    outline: 0;
+}
+.mensaje-monto {
+    margin: 0;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.92rem;
+    line-height: 1.4;
+    color: var(--mesa-azul-oscuro);
+    background: var(--mesa-cielo);
+    border-radius: 12px;
+}
+.mensaje-error {
+    color: #8e030f;
+    background: #fef1ee;
 }

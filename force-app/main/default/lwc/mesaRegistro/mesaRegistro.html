@@ -56,12 +56,6 @@
                                 <p class="resumen-donantes">{textoDonantes}</p>
                             </template>
                         </template>
-                        <template lwc:if={impactoElegido}>
-                            <div class="resumen-impacto">
-                                <span class="resumen-impacto-monto">Con {impactoElegido.monto}</span>
-                                <span>{impactoElegido.descripcion}</span>
-                            </div>
-                        </template>
                         <ul class="confianza">
                             <li><span class="confianza-icono" aria-hidden="true">✓</span> Pago seguro con Stripe: nunca vemos tu tarjeta.</li>
                             <li><span class="confianza-icono" aria-hidden="true">✓</span> Recibes tu comprobante por correo.</li>
@@ -75,27 +69,20 @@
 
                         <section class="paso" aria-labelledby="paso1">
                             <h3 id="paso1" class="paso-titulo"><span class="paso-numero" aria-hidden="true">1</span> Tu aportación</h3>
-                            <div class="montos" role="group" aria-label="Aportación" style={estiloMontos}>
+                            <div class="montos" role="group" aria-label="Montos sugeridos" style={estiloMontos}>
                                 <template for:each={tarjetasMonto} for:item="t">
-                                    <button key={t.valor} type="button" class={t.clase} data-valor={t.valor} aria-pressed={t.pulsada} onclick={elegirMonto}>
-                                        <span class="monto-cifra">{t.etiqueta}</span>
-                                        <template lwc:if={t.detalle}>
-                                            <span class="monto-detalle">{t.detalle}</span>
-                                        </template>
-                                    </button>
+                                    <button key={t.valor} type="button" class={t.clase} data-valor={t.valor} aria-pressed={t.pulsada} onclick={elegirMonto}>{t.etiqueta}</button>
                                 </template>
                             </div>
-                            <template lwc:if={otroSeleccionado}>
-                                <lightning-input
-                                    type="text"
-                                    label="Monto a donar (MXN)"
-                                    placeholder="Ej. 2,500"
-                                    field-level-help={ayudaMonto}
-                                    data-campo="montoTexto"
-                                    value={montoTexto}
-                                    onchange={cambio}
-                                ></lightning-input>
-                            </template>
+                            <label class="campo-monto">
+                                <span class="campo-monto-titulo">O escribe el monto que prefieras</span>
+                                <span class="campo-monto-caja">
+                                    <span class="campo-monto-signo" aria-hidden="true">$</span>
+                                    <input type="text" inputmode="decimal" autocomplete="off" placeholder="0" value={montoTexto} oninput={cambioMonto} aria-describedby="mensaje-monto" />
+                                    <span class="campo-monto-moneda" aria-hidden="true">MXN</span>
+                                </span>
+                            </label>
+                            <p id="mensaje-monto" class={claseMensajeMonto} aria-live="polite">{mensajeMonto}</p>
                         </section>
 
                         <section class="paso" aria-labelledby="paso2">

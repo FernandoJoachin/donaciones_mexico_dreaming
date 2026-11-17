@@ -7,7 +7,8 @@ import { parseMonto, formatearMonto, mensajeError, resolverUrl, irA, guardarReto
 
 // Deben coincidir con MesaRegalosController (el servidor es quien manda).
 const MONTO_MINIMO = 100;
-const PAQUETES = { P1000: 1000, P3000: 3000, P5000: 5000 };
+/** Montos de uso común, para campañas sin niveles de impacto. */
+const MONTOS_COMUNES = [500, 1000, 3000, 5000];
 const LINKEDIN = /^https:\/\/([a-z]{2,3}\.)?linkedin\.com\/(in|company)\/\S+$/i;
 const CORREO = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 const ID_DONATIVO = /^[A-Za-z0-9]{15}([A-Za-z0-9]{3})?$/;
@@ -99,7 +100,7 @@ export default class MesaRegistro extends LightningElement {
     /**
      * US-22 (CA2): al elegir un nivel de impacto en la página de la campaña se llega con
      * ?monto=<n>. Se aplica una sola vez, para no pisar lo que la persona cambie después.
-     * Si coincide con un paquete se elige ese paquete; si no, se usa "Otro monto".
+     * El monto se escribe en el campo de monto; si coincide con una tarjeta, esa tarjeta se marca.
      */
     montoAplicado = false;
 
@@ -112,13 +113,7 @@ export default class MesaRegistro extends LightningElement {
             return;
         }
         this.montoAplicado = true;
-        const paquete = Object.keys(PAQUETES).find((k) => PAQUETES[k] === monto);
-        if (paquete) {
-            this.paquete = paquete;
-        } else {
-            this.paquete = 'Abierto';
-            this.montoTexto = String(monto);
-        }
+        this.montoTexto = String(monto);
     }
 
     /** La campaña de la dirección manda; si no viene, la que se configuró en Experience Builder. */
@@ -126,7 +121,8 @@ export default class MesaRegistro extends LightningElement {
         return this.campanaUrl || this.campaignId;
     }
 
-    paquete = '';
+    /** Siempre se envía como monto libre; el servidor valida mínimo y máximo. */
+    paquete = 'Abierto';
     montoTexto = '';
     visibilidad = '';
     esEmpresa = false;
@@ -154,75 +150,68 @@ export default class MesaRegistro extends LightningElement {
         return this.mostrarFormulario ? 'contenedor ancho' : 'contenedor';
     }
 
-    otroElegido = false;
-
     /**
-     * Montos que se ofrecen: los niveles de impacto de la campaña (cada uno dice lo que logra) y, si no
-     * tiene, los paquetes fijos. Cualquier monto que no sea un paquete viaja como "Otro monto" y el
-     * servidor lo valida igual (mínimo y máximo).
+     * Tarjetas rápidas: los niveles de impacto de la campaña y, si no tiene, montos de uso común.
+     * Elegir una llena el campo de monto, que se puede ajustar.
      */
     get montosBase() {
         const impactos = ((this.campanaInfo && this.campanaInfo.impactos) || [])
             .map((i) => ({ monto: Number(i.monto), detalle: i.descripcion }))
             .filter((i) => i.monto >= MONTO_MINIMO)
             .slice(0, 4);
-        return impactos.length ? impactos : Object.keys(PAQUETES).map((k) => ({ monto: PAQUETES[k], detalle: '' }));
-    }
-
-    get montoCoincide() {
-        return this.montosBase.some((t) => t.monto === this.montoFinal);
-    }
-
-    /** "Otro monto" está activo si se pulsó, o si el monto que llegó no coincide con ninguna tarjeta. */
-    get otroSeleccionado() {
-        return this.esAbierto && (this.otroElegido || !this.montoCoincide);
+        return impactos.length ? impactos : MONTOS_COMUNES.map((m) => ({ monto: m, detalle: '' }));
     }
 
     get tarjetasMonto() {
-        const tarjetas = this.montosBase.map((t) => {
-            const seleccionada = !this.otroSeleccionado && this.montoFinal === t.monto;
+        return this.montosBase.map((t) => {
+            const seleccionada = this.montoFinal === t.monto;
             return {
                 valor: String(t.monto),
-                etiqueta: `${formatearMonto(t.monto).replace('.00', '')} MXN`,
-                detalle: t.detalle,
+                etiqueta: `${formatearMonto(t.monto).replace('.00', '')}`,
                 pulsada: String(seleccionada),
                 clase: seleccionada ? 'monto seleccionado' : 'monto'
             };
         });
-        const otro = this.otroSeleccionado;
-        tarjetas.push({
-            valor: 'otro',
-            etiqueta: 'Otro monto',
-            detalle: `Tú decides (mínimo ${formatearMonto(MONTO_MINIMO).replace('.00', '')})`,
-            pulsada: String(otro),
-            clase: otro ? 'monto seleccionado' : 'monto'
-        });
-        return tarjetas;
     }
 
-    /** Columnas de las tarjetas: todas en una fila hasta 4; con 5 se reparten 3 y 2. */
+    /** Columnas de las tarjetas: todas en una fila hasta 4. */
     get estiloMontos() {
-        const n = this.tarjetasMonto.length;
-        return `--columnas: ${n <= 4 ? n : 3}`;
+        return `--columnas: ${Math.min(this.montosBase.length, 4)}`;
     }
 
     elegirMonto(evento) {
-        const valor = evento.currentTarget.dataset.valor;
-        if (valor === 'otro') {
-            this.otroElegido = true;
-            this.paquete = 'Abierto';
-            this.montoTexto = '';
-            return;
+        this.montoTexto = evento.currentTarget.dataset.valor;
+    }
+
+    cambioMonto(evento) {
+        this.montoTexto = evento.target.value;
+    }
+
+    /**
+     * Mensaje bajo el monto: qué alcanza a cubrir (con los niveles de la campaña) o por qué no se puede continuar.
+     * Solo afirma lo que es cierto: el nivel más alto cuyo monto ya se cubre.
+     */
+    get mensajeMonto() {
+        const texto = (this.montoTexto || '').trim();
+        const monto = this.montoFinal;
+        if (!texto) {
+            return `Elige un monto o escribe el tuyo (mínimo ${formatearMonto(MONTO_MINIMO).replace('.00', '')}).`;
         }
-        this.otroElegido = false;
-        const monto = Number(valor);
-        const paquete = Object.keys(PAQUETES).find((k) => PAQUETES[k] === monto);
-        if (paquete) {
-            this.paquete = paquete;
-        } else {
-            this.paquete = 'Abierto';
-            this.montoTexto = String(monto);
+        if (monto === null || monto < MONTO_MINIMO) {
+            return `El monto mínimo es ${formatearMonto(MONTO_MINIMO).replace('.00', '')} MXN.`;
         }
+        const impactos = (this.campanaInfo && this.campanaInfo.impactos) || [];
+        const cubiertos = impactos.filter((i) => Number(i.monto) <= monto).sort((x, y) => Number(y.monto) - Number(x.monto));
+        if (cubiertos.length) {
+            return `Con ${formatearMonto(monto).replace('.00', '')} alcanza para: ${cubiertos[0].descripcion}.`;
+        }
+        return 'Tu aportación se suma a la meta de la campaña.';
+    }
+
+    get claseMensajeMonto() {
+        const monto = this.montoFinal;
+        const texto = (this.montoTexto || '').trim();
+        return texto && (monto === null || monto < MONTO_MINIMO) ? 'mensaje-monto mensaje-error' : 'mensaje-monto';
     }
 
     cambioVisibilidad(evento) {
@@ -278,14 +267,6 @@ export default class MesaRegistro extends LightningElement {
         return n === 1 ? '1 persona ya donó' : `${n} personas ya donaron`;
     }
 
-    /** Lo que logra el monto elegido, solo si coincide exactamente con un nivel de impacto de la campaña. */
-    get impactoElegido() {
-        const monto = this.montoFinal;
-        const impactos = (this.campanaInfo && this.campanaInfo.impactos) || [];
-        const nivel = monto ? impactos.find((i) => Number(i.monto) === Number(monto)) : null;
-        return nivel ? { monto: formatearMonto(monto), descripcion: nivel.descripcion } : null;
-    }
-
     get mostrarFormulario() {
         return !this.registrado && !this.pagoCancelado;
     }
@@ -302,20 +283,13 @@ export default class MesaRegistro extends LightningElement {
         return this.visibilidad === 'Anonima';
     }
 
-    get esAbierto() {
-        return this.paquete === 'Abierto';
-    }
-
     get montoFinal() {
-        if (PAQUETES[this.paquete]) {
-            return PAQUETES[this.paquete];
-        }
-        return this.esAbierto ? parseMonto(this.montoTexto) : null;
+        return parseMonto(this.montoTexto);
     }
 
     get montoValido() {
         const monto = this.montoFinal;
-        return monto !== null && monto > 0 && (!this.esAbierto || monto >= MONTO_MINIMO);
+        return monto !== null && monto >= MONTO_MINIMO;
     }
 
     get etiquetaBoton() {
@@ -347,9 +321,7 @@ export default class MesaRegistro extends LightningElement {
     /** Revisión rápida para no hacer viajes al servidor. El servidor vuelve a validar todo. */
     validar() {
         if (!this.montoValido) {
-            return this.esAbierto
-                ? `Escribe un monto de ${formatearMonto(MONTO_MINIMO)} o más.`
-                : 'Elige un paquete o la opción de otro monto.';
+            return `Escribe un monto de ${formatearMonto(MONTO_MINIMO)} o más.`;
         }
         if (!this.visibilidad) {
             return 'Elige si tu donativo será público o anónimo.';
@@ -419,7 +391,7 @@ export default class MesaRegistro extends LightningElement {
                 campaignId: this.idCampana || null,
                 datosJson: JSON.stringify({
                     paquete: this.paquete,
-                    monto: this.esAbierto ? this.montoFinal : null,
+                    monto: this.montoFinal,
                     visibilidad: this.visibilidad,
                     nombre: this.esPublico && !comoEmpresa ? this.nombre : null,
                     apellidos: this.esPublico && !comoEmpresa ? this.apellidos : null,

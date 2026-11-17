@@ -479,11 +479,23 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué se verificó y cómo:** desplegado y publicado en UADY; como visitante se revisó cada paso con "Con mi nombre" elegido (campos de nombre lado a lado, correo y casillas) y las tarjetas de monto. El servidor no cambió. No se probó un pago completo.
 - **Aceleración estimada:** ~1 h.
 
+### 40. Formulario a la derecha y montos más flexibles (SCRUM-145)
+- **Fecha:** 2026-11-16
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** observación de uso sobre el flujo de donación — SCRUM-145
+- **Qué se pidió:** analizar si el formulario debía ir a la derecha (el botón "Donar" de la página de la campaña está ahí y el cursor tenía que cruzar la pantalla), aplicar buenas prácticas de UI y UX y dar más flexibilidad a los montos, con "otro monto" más amigable.
+- **Qué se obtuvo:** en escritorio el formulario pasa a la columna derecha, donde queda el cursor al pulsar "Donar", y el resumen de la causa a la izquierda; en móvil el resumen se compacta arriba. Los montos son tarjetas rápidas y compactas (los niveles de impacto de la campaña) más un campo "$ ___ MXN" siempre visible: elegir una tarjeta lo llena y se puede ajustar, y al escribir una cantidad que coincide con una tarjeta, esa se marca. Debajo hay un mensaje que dice qué alcanza a cubrir ese monto ("Con $1,200 alcanza para: …") o el mínimo, en rojo si no se llega.
+- **Criterios de UX usados (principios generales, no datos medidos):** el control de acción queda donde está el cursor (ley de Fitts) y en la misma zona que el botón que llevó ahí (consistencia); los montos rápidos reducen escritura y el monto libre da control sin un clic extra; mostrar de inmediato lo que logra el monto refuerza el motivo de donar; el error aparece junto al campo, no al final.
+- **Decisión que la IA tomaría en silencio y que se dejó explícita:** todo monto viaja ahora como monto libre (`paquete = 'Abierto'`), ya no como paquetes fijos `P1000/P3000/P5000`. El servidor ya validaba el monto libre (mínimo y máximo) y no cambió; las campañas sin niveles de impacto muestran montos comunes ($500, $1,000, $3,000 y $5,000).
+- **Qué se verificó y cómo:** desplegado y publicado en UADY; como visitante en escritorio: la tarjeta de $500 llena el campo y se marca, escribir $1,200 quita la marca y actualiza el mensaje, y $50 muestra el mínimo en rojo; en móvil las tarjetas quedan en una fila. Un primer intento de revisar con tamaño de ventana emulado desacomodó los clics y se repitió con el tamaño normal. No se probó un pago completo.
+- **Aceleración estimada:** ~1.5 h.
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 21 (1–9, 23–26 y 32–39) | 10 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37 y 38) |
+| José Carlos Leo Fernández | 22 (1–9, 23–26 y 32–40) | 10 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37 y 38) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 
