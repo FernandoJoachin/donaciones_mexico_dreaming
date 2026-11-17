@@ -533,11 +533,22 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué se verificó y cómo:** la página de facturas publicada muestra la dirección nueva. El correo del comprobante la toma de la etiqueta en el siguiente envío (no se reenvió uno).
 - **Aceleración estimada:** ~15 min.
 
+### 45. Pruebas de Apex que fallaban en la sandbox UADY por NPSP (SCRUM-150)
+- **Fecha:** 2026-11-17
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** reporte de Daniel en el chat ("hubo unas pruebas que parecen aplicar solo en la primera ejecución… tienen un tema de NPSP; a mí no me corrían ni antes de lo agregado") — SCRUM-150
+- **Qué se pidió:** correr las pruebas para ver si fallan y por qué.
+- **Qué se obtuvo:** en la sandbox UADY (que tiene NPSP) se corrieron las pruebas dos veces: 4 de las 74 fallan y **fallan igual las dos veces**, no solo la primera, todas en `MesaRegalosDonativoTest`. En la org de desarrollo (sin NPSP) pasaban. Había dos causas, ambas de NPSP y no del código de la app: (1) dos pruebas afirmaban que no se crean cuentas, pero NPSP crea solo la cuenta de hogar de cada contacto; (2) dos pruebas crean varios donantes en una transacción y los procesos de NPSP agotan el límite de 100 consultas. Se descartó que fuera culpa de los cambios de Daniel: su versión del archivo solo agrega el tipo de registro.
+- **Qué se cambió:** la comprobación pasó a «no hay cuentas que no sean de un contacto», que se cumple con y sin NPSP; y en las dos pruebas pesadas las donaciones del escenario comparten persona (menos contactos nuevos) y la verificación corre dentro de `Test.startTest/stopTest`. La intención de cada prueba se conserva.
+- **Qué se verificó y cómo:** la clase pasa 23 de 23 en la org de desarrollo y, en una validación sin guardar contra la sandbox UADY con la versión de Daniel más estos cambios, 23 de 23. No se desplegó nada a UADY para no pisar su trabajo. Un primer intento con solo `Test.startTest` no bastó (seguía pasándose del límite en la preparación); compartir contactos sí.
+- **Aceleración estimada:** ~1 h.
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 26 (1–9, 23–26 y 32–44) | 10 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37 y 38) |
+| José Carlos Leo Fernández | 27 (1–9, 23–26 y 32–45) | 10 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37 y 38) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 

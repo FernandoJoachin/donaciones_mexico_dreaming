@@ -77,7 +77,7 @@ private class MesaRegalosDonativoTest {
         Assert.areEqual('Luz Prueba', o.Nombre_Visible__c);
         Assert.areEqual(false, o.Donacion_Empresa__c);
         Assert.areEqual('Redirigido a donar', [SELECT Status FROM CampaignMember WHERE ContactId = :c.Id].Status);
-        Assert.areEqual(0, [SELECT COUNT() FROM Account]);
+        sinCuentasPropias();
     }
 
     @IsTest
@@ -106,6 +106,14 @@ private class MesaRegalosDonativoTest {
         Assert.areEqual('No', [SELECT Consentimiento_Avisos__c FROM Contact].Consentimiento_Avisos__c);
     }
 
+    /**
+     * La app no crea cuentas por su cuenta (una empresa donante es un Contact). En una org con NPSP, cada
+     * Contact recibe solo su cuenta de hogar, así que se comprueba que no haya cuentas que no sean de un contacto.
+     */
+    private static void sinCuentasPropias() {
+        Assert.areEqual(0, [SELECT COUNT() FROM Account WHERE Id NOT IN (SELECT AccountId FROM Contact WHERE AccountId != null)]);
+    }
+
     @IsTest
     static void donarEnNombreDeEmpresaGuardaElNombreEnNombreYApellido() {
         Map<String, Object> d = base();
@@ -121,7 +129,7 @@ private class MesaRegalosDonativoTest {
         Opportunity o = [SELECT Donacion_Empresa__c, Nombre_Visible__c FROM Opportunity WHERE Id = :r.donativoId];
         Assert.isTrue(o.Donacion_Empresa__c);
         Assert.areEqual('Acme SA', o.Nombre_Visible__c);
-        Assert.areEqual(0, [SELECT COUNT() FROM Account]);
+        sinCuentasPropias();
     }
 
     @IsTest
@@ -305,9 +313,12 @@ private class MesaRegalosDonativoTest {
 
         Map<String, Object> pendiente = base();
         pendiente.put('paquete', 'P5000');
-        pendiente.put('correo', 'pendiente@example.com');
+        // Misma persona que 'mayor': con NPSP cada contacto nuevo cuesta muchas consultas y la prueba se pasaba del límite.
+        pendiente.put('correo', 'mayor@example.com');
         enviar(pendiente);
 
+        // Con NPSP cada contacto dispara sus propios procesos: la parte de verificación corre con límites propios.
+        Test.startTest();
         MesaRegalosService.confirmarPago(new List<Id>{ primeraId, anonimaId, mayorId });
 
         // La misma persona donó en público ($1,000) y en anónimo ($3,000): su renglón muestra
@@ -328,6 +339,7 @@ private class MesaRegalosDonativoTest {
         Assert.areEqual(1, renglonesPorMonto.get(5000));
         Assert.isTrue(muro.totalAnonimo == 3000);
         Assert.areEqual(1, [SELECT COUNT() FROM Opportunity WHERE StageName != 'Closed Won']);
+        Test.stopTest();
     }
 
     // ---------- Total de donaciones anónimas ----------
@@ -344,8 +356,9 @@ private class MesaRegalosDonativoTest {
     @IsTest
     static void totalAnonimoSumaVariasAnonimasPagadasSinRenglones() {
         Id a1 = enviarAnonima(campana(), 'P1000', 'a1@example.com');
-        Id a2 = enviarAnonima(campana(), 'P5000', 'a2@example.com');
+        Id a2 = enviarAnonima(campana(), 'P5000', 'a1@example.com'); // misma persona: menos contactos nuevos (NPSP)
         Id pub = enviar(base()).donativoId;
+        Test.startTest();
         MesaRegalosService.confirmarPago(new List<Id>{ a1, a2, pub });
 
         MesaRegalosController.MuroDTO muro = MesaRegalosController.obtenerMuro(campana());
@@ -353,6 +366,7 @@ private class MesaRegalosDonativoTest {
         Assert.areEqual(1, muro.donantes.size());                  // CA2: solo la pública
         Assert.areEqual('Luz Prueba', muro.donantes[0].nombre);
         Assert.isTrue(muro.donantes[0].monto == 3000);             // la pública no cambia
+        Test.stopTest();
     }
 
     @IsTest
