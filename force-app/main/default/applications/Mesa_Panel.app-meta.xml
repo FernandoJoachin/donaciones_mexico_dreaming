@@ -6,9 +6,6 @@
     <navType>Standard</navType>
     <uiType>Lightning</uiType>
     <tabs>Panel_Admin</tabs>
-    <tabs>standard-Campaign</tabs>
-    <tabs>Reconocimiento_Publico__c</tabs>
-    <tabs>standard-Opportunity</tabs>
     <tabs>standard-report</tabs>
     <tabs>standard-Dashboard</tabs>
 </CustomApplication>
