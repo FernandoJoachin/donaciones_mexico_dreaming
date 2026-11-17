@@ -432,11 +432,21 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Lo que ya estaba resuelto:** el listado ya tenía las pestañas "Activas" y "Pasadas", y cada campaña ya tiene descripción propia en la org; por eso SCRUM-139 solo cambió el mensaje de pago fallido.
 - **Aceleración estimada:** ~1 h.
 
+### 36. Diagrama de objetos y guía de registros para la demo (SCRUM-142)
+- **Fecha:** 2026-11-16
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** documentación de la Entrega 2 — SCRUM-142
+- **Qué se pidió:** el panel pidió a casi todos los equipos un diagrama de qué objetos se usan y cómo se relacionan, y mostrar los registros reales de la org.
+- **Qué se obtuvo:** `docs/modelo_datos.md`, con un diagrama Mermaid, una tabla de qué es cada objeto (estándar o propio), las decisiones del modelo (Opportunity como donativo, Lookup contra Master-Detail, el muro leyendo de `Reconocimiento_Publico__c`) y cuatro consultas SOQL con un orden sugerido para la demo de 5 minutos.
+- **Qué se verificó y cómo:** los objetos, campos y tipos de relación (Lookup o Master-Detail) se leyeron de los metadatos del repo, no de memoria. Las consultas no se ejecutaron todavía con datos de una demo real; falta ensayarlas después del pago de prueba.
+- **Aceleración estimada:** ~45 min.
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 17 (1–9, 23–26 y 32–35) | 8 (entradas 1, 4, 5, 8, 9, 23, 24 y 34) |
+| José Carlos Leo Fernández | 18 (1–9, 23–26 y 32–36) | 8 (entradas 1, 4, 5, 8, 9, 23, 24 y 34) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 
