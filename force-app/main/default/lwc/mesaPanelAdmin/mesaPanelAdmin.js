@@ -1,6 +1,8 @@
-import { LightningElement } from 'lwc';
+import { LightningElement, wire } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { updateRecord } from 'lightning/uiRecordApi';
+import { getObjectInfo } from 'lightning/uiObjectInfoApi';
+import CAMPAIGN_OBJETO from '@salesforce/schema/Campaign';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import obtenerResumen from '@salesforce/apex/MesaPanelController.obtenerResumen';
 import listarCampanas from '@salesforce/apex/MesaPanelController.listarCampanas';
@@ -364,10 +366,21 @@ export default class MesaPanelAdmin extends NavigationMixin(LightningElement) {
         return this.campanasLista && this.campanas.length === 0;
     }
 
+    /** Tipos de registro de Campaign disponibles para la persona (para elegir «Campaña de donación»). */
+    @wire(getObjectInfo, { objectApiName: CAMPAIGN_OBJETO })
+    infoCampana;
+
+    /**
+     * Abre el formulario de nueva campaña ya con el tipo «Campaña de donación», que es el que lleva los campos
+     * del sitio (resumen, organiza, imagen…). Si ese tipo no existe en la org, abre el formulario normal.
+     */
     nuevaCampana() {
+        const tipos = (this.infoCampana && this.infoCampana.data && this.infoCampana.data.recordTypeInfos) || {};
+        const donacion = Object.values(tipos).find((t) => t.available && !t.master && /donaci/i.test(t.name));
         this[NavigationMixin.Navigate]({
             type: 'standard__objectPage',
-            attributes: { objectApiName: 'Campaign', actionName: 'new' }
+            attributes: { objectApiName: 'Campaign', actionName: 'new' },
+            state: donacion ? { recordTypeId: donacion.recordTypeId } : {}
         });
     }
 
