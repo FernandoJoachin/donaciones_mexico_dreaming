@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Ultimos_7_dias</fullName>
+    <label>Últimos 7 días</label>
+    <filterScope>Everything</filterScope>
+    <columns>NAME</columns>
+    <columns>Es_Empresa__c</columns>
+    <columns>Campana__c</columns>
+    <columns>Monto__c</columns>
+    <columns>Mostrar_En_Muro__c</columns>
+    <columns>CREATED_DATE</columns>
+    <filters>
+        <field>CREATED_DATE</field>
+        <operation>equals</operation>
+        <value>LAST_N_DAYS:7</value>
+    </filters>
+</ListView>

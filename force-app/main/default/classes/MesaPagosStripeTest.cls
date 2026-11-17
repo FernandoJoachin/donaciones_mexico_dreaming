@@ -6,7 +6,7 @@ private class MesaPagosStripeTest {
 
     @TestSetup
     static void datos() {
-        Campaign c = new Campaign(Name = 'Campaña Stripe TEST', IsActive = true, ExpectedRevenue = 10000);
+        Campaign c = new Campaign(RecordTypeId = MesaTestDatos.tipoCampana(), Name = 'Campaña Stripe TEST', IsActive = true, ExpectedRevenue = 10000);
         insert c;
         List<CampaignMemberStatus> estados = new List<CampaignMemberStatus>();
         Integer orden = 10;

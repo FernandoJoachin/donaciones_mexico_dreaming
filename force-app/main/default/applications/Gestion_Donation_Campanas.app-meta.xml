@@ -5,10 +5,9 @@
     <formFactors>Large</formFactors>
     <navType>Standard</navType>
     <uiType>Lightning</uiType>
-    <tabs>standard-home</tabs>
     <tabs>standard-Campaign</tabs>
-    <tabs>standard-Opportunity</tabs>
     <tabs>Reconocimiento_Publico__c</tabs>
+    <tabs>standard-Opportunity</tabs>
     <tabs>standard-report</tabs>
     <tabs>standard-Dashboard</tabs>
 </CustomApplication>

@@ -4,7 +4,7 @@ private class MesaCampanasTest {
 
     @TestSetup
     static void datos() {
-        insert new Campaign(Name = 'México Dreaming TEST', IsActive = true, ExpectedRevenue = 10000);
+        insert new Campaign(RecordTypeId = MesaTestDatos.tipoCampana(), Name = 'México Dreaming TEST', IsActive = true, ExpectedRevenue = 10000);
         insert new Contact(FirstName = 'Ana', LastName = 'Prueba', Email = 'ana.prueba@example.com');
     }
 
@@ -52,7 +52,7 @@ private class MesaCampanasTest {
 
     @IsTest
     static void campanaTerminadaSeMarcaComoCerrada() {
-        insert new Campaign(
+        insert new Campaign(RecordTypeId = MesaTestDatos.tipoCampana(),
             Name = 'Campaña 2025', IsActive = true, ExpectedRevenue = 40000,
             StartDate = Date.today().addDays(-60), EndDate = Date.today().addDays(-1)
         );
@@ -65,8 +65,8 @@ private class MesaCampanasTest {
 
     @IsTest
     static void campanaPausadaOFuturaNoAparece() {
-        insert new Campaign(Name = 'Pausada', IsActive = false);
-        insert new Campaign(
+        insert new Campaign(RecordTypeId = MesaTestDatos.tipoCampana(), Name = 'Pausada', IsActive = false);
+        insert new Campaign(RecordTypeId = MesaTestDatos.tipoCampana(),
             Name = 'Futura', IsActive = true,
             StartDate = Date.today().addDays(5), EndDate = Date.today().addDays(30)
         );
@@ -76,8 +76,26 @@ private class MesaCampanasTest {
     }
 
     @IsTest
+    static void campanaDeOtroTipoNoApareceEnElSitio() {
+        // Las campañas de otras aplicaciones de la org no se publican. Si la org solo tiene el tipo
+        // Donacion no hay otro tipo con que probar y la prueba no aplica.
+        List<RecordType> otros = [
+            SELECT Id FROM RecordType
+            WHERE SobjectType = 'Campaign' AND IsActive = true
+            AND DeveloperName != :MesaRegalosController.TIPO_CAMPANA
+            LIMIT 1
+        ];
+        if (otros.isEmpty()) {
+            return;
+        }
+        insert new Campaign(Name = 'Otra aplicación TEST', IsActive = true, RecordTypeId = otros[0].Id);
+
+        Assert.isNull(campanaPorNombre('Otra aplicación TEST'));
+    }
+
+    @IsTest
     static void campanaSinMetaApareceConMetaCeroYSinError() {
-        insert new Campaign(Name = 'Donación general TEST', IsActive = true);
+        insert new Campaign(RecordTypeId = MesaTestDatos.tipoCampana(), Name = 'Donación general TEST', IsActive = true);
 
         MesaRegalosController.CampanaDTO d = campanaPorNombre('Donación general TEST');
         Assert.isNotNull(d);
@@ -142,7 +160,7 @@ private class MesaCampanasTest {
 
     @IsTest
     static void campanaIndividualCerradaSeDevuelveComoInactiva() {
-        Campaign c = new Campaign(
+        Campaign c = new Campaign(RecordTypeId = MesaTestDatos.tipoCampana(),
             Name = 'Campaña 2025', IsActive = true, ExpectedRevenue = 40000,
             StartDate = Date.today().addDays(-60), EndDate = Date.today().addDays(-1)
         );
@@ -155,8 +173,8 @@ private class MesaCampanasTest {
 
     @IsTest
     static void campanaIndividualNoPublicadaOInvalidaDevuelveNulo() {
-        Campaign pausada = new Campaign(Name = 'Pausada', IsActive = false);
-        Campaign futura = new Campaign(
+        Campaign pausada = new Campaign(RecordTypeId = MesaTestDatos.tipoCampana(), Name = 'Pausada', IsActive = false);
+        Campaign futura = new Campaign(RecordTypeId = MesaTestDatos.tipoCampana(),
             Name = 'Futura', IsActive = true,
             StartDate = Date.today().addDays(5), EndDate = Date.today().addDays(30)
         );

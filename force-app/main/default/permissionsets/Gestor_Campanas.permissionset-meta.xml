@@ -11,6 +11,10 @@
         <application>Gestion_Donation_Campanas</application>
         <visible>true</visible>
     </applicationVisibilities>
+    <recordTypeVisibilities>
+        <recordType>Campaign.Donacion</recordType>
+        <visible>true</visible>
+    </recordTypeVisibilities>
     <objectPermissions>
         <allowCreate>true</allowCreate>
         <allowDelete>true</allowDelete>
@@ -47,6 +51,31 @@
         <object>Nivel_Impacto__c</object>
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Campaign.IsActive</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Campaign.StartDate</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Campaign.EndDate</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Campaign.ExpectedRevenue</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Campaign.Description</field>
+        <readable>true</readable>
+    </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
         <field>Campaign.Imagen_Url__c</field>
@@ -129,14 +158,6 @@
     </fieldPermissions>
     <tabSettings>
         <tab>standard-Campaign</tab>
-        <visibility>Visible</visibility>
-    </tabSettings>
-    <tabSettings>
-        <tab>standard-Opportunity</tab>
-        <visibility>Visible</visibility>
-    </tabSettings>
-    <tabSettings>
-        <tab>Reconocimiento_Publico__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
 </PermissionSet>
