@@ -33,6 +33,27 @@ export default class MesaPie extends LightningElement {
 
     @api textoLegal = 'Facultad de Matemáticas, UADY.';
 
+    ayudaAbierta = false;
+
+    abrirAyuda() {
+        this.ayudaAbierta = true;
+    }
+
+    cerrarAyuda() {
+        this.ayudaAbierta = false;
+    }
+
+    /** Un clic dentro de la caja no debe cerrar el fondo. */
+    detener(evento) {
+        evento.stopPropagation();
+    }
+
+    teclaAyuda(evento) {
+        if (evento.key === 'Escape') {
+            this.cerrarAyuda();
+        }
+    }
+
     get anio() {
         return new Date().getFullYear();
     }

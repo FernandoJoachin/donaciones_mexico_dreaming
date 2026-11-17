@@ -444,11 +444,23 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué se verificó y cómo:** los objetos, campos y tipos de relación (Lookup o Master-Detail) se leyeron de los metadatos del repo, no de memoria. Las consultas no se ejecutaron todavía con datos de una demo real; falta ensayarlas después del pago de prueba.
 - **Aceleración estimada:** ~45 min.
 
+### 37. ⚠ Error de la IA — el Case con origen "Web" disparaba un proceso ajeno que lo rechazaba (SCRUM-141)
+- **Fecha:** 2026-11-16
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** feedback del panel (Andrea: "¿cómo se contactan con ustedes si algo pasó con su pago?") — SCRUM-141
+- **Qué se pidió:** un formulario "¿Necesitas ayuda?" que cree un Case, sin dar permisos nuevos al usuario guest.
+- **Qué se obtuvo:** el método `enviarAyuda` en `MesaRegalosController` (una clase a la que el guest ya tiene acceso y que corre en modo sistema, así que el guest no necesita permisos sobre Case), el componente `mesaAyuda` y un botón "¿Necesitas ayuda?" en el pie del sitio, que abre una ventana. Lleva campo trampa, validaciones, tope de 20 mensajes por hora y solo devuelve el número del Case.
+- **Qué falló:** la IA marcó el Case con `Origin = 'Web'`, el valor estándar y obvio. Como visitante el formulario respondió "Ocurrió un error". Al reproducirlo como administrador apareció la causa: la sandbox trae un proceso antiguo (2020, `NuevoCasoDesdeFormularioCommunity`, de otra persona) que se dispara con todo Case de origen Web y manda una alerta de correo que falla (`CANNOT_EXECUTE_FLOW_TRIGGER`). Ese proceso no es del equipo y no se modificó (regla: solo sumar).
+- **Qué se cambió:** el Case ya no lleva origen; se reconoce por el asunto "Ayuda desde el sitio" (también para el tope por hora). Hay una prueba que lo exige y un comentario en el código con el motivo.
+- **Qué se verificó y cómo:** 59 pruebas de Apex pasan en la org de desarrollo (5 nuevas). En UADY, como visitante, el formulario creó el Case 00001012 y mostró su número; los Cases de prueba se borraron después.
+- **Aceleración estimada:** ~1.5 h.
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 18 (1–9, 23–26 y 32–36) | 8 (entradas 1, 4, 5, 8, 9, 23, 24 y 34) |
+| José Carlos Leo Fernández | 19 (1–9, 23–26 y 32–37) | 9 (entradas 1, 4, 5, 8, 9, 23, 24, 34 y 37) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 

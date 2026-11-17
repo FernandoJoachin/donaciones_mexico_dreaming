@@ -1,0 +1,16 @@
+@import 'c/mesaEstilos';
+
+.ayuda {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    color: var(--mesa-texto);
+}
+.trampa {
+    position: absolute;
+    left: -10000px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}

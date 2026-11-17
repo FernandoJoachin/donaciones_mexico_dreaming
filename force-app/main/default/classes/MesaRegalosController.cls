@@ -641,6 +641,78 @@ public without sharing class MesaRegalosController {
         }
     }
 
+    // ---------- Ayuda: formulario "¿Necesitas ayuda?" que crea un Case (SCRUM-141) ----------
+
+    public class AyudaInput {
+        @AuraEnabled public String nombre;
+        @AuraEnabled public String correo;
+        @AuraEnabled public String referencia;   // opcional: la que aparece en el comprobante
+        @AuraEnabled public String mensaje;
+        @AuraEnabled public String sitioWeb;     // campo trampa: una persona nunca lo llena
+    }
+
+    public class AyudaResultado {
+        @AuraEnabled public Boolean exito;
+        @AuraEnabled public String numeroCaso;   // lo único que se devuelve del Case
+    }
+
+    @TestVisible private static Integer maxAyudasPorHora = 20;
+    private static final String ASUNTO_AYUDA = 'Ayuda desde el sitio';
+    private static final String PREFIJO_AYUDA = 'Ayuda desde el sitio%';
+
+    /**
+     * Crea un Case con lo que escribió la persona. Corre en esta clase "without sharing" (como el resto
+     * del sitio), así que el usuario guest no necesita permisos sobre Case. Del Case solo se devuelve
+     * el número, para que la persona lo cite; nunca datos de otros registros.
+     */
+    @AuraEnabled
+    public static AyudaResultado enviarAyuda(String datosJson) {
+        AyudaInput datos = (AyudaInput) leerJson(datosJson, AyudaInput.class);
+        AyudaResultado res = new AyudaResultado();
+        res.exito = false;
+        if (datos == null) {
+            throw crearError('No recibimos tus datos.');
+        }
+        if (!String.isBlank(datos.sitioWeb)) {
+            // Un bot llenó el campo trampa: se responde "bien" sin guardar nada.
+            res.exito = true;
+            return res;
+        }
+        String nombre = limpiar(datos.nombre, 80);
+        String correo = limpiar(datos.correo, 80);
+        String mensaje = limpiar(datos.mensaje, 2000);
+        String referencia = limpiar(datos.referencia, 20);
+        if (nombre == null) {
+            throw crearError('Escribe tu nombre.');
+        }
+        if (correo == null || !esCorreoValido(correo)) {
+            throw crearError('Escribe un correo válido para poder responderte.');
+        }
+        if (mensaje == null || mensaje.length() < 10) {
+            throw crearError('Cuéntanos con un poco más de detalle qué necesitas (mínimo 10 caracteres).');
+        }
+        if (referencia != null && !Pattern.matches('^[A-Za-z0-9]{4,20}$', referencia)) {
+            throw crearError('La referencia solo lleva letras y números, tal como aparece en tu comprobante.');
+        }
+        Datetime desde = Datetime.now().addHours(-1);
+        if ([SELECT COUNT() FROM Case WHERE Subject LIKE :PREFIJO_AYUDA AND CreatedDate >= :desde] >= maxAyudasPorHora) {
+            throw crearError('Estamos recibiendo muchas solicitudes. Intenta de nuevo más tarde.');
+        }
+        Contact contacto = buscarContactoPorCorreo(correo);
+        Case caso = new Case(
+            // Sin Origin = 'Web': la org trae un proceso antiguo que se dispara con ese origen y falla (se probó).
+            Subject = (ASUNTO_AYUDA + (referencia == null ? '' : ' · Ref. ' + referencia.toUpperCase())).abbreviate(255),
+            Description = mensaje + (referencia == null ? '' : '\n\nReferencia del donativo: ' + referencia.toUpperCase()),
+            SuppliedName = nombre,
+            SuppliedEmail = correo,
+            ContactId = contacto == null ? null : contacto.Id
+        );
+        insert caso;
+        res.exito = true;
+        res.numeroCaso = [SELECT CaseNumber FROM Case WHERE Id = :caso.Id].CaseNumber;
+        return res;
+    }
+
     private static AuraHandledException crearError(String mensaje) {
         AuraHandledException e = new AuraHandledException(mensaje);
         e.setMessage(mensaje);
