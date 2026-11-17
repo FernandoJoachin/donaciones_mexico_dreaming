@@ -77,6 +77,40 @@ private class MesaComprobanteTest {
     }
 
     @IsTest
+    static void elCorreoLlevaElBotonDelMuroDeLaCampanaSiElSitioEstaConfigurado() {
+        insert new Stripe_Config__c(SetupOwnerId = UserInfo.getOrganizationId(), Url_Sitio__c = 'https://sitio.example.com/s/');
+        Id id = donativo('Publica', 'P1000', 'luz@example.com');
+        MesaRegalosService.confirmarPago(new List<Id>{ id });
+
+        MesaComprobante.enviar(new List<Id>{ id });
+        Messaging.SingleEmailMessage m = MesaComprobante.ultimosCorreos[0];
+        String campanaId = [SELECT CampaignId FROM Opportunity WHERE Id = :id].CampaignId;
+        Assert.isTrue(m.getHtmlBody().contains('https://sitio.example.com/s/muro?campana=' + campanaId));
+        Assert.isTrue(m.getPlainTextBody().contains('muro?campana=' + campanaId));
+    }
+
+    @IsTest
+    static void sinSitioConfiguradoElCorreoVaSinBoton() {
+        Id id = donativo('Publica', 'P1000', 'luz@example.com');
+        MesaRegalosService.confirmarPago(new List<Id>{ id });
+
+        MesaComprobante.enviar(new List<Id>{ id });
+        Assert.isFalse(MesaComprobante.ultimosCorreos[0].getHtmlBody().contains('Ver el muro de agradecimiento'));
+    }
+
+    @IsTest
+    static void elSaludoNoDiceAnonimoSiElContactoSeCreoEnUnDonativoAnonimo() {
+        Id id = donativo('Publica', 'P1000', 'luz@example.com');
+        update new Contact(Id = [SELECT Contacto_Donador__c FROM Opportunity WHERE Id = :id].Contacto_Donador__c, FirstName = 'Anónimo');
+        MesaRegalosService.confirmarPago(new List<Id>{ id });
+
+        MesaComprobante.enviar(new List<Id>{ id });
+        String texto = MesaComprobante.ultimosCorreos[0].getPlainTextBody();
+        Assert.isTrue(texto.contains('Hola, Luz:'), 'Usa el nombre público elegido para este donativo');
+        Assert.isFalse(texto.contains('Hola, Anónimo'));
+    }
+
+    @IsTest
     static void donativoAnonimoDiceComoApareceEnElMuro() {
         Id id = donativo('Anonima', 'P3000', 'anon@example.com');
         MesaRegalosService.confirmarPago(new List<Id>{ id });
