@@ -131,15 +131,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <tabSettings>
-        <tab>standard-Campaign</tab>
-        <visibility>Visible</visibility>
-    </tabSettings>
-    <tabSettings>
         <tab>standard-Opportunity</tab>
-        <visibility>Visible</visibility>
-    </tabSettings>
-    <tabSettings>
-        <tab>Reconocimiento_Publico__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>

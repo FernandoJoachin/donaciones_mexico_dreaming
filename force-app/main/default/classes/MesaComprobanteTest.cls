@@ -4,7 +4,7 @@ private class MesaComprobanteTest {
 
     @TestSetup
     static void datos() {
-        insert new Campaign(Name = 'Becas <TEST>', IsActive = true, ExpectedRevenue = 10000);
+        insert new Campaign(RecordTypeId = MesaTestDatos.tipoCampana(), Name = 'Becas <TEST>', IsActive = true, ExpectedRevenue = 10000);
     }
 
     private static Id donativo(String visibilidad, String paquete, String correo) {

@@ -9,6 +9,9 @@
  */
 public without sharing class MesaRegalosController {
 
+    /** Tipo de registro de las campañas del sitio de donaciones. Las demás campañas de la org no se publican. */
+    @TestVisible private static final String TIPO_CAMPANA = 'Donacion';
+
     // Montos. Si cambian, hay que cambiarlos también en mesaRegistro y mesaInicio. (A MEJORAR)
     private static final Decimal MONTO_MINIMO = 100.0;
     private static final Decimal MONTO_MAXIMO = 1000000.0;
@@ -199,7 +202,8 @@ public without sharing class MesaRegalosController {
             SELECT Id, Name, Description, ExpectedRevenue, EndDate, Imagen_Url__c,
                    Resumen__c, Historia__c, Para_Quien__c, Organiza__c
             FROM Campaign
-            WHERE IsActive = true AND (StartDate = null OR StartDate <= :hoy)
+            WHERE IsActive = true AND RecordType.DeveloperName = :TIPO_CAMPANA
+              AND (StartDate = null OR StartDate <= :hoy)
             ORDER BY StartDate DESC NULLS LAST, Name
             LIMIT 100
         ];
@@ -249,7 +253,8 @@ public without sharing class MesaRegalosController {
                    (SELECT Monto__c, Descripcion__c FROM Niveles_Impacto__r
                     ORDER BY Orden__c ASC NULLS LAST, Monto__c ASC LIMIT 6)
             FROM Campaign
-            WHERE Id = :cid AND IsActive = true AND (StartDate = null OR StartDate <= :hoy)
+            WHERE Id = :cid AND IsActive = true AND RecordType.DeveloperName = :TIPO_CAMPANA
+              AND (StartDate = null OR StartDate <= :hoy)
             LIMIT 1
         ];
         if (campanas.isEmpty()) {
@@ -427,7 +432,7 @@ public without sharing class MesaRegalosController {
         }
 
         // Campaña y freno contra abuso
-        if (campaignId == null || [SELECT COUNT() FROM Campaign WHERE Id = :campaignId AND IsActive = true] == 0) {
+        if (campaignId == null || [SELECT COUNT() FROM Campaign WHERE Id = :campaignId AND IsActive = true AND RecordType.DeveloperName = :TIPO_CAMPANA] == 0) {
             throw crearError('No pudimos identificar la campaña.');
         }
         Datetime desde = Datetime.now().addHours(-1);

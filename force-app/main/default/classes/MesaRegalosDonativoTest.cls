@@ -3,7 +3,7 @@ private class MesaRegalosDonativoTest {
 
     @TestSetup
     static void datos() {
-        Campaign c = new Campaign(Name = 'México Dreaming TEST', IsActive = true, ExpectedRevenue = 10000);
+        Campaign c = new Campaign(RecordTypeId = MesaTestDatos.tipoCampana(), Name = 'México Dreaming TEST', IsActive = true, ExpectedRevenue = 10000);
         insert c;
 
         List<CampaignMemberStatus> estados = new List<CampaignMemberStatus>();
@@ -380,7 +380,7 @@ private class MesaRegalosDonativoTest {
 
     @IsTest
     static void totalAnonimoNoSeMezclaEntreCampanas() {
-        Campaign otra = new Campaign(Name = 'Otra campaña TEST', IsActive = true);
+        Campaign otra = new Campaign(RecordTypeId = MesaTestDatos.tipoCampana(), Name = 'Otra campaña TEST', IsActive = true);
         insert otra;
         Id enEsta = enviarAnonima(campana(), 'P1000', 'esta@example.com');
         Id enOtra = enviarAnonima(otra.Id, 'P5000', 'otra@example.com');
