@@ -48,7 +48,7 @@ public without sharing class MesaComprobante {
         List<Opportunity> porEnviar = new List<Opportunity>();
         Id remitenteId = remitenteVerificado();
         for (Opportunity o : [
-            SELECT Id, Amount, CloseDate, StageName, Visibilidad__c, Nombre_Visible__c, Stripe_Pago_Id__c,
+            SELECT Id, Amount, CloseDate, StageName, CampaignId, Visibilidad__c, Nombre_Visible__c, Donacion_Empresa__c, Stripe_Pago_Id__c,
                    Comprobante_Estado__c, Campaign.Name, Contacto_Donador__r.FirstName, Contacto_Donador__r.Email
             FROM Opportunity
             WHERE Id IN :ids AND StageName = 'Closed Won'
@@ -113,45 +113,86 @@ public without sharing class MesaComprobante {
     private static Messaging.SingleEmailMessage armarCorreo(Opportunity o) {
         String referencia = MesaPagosStripe.referencia(o.Id);
         String campana = o.Campaign == null || String.isBlank(o.Campaign.Name) ? 'Donación general' : o.Campaign.Name;
-        String nombre = o.Contacto_Donador__r.FirstName;
+        String nombre = primerNombre(o);
         String saludo = String.isBlank(nombre) ? 'Hola:' : 'Hola, ' + nombre + ':';
-        String monto = pesos(o.Amount);
+        String monto = pesos(o.Amount) + ' MXN';
         String fecha = o.CloseDate == null ? '' : fechaTexto(o.CloseDate);
         String enMuro = o.Visibilidad__c == 'Anonima'
             ? 'como «Anónimo», junto con el monto'
             : 'con el nombre que elegiste' + (String.isBlank(o.Nombre_Visible__c) ? '' : ' (' + o.Nombre_Visible__c + ')');
         String correoFacturas = System.Label.Mesa_Correo_Facturas;
+        String urlMuro = urlMuro(o);
 
         List<String[]> filas = new List<String[]>{
             new String[]{ 'Referencia', referencia },
             new String[]{ 'Campaña', campana },
-            new String[]{ 'Monto', monto + ' MXN' },
             new String[]{ 'Fecha de pago', fecha }
         };
         if (String.isNotBlank(o.Stripe_Pago_Id__c)) {
             filas.add(new String[]{ 'Pago en Stripe', o.Stripe_Pago_Id__c });
         }
 
-        String texto = saludo + '\n\n'
-            + '¡Gracias por tu donativo! Este es tu comprobante.\n\n';
-        String tabla = '';
-        for (String[] f : filas) {
-            texto += f[0] + ': ' + f[1] + '\n';
-            tabla += '<tr><td style="padding:6px 12px 6px 0;color:#5b6475">' + f[0].escapeHtml4()
-                + '</td><td style="padding:6px 0;font-weight:700">' + f[1].escapeHtml4() + '</td></tr>';
-        }
         String muro = 'Tu aportación aparece en el muro de agradecimiento de la campaña ' + enMuro + '.';
         String factura = 'Si necesitas factura, escribe a ' + correoFacturas
             + ' con tus datos fiscales y tu referencia (' + referencia + '). Este comprobante no es una factura (CFDI).';
-        texto += '\n' + muro + '\n\n' + factura + '\n\nCon cariño,\nComunidad Salesforce · Facultad de Matemáticas, UADY';
 
-        String html = '<div style="font-family:Arial,Helvetica,sans-serif;color:#1d2433;max-width:560px">'
-            + '<p>' + saludo.escapeHtml4() + '</p>'
-            + '<p><strong>¡Gracias por tu donativo!</strong> Este es tu comprobante.</p>'
-            + '<table style="border-collapse:collapse;margin:12px 0">' + tabla + '</table>'
-            + '<p>' + muro.escapeHtml4() + '</p>'
-            + '<p style="background:#f2f5fb;padding:12px;border-radius:8px">' + factura.escapeHtml4() + '</p>'
-            + '<p>Con cariño,<br/>Comunidad Salesforce · Facultad de Matemáticas, UADY</p></div>';
+        String texto = saludo + '\n\n¡Gracias por tu donativo! Este es tu comprobante.\n\nMonto: ' + monto + '\n';
+        for (String[] f : filas) {
+            texto += f[0] + ': ' + f[1] + '\n';
+        }
+        texto += '\n' + muro + '\n';
+        if (urlMuro != null) {
+            texto += 'Míralo aquí: ' + urlMuro + '\n';
+        }
+        texto += '\n' + factura + '\n\nCon cariño,\nComunidad Salesforce · Facultad de Matemáticas, UADY';
+
+        // HTML de correo: tablas y estilos en línea, porque los clientes de correo no entienden CSS moderno.
+        // Todo lo que viene de datos pasa por escapeHtml4.
+        String filasHtml = '';
+        for (Integer i = 0; i < filas.size(); i++) {
+            String linea = i == filas.size() - 1 ? '' : 'border-bottom:1px solid #e6ebf3;';
+            filasHtml += '<tr><td style="padding:11px 0;' + linea + 'color:#5b6475;font-size:14px;width:38%">' + filas[i][0].escapeHtml4()
+                + '</td><td style="padding:11px 0;' + linea + 'color:#101828;font-size:14px;font-weight:700;text-align:right;word-break:break-all">'
+                + filas[i][1].escapeHtml4() + '</td></tr>';
+        }
+        String boton = '';
+        if (urlMuro != null) {
+            boton = '<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:22px auto 0">'
+                + '<tr><td bgcolor="#123a7a" style="border-radius:999px"><a href="' + urlMuro.escapeHtml4()
+                + '" style="display:inline-block;padding:13px 26px;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:999px">'
+                + 'Ver el muro de agradecimiento</a></td></tr></table>';
+        }
+        String html = '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+            + '<meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light"></head>'
+            + '<body style="margin:0;padding:0;background:#eef2f8">'
+            + '<div style="display:none;max-height:0;overflow:hidden;opacity:0">Tu comprobante de donativo · Ref. ' + referencia.escapeHtml4() + '</div>'
+            + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#eef2f8"><tr><td align="center" style="padding:28px 12px">'
+            + '<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;font-family:Arial,Helvetica,sans-serif">'
+            // Encabezado
+            + '<tr><td bgcolor="#123a7a" style="background:#123a7a;background-image:linear-gradient(135deg,#123a7a,#2f80e6);border-radius:18px 18px 0 0;padding:30px 32px;text-align:center">'
+            + '<div style="font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:#cfe3ff;font-weight:700">Mesa de regalos · México Dreamin</div>'
+            + '<div style="font-size:26px;line-height:32px;color:#ffffff;font-weight:700;margin-top:10px">¡Gracias por tu donativo!</div>'
+            + '</td></tr>'
+            // Tarjeta
+            + '<tr><td bgcolor="#ffffff" style="background:#ffffff;padding:30px 32px;border-radius:0 0 18px 18px">'
+            + '<p style="margin:0 0 20px;font-size:16px;line-height:24px;color:#1d2433">' + saludo.escapeHtml4()
+            + ' recibimos tu aportación. Este es tu comprobante.</p>'
+            + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="#eaf3ff" style="background:#eaf3ff;border-radius:14px;padding:20px;text-align:center">'
+            + '<div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#4a5b78;font-weight:700">Monto donado</div>'
+            + '<div style="font-size:34px;line-height:42px;color:#123a7a;font-weight:800;margin-top:4px">' + monto.escapeHtml4() + '</div>'
+            + '<div style="font-size:14px;color:#4a5b78;margin-top:2px">' + campana.escapeHtml4() + '</div>'
+            + '</td></tr></table>'
+            + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:18px">' + filasHtml + '</table>'
+            + '<p style="margin:22px 0 0;font-size:14px;line-height:22px;color:#344054">' + muro.escapeHtml4() + '</p>'
+            + boton
+            + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:26px"><tr>'
+            + '<td bgcolor="#f4f7fc" style="background:#f4f7fc;border-left:4px solid #2f80e6;border-radius:8px;padding:14px 16px;font-size:13px;line-height:20px;color:#344054">'
+            + factura.escapeHtml4() + '</td></tr></table>'
+            + '</td></tr>'
+            // Pie
+            + '<tr><td style="padding:20px 12px 4px;text-align:center;font-size:12px;line-height:18px;color:#7a8499">'
+            + 'Comunidad Salesforce · Facultad de Matemáticas, UADY<br/>Guarda este correo: tu referencia es <strong>' + referencia.escapeHtml4() + '</strong>.'
+            + '</td></tr></table></td></tr></table></body></html>';
 
         Messaging.SingleEmailMessage m = new Messaging.SingleEmailMessage();
         m.setToAddresses(new List<String>{ o.Contacto_Donador__r.Email });
@@ -161,6 +202,30 @@ public without sharing class MesaComprobante {
         m.setSaveAsActivity(false);
         m.setUseSignature(false);
         return m;
+    }
+
+    /**
+     * Nombre para el saludo. Si se donó con nombre público de persona, se usa ese; el nombre del contacto
+     * no sirve cuando el contacto se creó antes en un donativo anónimo y quedó como "Anónimo".
+     * Con empresa o sin nombre confiable, el saludo va sin nombre.
+     */
+    private static String primerNombre(Opportunity o) {
+        String candidato;
+        if (o.Visibilidad__c == 'Publica' && o.Donacion_Empresa__c != true && String.isNotBlank(o.Nombre_Visible__c)) {
+            candidato = o.Nombre_Visible__c.trim().substringBefore(' ');
+        } else if (o.Donacion_Empresa__c != true && o.Contacto_Donador__r != null) {
+            candidato = o.Contacto_Donador__r.FirstName;
+        }
+        return String.isBlank(candidato) || candidato == 'Anónimo' ? null : candidato;
+    }
+
+    /** Enlace al muro de la campaña; null si el sitio no está configurado. */
+    private static String urlMuro(Opportunity o) {
+        String sitio = MesaPagosStripe.urlSitio();
+        if (sitio == null || o.CampaignId == null) {
+            return null;
+        }
+        return sitio + '/muro?campana=' + o.CampaignId;
     }
 
     /** 1234.5 -> "$1,234.50" (sin depender del idioma del usuario que corre el envío). */
