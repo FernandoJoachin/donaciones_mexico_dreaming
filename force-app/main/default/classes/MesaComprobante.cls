@@ -46,6 +46,7 @@ public without sharing class MesaComprobante {
     public static Integer enviar(List<Id> ids) {
         ultimosCorreos = new List<Messaging.SingleEmailMessage>();
         List<Opportunity> porEnviar = new List<Opportunity>();
+        Id remitenteId = remitenteVerificado();
         for (Opportunity o : [
             SELECT Id, Amount, CloseDate, StageName, Visibilidad__c, Nombre_Visible__c, Stripe_Pago_Id__c,
                    Comprobante_Estado__c, Campaign.Name, Contacto_Donador__r.FirstName, Contacto_Donador__r.Email
@@ -57,7 +58,15 @@ public without sharing class MesaComprobante {
             }
             if (o.Contacto_Donador__r != null && String.isNotBlank(o.Contacto_Donador__r.Email)) {
                 porEnviar.add(o);
-                ultimosCorreos.add(armarCorreo(o));
+                Messaging.SingleEmailMessage correo = armarCorreo(o);
+                // Con dirección verificada el correo sale a nombre de la organización. Sin ella, el
+                // remitente sería el de Automated Process (sin dominio) y algunos servidores lo rechazan.
+                if (remitenteId != null) {
+                    correo.setOrgWideEmailAddressId(remitenteId);
+                } else {
+                    correo.setSenderDisplayName('Mesa de regalos · México Dreamin');
+                }
+                ultimosCorreos.add(correo);
             }
         }
         if (ultimosCorreos.isEmpty()) {
@@ -88,6 +97,16 @@ public without sharing class MesaComprobante {
         }
         update resultado;
         return enviados;
+    }
+
+    /**
+     * Dirección remitente verificada (Setup > Direcciones de correo de toda la organización) cuyo
+     * correo está en la etiqueta Mesa_Correo_Remitente. Si no existe, devuelve null y se envía como antes.
+     */
+    private static Id remitenteVerificado() {
+        String direccion = System.Label.Mesa_Correo_Remitente;
+        List<OrgWideEmailAddress> encontradas = [SELECT Id FROM OrgWideEmailAddress WHERE Address = :direccion LIMIT 1];
+        return encontradas.isEmpty() ? null : encontradas[0].Id;
     }
 
     @TestVisible
@@ -139,7 +158,6 @@ public without sharing class MesaComprobante {
         m.setSubject('Tu comprobante de donativo · Ref. ' + referencia);
         m.setPlainTextBody(texto);
         m.setHtmlBody(html);
-        m.setSenderDisplayName('Mesa de regalos · México Dreamin');
         m.setSaveAsActivity(false);
         m.setUseSignature(false);
         return m;
