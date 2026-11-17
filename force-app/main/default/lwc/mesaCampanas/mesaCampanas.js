@@ -116,6 +116,7 @@ export default class MesaCampanas extends LightningElement {
 
     armarTarjeta(c) {
         const conMeta = c.meta > 0;
+        const aviso = this.aviso(c);
         return {
             id: c.id,
             imagen: c.imagenUrl,
@@ -129,10 +130,33 @@ export default class MesaCampanas extends LightningElement {
             meta: formatearMonto(c.meta),
             porcentaje: c.porcentaje,
             estiloBarra: `width: ${c.porcentaje}%`,
-            leyenda: this.leyenda(c),
+            // Si ya hay etiqueta de cierre, no se repite la leyenda de días.
+            leyenda: aviso.aviso ? '' : this.leyenda(c),
+            ...aviso,
             // CA7: las campañas cerradas se muestran sin opción de donar (no llevan botón).
             puedeDonar: c.activa
         };
+    }
+
+    /** Etiqueta destacada: "Meta superada", o "Cierra en N días" cuando faltan 7 o menos. */
+    aviso(c) {
+        if (!c.activa) {
+            return { aviso: '', claseAviso: '' };
+        }
+        if (c.meta > 0 && c.total >= c.meta) {
+            return { aviso: 'Meta superada', claseAviso: 'aviso aviso-meta' };
+        }
+        if (!c.fechaFin) {
+            return { aviso: '', claseAviso: '' };
+        }
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        const dias = Math.round((new Date(`${c.fechaFin}T00:00:00`) - hoy) / MS_DIA);
+        if (dias > 7) {
+            return { aviso: '', claseAviso: '' };
+        }
+        const texto = dias <= 0 ? 'Cierra hoy' : dias === 1 ? 'Cierra mañana' : `Cierra en ${dias} días`;
+        return { aviso: texto, claseAviso: 'aviso aviso-cierre' };
     }
 
     leyenda(c) {

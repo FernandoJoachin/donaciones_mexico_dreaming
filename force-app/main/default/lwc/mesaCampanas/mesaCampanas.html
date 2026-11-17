@@ -51,6 +51,9 @@
                             <template lwc:if={c.cerrada}>
                                 <span class="insignia">Cerrada</span>
                             </template>
+                            <template lwc:if={c.aviso}>
+                                <span class={c.claseAviso}>{c.aviso}</span>
+                            </template>
                         </div>
                         <template lwc:if={c.descripcion}>
                             <p class="campana-texto">{c.descripcion}</p>

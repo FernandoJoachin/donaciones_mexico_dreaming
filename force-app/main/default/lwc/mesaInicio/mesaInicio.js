@@ -13,6 +13,17 @@ export default class MesaInicio extends LightningElement {
      */
     @api parte = 'todo';
 
+    get preguntas() {
+        return [
+            { id: 'p1', pregunta: '¿Es seguro pagar aquí?', respuesta: 'El pago se hace en la página de Stripe. Tu tarjeta solo la ve Stripe; este sitio nunca la recibe ni la guarda.' },
+            { id: 'p2', pregunta: '¿Necesito una cuenta?', respuesta: 'No. Solo eliges un monto y llenas tus datos para el comprobante.' },
+            { id: 'p3', pregunta: '¿Puedo donar de forma anónima?', respuesta: 'Sí. En el muro aparecerá «Anónimo» con el monto, sin tu nombre. Tu correo se usa solo para enviarte el comprobante.' },
+            { id: 'p4', pregunta: '¿Cómo pido mi factura?', respuesta: 'Tu comprobante llega por correo e incluye los pasos. También los encuentras en la página Facturas del menú.' },
+            { id: 'p5', pregunta: '¿Qué pasa si el pago falla o lo cancelo?', respuesta: 'Tu donativo queda pendiente y no se suma al avance de la campaña. Puedes intentarlo de nuevo; si tienes dudas, usa «Ayuda» con tu referencia.' },
+            { id: 'p6', pregunta: '¿Para qué se usa el dinero?', respuesta: 'Cada campaña explica su destino y su meta en su propia página. Entra a la que te interese antes de donar.' }
+        ];
+    }
+
     get verArriba() {
         return this.parte !== 'abajo';
     }
