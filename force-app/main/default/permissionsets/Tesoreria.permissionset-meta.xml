@@ -57,6 +57,11 @@
     </userPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Opportunity.Comprobante_Estado__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Opportunity.Consentimiento_Publicacion__c</field>
         <readable>true</readable>
     </fieldPermissions>

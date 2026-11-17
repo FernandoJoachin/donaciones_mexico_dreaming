@@ -23,22 +23,33 @@ private class MesaComprobanteTest {
         return MesaRegalosController.guardarDonativo(campana, JSON.serialize(d)).donativoId;
     }
 
-    private static Integer trabajosProgramados() {
-        return [SELECT COUNT() FROM AsyncApexJob WHERE ApexClass.Name = 'MesaComprobante'];
+    private static Opportunity donativoConEstado(Id id) {
+        return [SELECT Comprobante_Estado__c FROM Opportunity WHERE Id = :id];
     }
 
     @IsTest
-    static void confirmarPagoProgramaUnSoloComprobanteAunqueElAvisoLlegueDosVeces() {
+    static void confirmarPagoPublicaElAvisoYElTriggerEnviaUnSoloComprobante() {
         Id id = donativo('Publica', 'P1000', 'luz@example.com');
 
         Test.startTest();
         MesaRegalosService.confirmarPago(new List<Id>{ id });
-        MesaRegalosService.confirmarPago(new List<Id>{ id });   // aviso repetido
+        MesaRegalosService.confirmarPago(new List<Id>{ id });   // aviso repetido de Stripe
+        Test.getEventBus().deliver();                           // corre ComprobantePagoTrigger
         Test.stopTest();
 
-        Assert.areEqual(1, trabajosProgramados(), 'El segundo aviso no debe programar otro correo');
-        Assert.areEqual(1, MesaComprobante.ultimosCorreos.size());
+        Assert.areEqual(1, MesaComprobante.ultimosCorreos.size(), 'El segundo aviso no debe mandar otro correo');
         Assert.areEqual('luz@example.com', MesaComprobante.ultimosCorreos[0].getToAddresses()[0]);
+        Assert.areEqual('Enviado', donativoConEstado(id).Comprobante_Estado__c);
+    }
+
+    @IsTest
+    static void unComprobanteYaEnviadoNoSeVuelveAEnviar() {
+        Id id = donativo('Publica', 'P1000', 'luz@example.com');
+        MesaRegalosService.confirmarPago(new List<Id>{ id });
+
+        Assert.areEqual(1, MesaComprobante.enviar(new List<Id>{ id }));
+        Assert.areEqual(0, MesaComprobante.enviar(new List<Id>{ id }), 'Ya dice Enviado: no se repite');
+        Assert.areEqual(0, MesaComprobante.ultimosCorreos.size());
     }
 
     @IsTest
@@ -63,6 +74,40 @@ private class MesaComprobanteTest {
         // El HTML escapa lo que viene de los datos (aquí, el nombre de la campaña).
         Assert.isTrue(m.getHtmlBody().contains('Becas &lt;TEST&gt;'));
         Assert.isFalse(m.getHtmlBody().contains('Becas <TEST>'));
+    }
+
+    @IsTest
+    static void elCorreoLlevaElBotonDelMuroDeLaCampanaSiElSitioEstaConfigurado() {
+        insert new Stripe_Config__c(SetupOwnerId = UserInfo.getOrganizationId(), Url_Sitio__c = 'https://sitio.example.com/s/');
+        Id id = donativo('Publica', 'P1000', 'luz@example.com');
+        MesaRegalosService.confirmarPago(new List<Id>{ id });
+
+        MesaComprobante.enviar(new List<Id>{ id });
+        Messaging.SingleEmailMessage m = MesaComprobante.ultimosCorreos[0];
+        String campanaId = [SELECT CampaignId FROM Opportunity WHERE Id = :id].CampaignId;
+        Assert.isTrue(m.getHtmlBody().contains('https://sitio.example.com/s/muro?campana=' + campanaId));
+        Assert.isTrue(m.getPlainTextBody().contains('muro?campana=' + campanaId));
+    }
+
+    @IsTest
+    static void sinSitioConfiguradoElCorreoVaSinBoton() {
+        Id id = donativo('Publica', 'P1000', 'luz@example.com');
+        MesaRegalosService.confirmarPago(new List<Id>{ id });
+
+        MesaComprobante.enviar(new List<Id>{ id });
+        Assert.isFalse(MesaComprobante.ultimosCorreos[0].getHtmlBody().contains('Ver el muro de agradecimiento'));
+    }
+
+    @IsTest
+    static void elSaludoNoDiceAnonimoSiElContactoSeCreoEnUnDonativoAnonimo() {
+        Id id = donativo('Publica', 'P1000', 'luz@example.com');
+        update new Contact(Id = [SELECT Contacto_Donador__c FROM Opportunity WHERE Id = :id].Contacto_Donador__c, FirstName = 'Anónimo');
+        MesaRegalosService.confirmarPago(new List<Id>{ id });
+
+        MesaComprobante.enviar(new List<Id>{ id });
+        String texto = MesaComprobante.ultimosCorreos[0].getPlainTextBody();
+        Assert.isTrue(texto.contains('Hola, Luz:'), 'Usa el nombre público elegido para este donativo');
+        Assert.isFalse(texto.contains('Hola, Anónimo'));
     }
 
     @IsTest

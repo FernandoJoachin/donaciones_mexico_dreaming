@@ -409,11 +409,24 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué se corrigió:** el primer script de verificación no compiló porque leía un campo que solo ven las pruebas (`@TestVisible`); se cambió por el valor que devuelve el envío.
 - **Aceleración estimada:** ~2 h.
 
+### 34. ⚠ Error de la IA — el comprobante nunca llegó porque el correo salía como usuario guest (SCRUM-137)
+- **Fecha:** 2026-11-16
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** US-07 / SCRUM-137
+- **Qué se pidió:** averiguar por qué, después de un pago de prueba real en el sitio, el correo del comprobante (entrada 33) no llegó, y arreglarlo.
+- **Qué se obtuvo / qué falló:** la IA había dado por bueno el Queueable de la entrada 33 porque con un administrador el envío sí funcionaba. Pero el Queueable corre como quien lo programa, y en el pago real ese usuario es el guest del sitio, cuyo perfil y permission sets no tienen "Send Email" (`PermissionsEmailSingle = false`). El envío fallaba con `NO_SINGLE_MAIL_PERMISSION`, y el código atrapaba el error a propósito para no deshacer el pago, así que el trabajo terminó "sin error". La verificación de la entrada 33 probó el envío con otro usuario, no con el del pago real.
+- **Qué se cambió:** se descartó dar "Send Email" al guest (más permisos para un visitante anónimo). `confirmarPago` ahora publica el evento de plataforma `Comprobante_Pago__e` (después del commit) y un trigger lo atiende como usuario interno (Automated Process). El resultado queda en `Opportunity.Comprobante_Estado__c` ("Enviado" o el código de error), que también evita un segundo envío si el aviso de Stripe se repite. `confirmarPago` no cambió: sigue llamando a `MesaComprobante.programar`.
+- **Qué se verificó y cómo:** 6 pruebas de la clase pasan y las demás pruebas del proyecto también, en la org de desarrollo. En la sandbox UADY se publicó el evento para un donativo pagado y el trigger lo dejó en "Enviado". Pendiente: confirmar con un pago real que el guest puede publicar el evento (no se puede probar como guest desde Apex anónimo); si no pudiera, `Comprobante_Estado__c` quedaría vacío.
+- **Segundo hallazgo (misma entrada):** con el trigger funcionando, el donativo quedaba en "Enviado" pero el correo no llegaba a Outlook. La dirección del usuario Automated Process es `autoproc@00d2e000000mhlwuae` (sin dominio); Salesforce acepta el envío pero el servidor receptor puede rechazar un remitente así (causa probable, aún sin confirmar con el registro de correo). Se agregó soporte para una dirección de toda la organización verificada (etiqueta `Mesa_Correo_Remitente`); si no existe, se envía como antes. La dirección la crea y verifica una persona en Setup.
+- **Confirmado y mejorado:** con la dirección `contact.devxstudio@gmail.com` verificada como dirección de toda la organización, el comprobante llegó a Outlook: la causa era el remitente. Después se rediseñó el correo (encabezado, monto destacado, botón al muro de la campaña, aviso de factura) y se corrigió el saludo: decía "Hola, Anónimo" porque el contacto se había creado antes en un donativo anónimo y conservó ese nombre; ahora el saludo usa el nombre público del donativo y, si no es confiable, va sin nombre. Queda pendiente, y es código de otros integrantes, que el sitio no actualiza el nombre de un contacto reutilizado.
+- **Aceleración estimada:** ~1 h.
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 15 (1–9, 23–26, 32 y 33) | 7 (entradas 1, 4, 5, 8, 9, 23 y 24) |
+| José Carlos Leo Fernández | 16 (1–9, 23–26 y 32–34) | 8 (entradas 1, 4, 5, 8, 9, 23, 24 y 34) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 

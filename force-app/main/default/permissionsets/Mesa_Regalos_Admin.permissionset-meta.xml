@@ -8,6 +8,11 @@
         <enabled>true</enabled>
     </classAccesses>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>Opportunity.Comprobante_Estado__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Campaign.Imagen_Url__c</field>
         <readable>true</readable>

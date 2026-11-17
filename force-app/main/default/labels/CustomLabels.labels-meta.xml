@@ -8,4 +8,12 @@
         <shortDescription>Correo para pedir factura (comprobante)</shortDescription>
         <value>facturas@ejemplo.org</value>
     </labels>
+    <labels>
+        <fullName>Mesa_Correo_Remitente</fullName>
+        <categories>Mesa de regalos</categories>
+        <language>es_MX</language>
+        <protected>false</protected>
+        <shortDescription>Remitente verificado del comprobante (dirección de toda la org)</shortDescription>
+        <value>comprobantes@ejemplo.org</value>
+    </labels>
 </CustomLabels>
