@@ -1,4 +1,5 @@
 import { LightningElement, api, wire } from 'lwc';
+import { CurrentPageReference } from 'lightning/navigation';
 import obtenerCampanas from '@salesforce/apex/MesaRegalosController.obtenerCampanas';
 import { resolverUrl, irA, formatearMonto } from 'c/mesaUtil';
 
@@ -35,6 +36,37 @@ export default class MesaCampanas extends LightningElement {
     @api paginaCampana = 'campana';
 
     pestana = 'activas';
+    _irALista = false;
+    _yaDesplazado = false;
+
+    /**
+     * Desde el encabezado se llega con ?pestana=activas o ?pestana=pasadas: se abre esa pestaña y la
+     * página baja sola hasta la lista, que es lo que la persona fue a buscar.
+     */
+    @wire(CurrentPageReference)
+    leerPestanaDeLaDireccion(ref) {
+        const pedida = ref && ref.state ? ref.state.pestana : undefined;
+        if (pedida === 'activas' || pedida === 'pasadas') {
+            this.pestana = pedida;
+            this._irALista = true;
+        }
+    }
+
+    renderedCallback() {
+        // Una sola vez: se espera un momento a que el sitio termine de pintarse (si se baja antes, la
+        // página vuelve arriba) y se baja hasta la lista de campañas. El elemento se busca otra vez al
+        // bajar, porque al llegar los datos la lista se vuelve a pintar.
+        if (this._irALista && !this._yaDesplazado && this.template.querySelector('.tabs')) {
+            this._yaDesplazado = true;
+            // eslint-disable-next-line @lwc/lwc/no-async-operation
+            setTimeout(() => {
+                const lista = this.template.querySelector('.tabs');
+                if (lista) {
+                    lista.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 1300);
+        }
+    }
 
     @wire(obtenerCampanas)
     campanas;

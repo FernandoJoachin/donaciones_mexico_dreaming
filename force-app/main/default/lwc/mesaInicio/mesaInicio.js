@@ -7,6 +7,19 @@ import { LightningElement, api } from 'lwc';
  */
 export default class MesaInicio extends LightningElement {
     @api etiqueta = '';
+    /**
+     * Qué parte se muestra: «arriba» (portada), «abajo» (pasos, información y cierre) o «todo».
+     * Así la lista de campañas puede ir entre las dos: lo que la gente busca va primero.
+     */
+    @api parte = 'todo';
+
+    get verArriba() {
+        return this.parte !== 'abajo';
+    }
+
+    get verAbajo() {
+        return this.parte !== 'arriba';
+    }
     @api titulo = 'Apoya a la comunidad';
     @api descripcion =
         'Con el espíritu de Ohana, invitamos a quienes cursaron la materia de Salesforce a devolver un poco de lo que recibieron.';

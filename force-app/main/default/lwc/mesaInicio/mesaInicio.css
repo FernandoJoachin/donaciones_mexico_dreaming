@@ -213,10 +213,23 @@
 }
 
 @media (max-width: 600px) {
+    /* Portada compacta en móvil: las campañas, que es lo que se viene a buscar, deben verse en la primera
+       pantalla. El botón Donar ya está en la barra de arriba, así que no se repite aquí. */
     .hero {
-        padding: 3rem 1.25rem 4.5rem;
-        border-bottom-left-radius: 36px;
-        border-bottom-right-radius: 36px;
+        padding: 1.75rem 1.25rem 2.5rem;
+        border-bottom-left-radius: 32px;
+        border-bottom-right-radius: 32px;
+    }
+    .titulo {
+        font-size: 2rem;
+    }
+    .descripcion {
+        font-size: 1rem;
+        line-height: 1.45;
+    }
+    .acciones,
+    .ayuda {
+        display: none;
     }
     .seccion-suave {
         border-radius: 32px;

@@ -71,6 +71,7 @@
                         </template>
                         <template lwc:if={puedeDonar}>
                             <button type="button" class="btn btn-primario boton-donar" onclick={donar}>{textoBotonDonar}</button>
+                            <p class="nota-pago">🔒 Pagas en el sitio seguro de Stripe y no necesitas crear una cuenta. Recibes tu comprobante por correo.</p>
                         </template>
                         <template lwc:if={cerrada}>
                             <p class="info">Esta campaña ya cerró. ¡Gracias a quienes participaron!</p>
@@ -136,6 +137,7 @@
 
                     <section class="seccion">
                         <h2 class="subtitulo">Quiénes ya donaron</h2>
+                        <p class="nota-muro">Aquí aparecen quienes eligieron que se publique su nombre. Las aportaciones anónimas se suman aparte, sin nombre.</p>
                         <template lwc:if={hayDonantes}>
                             <ul class="lista">
                                 <template for:each={donantes} for:item="d">

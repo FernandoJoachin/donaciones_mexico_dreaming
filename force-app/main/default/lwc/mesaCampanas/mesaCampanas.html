@@ -1,7 +1,7 @@
 <template>
     <div class="pagina">
         <template lwc:if={incluirPortada}>
-            <c-mesa-inicio></c-mesa-inicio>
+            <c-mesa-inicio parte="arriba"></c-mesa-inicio>
         </template>
         <template lwc:if={mostrarBanda}>
         <header class="banda">
@@ -26,8 +26,8 @@
         </template>
         <div class={claseContenedor}>
             <div class="tabs">
-                <button type="button" class={claseActivas} data-pestana="activas" aria-pressed={pulsadaActivas} onclick={cambiarPestana}>Activas</button>
-                <button type="button" class={clasePasadas} data-pestana="pasadas" aria-pressed={pulsadaPasadas} onclick={cambiarPestana}>Pasadas</button>
+                <button type="button" class={claseActivas} data-pestana="activas" aria-pressed={pulsadaActivas} onclick={cambiarPestana}>Campañas activas</button>
+                <button type="button" class={clasePasadas} data-pestana="pasadas" aria-pressed={pulsadaPasadas} onclick={cambiarPestana}>Campañas pasadas</button>
             </div>
 
             <template lwc:if={cargando}>
@@ -83,5 +83,8 @@
                 </template>
             </ul>
         </div>
+        <template lwc:if={incluirPortada}>
+            <c-mesa-inicio parte="abajo"></c-mesa-inicio>
+        </template>
     </div>
 </template>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>62.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Mesa - Encabezado</masterLabel>
+    <targets>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightningCommunity__Default">
+            <property name="marca" type="String" label="Nombre del sitio" default="Mesa de regalos"/>
+            <property name="lema" type="String" label="Frase bajo el nombre" default="Comunidad Salesforce · Facultad de Matemáticas"/>
+            <property name="paginaMuro" type="String" label="Página del muro (nombre como en la URL)" default="muro"/>
+            <property name="paginaFacturas" type="String" label="Página de facturas (nombre como en la URL)" default="facturas"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

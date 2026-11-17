@@ -544,11 +544,39 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué se verificó y cómo:** la clase pasa 23 de 23 en la org de desarrollo y, en una validación sin guardar contra la sandbox UADY con la versión de Daniel más estos cambios, 23 de 23. No se desplegó nada a UADY para no pisar su trabajo. Un primer intento con solo `Test.startTest` no bastó (seguía pasándose del límite en la preparación); compartir contactos sí.
 - **Aceleración estimada:** ~1 h.
 
+### 46. ⚠ Error de la IA — encabezado con navegación, nombres de campañas y campañas primero (SCRUM-151)
+- **Fecha:** 2026-11-17
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** feedback del panel y revisión de los sitios de los equipos 1, 2, 4, 5 y 6 — SCRUM-151
+- **Qué se pidió:** mejorar la interfaz para que en móvil sea más amigable y en la web tenga mejor navegación, tomando lo que gustó de los demás equipos y lo que dijo el panel sobre el uso de «campaña».
+- **Qué se observó en los demás equipos:** el Equipo 4 tiene encabezado con marca y pestañas «Campañas / Campañas pasadas», un aviso junto a Donar («el pago se hace en una pasarela externa, no necesitas cuenta») y la nota de que solo aparecen quienes eligieron ser reconocidos; el Equipo 1, una cuadrícula limpia con «Activa», avance y «Cierra el…»; el Equipo 6, contador y avance temáticos, «¿para qué se usará el dinero?» y montos más campo libre (se le criticó la legibilidad); el Equipo 5, un diagrama de arquitectura muy elogiado. Del Equipo 2 solo se vio el panel de administración.
+- **Qué se obtuvo:** un encabezado nuevo (`mesaEncabezado`) con marca, «Campañas activas», «Campañas pasadas», «Quién ya se sumó», «Facturas», «Ayuda» y el botón Donar, y un menú desplegable en móvil. Las pestañas del listado ahora se llaman «Campañas activas» y «Campañas pasadas», como pidió el panel, y el encabezado abre la pestaña con `?pestana=` y baja a la lista. En el inicio, las campañas van justo debajo de la portada y los pasos y la información quedan debajo. Se agregaron frases de confianza junto a Donar y en el muro. No cambió el servidor.
+- **Decisión sobre el nombre:** en español se conserva «campaña»; lo que se corrigió fue el genérico «Campañas», que no decía qué lista era. Para la presentación en inglés se usa *fundraising campaign* y no *campaign* a secas (ya anotado en las notas de la presentación).
+- **Qué falló (error de la IA):** (1) se supuso que el componente principal de todas las páginas estaba en la región «header» del sitio, pero en el muro, el registro y las facturas está en «content»; el primer intento falló al editar esas páginas. (2) El encabezado se hizo con `position: sticky` y en la página de la campaña se iba al bajar; se cambió a `position: fixed` con un espacio reservado. (3) El desplazamiento automático a la lista falló tres veces (esperar a los datos, un retraso corto, un `console.log` para depurar) hasta ver que el componente no vuelve a pintarse con los datos y que la página vuelve arriba si se baja antes de terminar de cargar; funciona con una sola espera de 1.3 s tras el primer pintado.
+- **Qué se verificó y cómo:** desplegado y publicado en UADY; como visitante, el encabezado aparece en inicio, campaña, muro, registro y facturas, no tapa el contenido (el contenido empieza justo debajo) y se queda arriba al bajar; el menú móvil abre, marca la página actual y «Ayuda» abre la ventana; `?pestana=pasadas` selecciona la pestaña y baja a la lista. No se probó un pago completo. Las páginas del sitio (Experience Builder) no están en el repositorio: el encabezado se agregó a las 5 páginas desde la configuración del sitio.
+- **Ajuste de tamaños y distribución (mismo día, a pedido de José):** se midieron los tamaños reales y el botón «Donar» salía en 13 px frente a 15.2 px de los enlaces (el tema reduce la letra de los botones); ahora la escala es explícita: enlaces y Donar 16 px, nombre del sitio 18 px, frase 13 px, y en el menú móvil 18 px con filas de 53 px. El menú pasa a hamburguesa a 1,200 px (a 1,210 px todo cabe en una línea, con 40 px entre la marca y los enlaces) y en móvil el botón Donar queda **visible en la barra**, junto al menú, de 44 px de alto como mínimo. Se comprobó sin desbordes a 320, 375, 768, 1,210 y 1,366 px; a 320 px se oculta el nombre y queda solo el ícono.
+- **Portada compacta en móvil (mismo día):** a pedido de José, la portada del inicio se compactó en pantallas chicas (título más chico, sin la frase de abajo y sin el botón «Quiero donar», porque «Donar» ya está en la barra): pasó de unos 575 px a 249 px y la primera campaña queda en el px 576 de 812, visible en la primera pantalla. Al verificarlo apareció un error de la IA en la lista de campañas, que tiene su propia entrada (47).
+- **Aceleración estimada:** ~3 h.
+
+### 47. ⚠ Error de la IA — un reemplazo borró la línea que pedía las campañas y la lista quedó en «Cargando» (SCRUM-151)
+- **Fecha:** 2026-11-17
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** SCRUM-151 (encabezado y navegación del sitio)
+- **Qué se pidió:** que la página de inicio bajara sola hasta la lista de campañas cuando se llega desde el encabezado con `?pestana=activas` o `?pestana=pasadas`.
+- **Qué falló:** para ajustar `renderedCallback` en `mesaCampanas`, la IA reemplazó un tramo del archivo con un script que cortaba desde el inicio de esa función hasta la siguiente línea de referencia (`get hayError()`). Esa zona incluía `@wire(obtenerCampanas) campanas;`, la línea que pide las campañas al servidor, y se borró sin que nadie lo notara: no hubo error de compilación (el despliegue salió bien) ni mensaje en la consola. Resultado: la lista se quedaba en «Cargando campañas…» para siempre y el sitio publicado no mostraba ninguna campaña. Esa versión llegó a subirse al PR #43. Un segundo error en cadena: al restaurar los datos, el desplazamiento automático dejó de funcionar, porque la IA guardaba el elemento de la lista y, al llegar los datos, la lista se vuelve a pintar y el elemento guardado quedaba desconectado.
+- **Cómo se detectó:** al verificar la portada compacta como visitante, `li.campana` daba 0 tarjetas después de 20 segundos con «Cargando campañas…» en pantalla. La consulta a Apex como administrador devolvía las 5 campañas, así que el problema no era el servidor ni los datos. Se desplegó temporalmente la versión anterior de `mesaCampanas` (cargaba las 5 campañas al instante) y la comparación con `git diff` mostró la línea faltante.
+- **Qué se cambió:** se restauró la línea `@wire(obtenerCampanas)`; el archivo quedó con solo líneas agregadas respecto a `entrega-1` (se comprobó con `git diff --stat`, sin eliminaciones). El desplazamiento ahora busca la lista de nuevo en el momento de bajar.
+- **Qué se verificó y cómo:** como visitante con el tamaño de un teléfono, las 5 campañas cargan, la portada mide 249 px y `?pestana=activas` baja solo hasta las pestañas, que quedan debajo del encabezado fijo.
+- **Lección para el proceso:** no editar archivos con reemplazos por posición sin revisar el `git diff` después, y verificar que la lista **cargue datos**, no solo que la página abra: este error pasó el despliegue y no deja rastro en la consola.
+- **Aceleración estimada:** no aplica (tiempo perdido: ~30 min).
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 27 (1–9, 23–26 y 32–45) | 10 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37 y 38) |
+| José Carlos Leo Fernández | 29 (1–9, 23–26 y 32–47) | 12 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46 y 47) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 
