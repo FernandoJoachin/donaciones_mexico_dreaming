@@ -21,11 +21,14 @@
                 <a class="donar" href={urlDonar}>Donar</a>
             </nav>
 
-            <button type="button" class="hamburguesa" aria-expanded={expandido} aria-controls="menu-movil" aria-label={etiquetaBoton} onclick={alternarMenu}>
+            <div class="acciones-movil">
+                <a class="donar donar-movil" href={urlDonar}>Donar</a>
+                <button type="button" class="hamburguesa" aria-expanded={expandido} aria-controls="menu-movil" aria-label={etiquetaBoton} onclick={alternarMenu}>
                 <span class="hamburguesa-linea"></span>
                 <span class="hamburguesa-linea"></span>
                 <span class="hamburguesa-linea"></span>
-            </button>
+                </button>
+            </div>
         </div>
 
         <nav id="menu-movil" class={claseMenu} aria-label="Menú móvil">
@@ -33,7 +36,6 @@
                 <a key={e.id} class={e.clase} href={e.url} aria-current={e.actual}>{e.texto}</a>
             </template>
             <button type="button" class="enlace enlace-boton" onclick={abrirAyuda}>Ayuda</button>
-            <a class="donar donar-bloque" href={urlDonar}>Donar</a>
         </nav>
     </header>
 </template>
