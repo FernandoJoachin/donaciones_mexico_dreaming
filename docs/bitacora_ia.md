@@ -606,11 +606,24 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Una decisión que la IA tomó en silencio:** mostrar la etiqueta solo en los últimos 7 días, para que no aparezca en todas las campañas. Se quitó además la leyenda «Faltan N días» cuando ya hay etiqueta, porque repetía lo mismo.
 - **Aceleración estimada:** ~40 min.
 
+### 51. ⚠ Error de la IA — el botón «Quiero donar» del pie llevaba a la primera campaña (SCRUM-155)
+- **Fecha:** 2026-11-17
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** reporte de Daniel en el chat del equipo — SCRUM-155
+- **Qué se pidió:** revisar lo que dijo Daniel: el botón «Quiero donar» del pie no llevaba a la sección de campañas.
+- **Qué falló (error de la IA):** al construir el pie, la IA dejó la página de donación por defecto en `registro`, que dona a la primera campaña, sin comprobar a dónde llevaba el enlace. En la portada el mismo botón sí baja a la lista; el pie no coincidía. Pasó las verificaciones anteriores porque solo se revisó que el pie se viera, no el destino de sus enlaces.
+- **Cómo se detectó:** lo vio una persona del equipo al usar el sitio, no la IA.
+- **Qué se cambió:** `mesaPie.js` lleva «Quiero donar» y el enlace «Donar» a Inicio con `?pestana=activas`, que baja a la lista de campañas activas.
+- **Qué se verificó y cómo:** como visitante en UADY, ambos enlaces apuntan a `/mesaregalos/s/?pestana=activas` y las 5 tarjetas siguen cargando.
+- **Lección para el proceso:** al terminar un componente, comprobar el destino de cada enlace y botón, no solo que se vea.
+- **Aceleración estimada:** no aplica (arreglo de ~10 min).
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 32 (1–9, 23–26 y 32–50) | 13 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47 y 48) |
+| José Carlos Leo Fernández | 33 (1–9, 23–26 y 32–51) | 14 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47, 48 y 51) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 

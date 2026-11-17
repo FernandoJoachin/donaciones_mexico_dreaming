@@ -75,7 +75,7 @@ export default class MesaPie extends LightningElement {
         const lista = [
             { id: 'inicio', texto: 'Inicio', url: resolverUrl('', null, false) },
             { id: 'campanas', texto: 'Campañas', pagina: this.paginaCampanas },
-            { id: 'donar', texto: 'Donar', pagina: this.paginaDonar },
+            { id: 'donar', texto: 'Donar', url: this.urlDonar },
             { id: 'muro', texto: 'Quién ya se sumó', pagina: this.paginaMuro },
             { id: 'reencuentro', texto: 'Reencuentro', pagina: this.paginaReencuentro },
             { id: 'facturas', texto: 'Facturas', pagina: this.paginaFacturas }
@@ -99,7 +99,8 @@ export default class MesaPie extends LightningElement {
     }
 
     get urlDonar() {
-        return this.paginaDonar ? resolverUrl(this.paginaDonar, null, false) : null;
+        // Donar lleva a la lista de campañas activas (la persona elige cuál), no a la primera campaña.
+        return this.paginaDonar ? `${resolverUrl('', null, false)}?pestana=activas` : null;
     }
 
     get urlAviso() {
