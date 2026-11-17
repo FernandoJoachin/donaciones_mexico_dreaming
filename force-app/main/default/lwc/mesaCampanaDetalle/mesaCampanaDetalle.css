@@ -291,6 +291,10 @@
 .impacto-fijo {
     cursor: default;
 }
+.impacto-libre {
+    border-style: dashed;
+    background: #f4f9ff;
+}
 .impacto-monto {
     font-size: 1.375rem;
     font-weight: 800;

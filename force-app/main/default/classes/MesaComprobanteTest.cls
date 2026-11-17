@@ -90,6 +90,19 @@ private class MesaComprobanteTest {
     }
 
     @IsTest
+    static void elAvisoDeFacturaEnlazaALaPaginaDeFacturas() {
+        insert new Stripe_Config__c(SetupOwnerId = UserInfo.getOrganizationId(), Url_Sitio__c = 'https://sitio.example.com/s/');
+        Id id = donativo('Publica', 'P1000', 'luz@example.com');
+        MesaRegalosService.confirmarPago(new List<Id>{ id });
+
+        MesaComprobante.enviar(new List<Id>{ id });
+        Messaging.SingleEmailMessage m = MesaComprobante.ultimosCorreos[0];
+        Assert.isTrue(m.getHtmlBody().contains('href="https://sitio.example.com/s/facturas"'));
+        Assert.isTrue(m.getPlainTextBody().contains('Pasos para pedir tu factura: https://sitio.example.com/s/facturas'));
+        Assert.isTrue(m.getHtmlBody().contains('https://sitio.example.com/s'), 'También enlaza al sitio con las demás campañas');
+    }
+
+    @IsTest
     static void sinSitioConfiguradoElCorreoVaSinBoton() {
         Id id = donativo('Publica', 'P1000', 'luz@example.com');
         MesaRegalosService.confirmarPago(new List<Id>{ id });

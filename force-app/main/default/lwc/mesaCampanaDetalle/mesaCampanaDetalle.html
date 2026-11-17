@@ -121,6 +121,15 @@
                                         </template>
                                     </li>
                                 </template>
+                                <template lwc:if={puedeDonar}>
+                                    <li>
+                                        <button type="button" class="impacto impacto-libre" onclick={elegirOtroMonto}>
+                                            <span class="impacto-monto">Otro monto</span>
+                                            <span class="impacto-texto">Tú decides cuánto aportar; toda aportación suma a la meta.</span>
+                                            <span class="impacto-accion">Donar el monto que prefieras</span>
+                                        </button>
+                                    </li>
+                                </template>
                             </ul>
                         </section>
                     </template>

@@ -144,7 +144,16 @@ public without sharing class MesaComprobante {
         if (urlMuro != null) {
             texto += 'Míralo aquí: ' + urlMuro + '\n';
         }
-        texto += '\n' + factura + '\n\nCon cariño,\nComunidad Salesforce · Facultad de Matemáticas, UADY';
+        String urlSitio = MesaPagosStripe.urlSitio();
+        if (urlSitio != null) {
+            texto += 'Conoce las demás campañas: ' + urlSitio + '\n';
+        }
+        String urlFacturas = urlSitio == null ? null : urlSitio + '/facturas';
+        texto += '\n' + factura + '\n';
+        if (urlFacturas != null) {
+            texto += 'Pasos para pedir tu factura: ' + urlFacturas + '\n';
+        }
+        texto += '\nCon cariño,\nComunidad Salesforce · Facultad de Matemáticas, UADY';
 
         // HTML de correo: tablas y estilos en línea, porque los clientes de correo no entienden CSS moderno.
         // Todo lo que viene de datos pasa por escapeHtml4.
@@ -185,9 +194,14 @@ public without sharing class MesaComprobante {
             + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:18px">' + filasHtml + '</table>'
             + '<p style="margin:22px 0 0;font-size:14px;line-height:22px;color:#344054">' + muro.escapeHtml4() + '</p>'
             + boton
+            + (urlSitio == null ? '' : '<p style="margin:14px 0 0;text-align:center;font-size:14px"><a href="' + urlSitio.escapeHtml4()
+                + '" style="color:#123a7a;font-weight:700">Conocer las demás campañas</a></p>')
             + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:26px"><tr>'
             + '<td bgcolor="#f4f7fc" style="background:#f4f7fc;border-left:4px solid #2f80e6;border-radius:8px;padding:14px 16px;font-size:13px;line-height:20px;color:#344054">'
-            + factura.escapeHtml4() + '</td></tr></table>'
+            + factura.escapeHtml4()
+            + (urlFacturas == null ? '' : '<br/><a href="' + urlFacturas.escapeHtml4()
+                + '" style="color:#123a7a;font-weight:700">Ver los pasos para pedir tu factura</a>')
+            + '</td></tr></table>'
             + '</td></tr>'
             // Pie
             + '<tr><td style="padding:20px 12px 4px;text-align:center;font-size:12px;line-height:18px;color:#7a8499">'
