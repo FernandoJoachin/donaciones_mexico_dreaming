@@ -584,11 +584,22 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Un hallazgo de paso:** la lista pública muestra ahora una campaña de prueba, «Prueba Campaign Desde Admin Panel», que Daniel creó desde el panel de administración. Confirma que el panel crea campañas con el tipo `Donacion` y salen en el sitio; hay que desactivarla antes de presentar.
 - **Aceleración estimada:** ~30 min.
 
+### 49. Diagrama de arquitectura y actualización de los documentos de la Entrega 2 (SCRUM-153)
+- **Fecha:** 2026-11-17
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** retroalimentación del panel (el diagrama de arquitectura del Equipo 5 fue lo más elogiado) y cierre de la Entrega 2 — SCRUM-153
+- **Qué se pidió:** un diagrama de arquitectura para la presentación y actualizar backlog, seguridad y contribución con lo de hoy.
+- **Qué se obtuvo:** `docs/arquitectura.md` con un diagrama de las piezas (navegador, Stripe y Salesforce), un diagrama de secuencia de un pago, una tabla de quién corre cada cosa (guest, webhook, usuario interno, personal), las decisiones que conviene saber explicar, dónde queda cada dato y un guion de demo de cinco minutos. El backlog se recalculó con los estados de Jira del día: la Entrega 1 baja de 8 a **6 de 15 (40 %)** porque US-02 y US-10 volvieron a *En curso* en Jira (las movió el equipo), y la Entrega 2 queda en 1 de 6 (17 %). Se agregó la evidencia de los PRs #33 a #44, los PRs a la tabla de contribución y un riesgo nuevo en `seguridad.md`: el código desplegado en UADY es distinto del repo (el filtro por tipo de registro de campaña no está en ningún PR).
+- **Qué se verificó y cómo:** lo que afirma el diagrama se contrastó con el código (la ruta `/stripe/webhook`, la tolerancia de 300 s de la firma, el id de pago de Stripe único en la Opportunity, el evento `Comprobante_Pago__e` con publicación después del commit y la clase que lo atiende). El avance se calculó con la consulta a Jira del 17 de noviembre, no con el documento anterior. Los diagramas se revisaron renderizados en GitHub.
+- **Una decisión que la IA habría tomado en silencio:** bajar el porcentaje de la Entrega 1 en lugar de dejar el anterior. Se hizo porque el documento dice que sigue lo que marque Jira; si el equipo prefiere otro criterio, se cambia con la nota que explica el cálculo.
+- **Aceleración estimada:** ~1 h.
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 30 (1–9, 23–26 y 32–48) | 13 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47 y 48) |
+| José Carlos Leo Fernández | 31 (1–9, 23–26 y 32–49) | 13 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47 y 48) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 

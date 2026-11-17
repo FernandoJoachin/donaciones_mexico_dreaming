@@ -12,6 +12,7 @@ Proyecto base para que las personas se registren en un solo formulario y hagan u
 ## Backlog y avance (Entrega 1)
 
 - **Modelo de datos (diagrama de objetos y guía para la demo):** [docs/modelo_datos.md](docs/modelo_datos.md).
+- **Arquitectura y flujo de pago (diagramas):** [docs/arquitectura.md](docs/arquitectura.md).
 - **Backlog en el repo:** [docs/backlog.md](docs/backlog.md) (ID, RF que cubre, hito, historia, criterios, estado y evidencia).
 - **Tablero (Jira):** [backlog del proyecto](https://fernandojoachinp.atlassian.net/issues?jql=project%20%3D%20SCRUM%20ORDER%20BY%20key%20ASC).
   Cada historia (`US-xx`) tiene su descripción, sus criterios de aceptación (CA) y su estado; las historias de la entrega llevan la etiqueta `entrega-1`.
@@ -20,7 +21,7 @@ Proyecto base para que las personas se registren en un solo formulario y hagan u
   Una historia a medias cuenta como no cumplida.
 - **Cómo se calcula el avance:** `historias en Finalizado ÷ historias del backlog que cubren requisitos de la Entrega 1 × 100`.
   Las historias descartadas (etiqueta `descartada`) no cuentan.
-- **Avance al 16 de noviembre de 2026:** **Entrega 1: 53 %** (8 de 15 historias en *Finalizado*) y **Entrega 2: 17 %** (1 de 6); el cálculo está en `docs/backlog.md`.
+- **Avance al 17 de noviembre de 2026:** **Entrega 1: 40 %** (6 de 15 historias en *Finalizado*) y **Entrega 2: 17 %** (1 de 6); el cálculo está en `docs/backlog.md`.
   Es provisional hasta reunir las capturas de evidencia. Este número se actualiza antes de la entrega con el conteo del día.
 - **Documentos de la entrega** (en `docs/`): `seguridad.md` (prueba del visitante, permisos, datos personales y riesgos) y `bitacora_ia.md`
   (bitácora de uso de IA). Las pestañas de contribución y de preguntas y reportes se agregan en `docs/` con su ticket.

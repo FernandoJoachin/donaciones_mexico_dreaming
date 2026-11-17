@@ -80,7 +80,17 @@ Se anota lo que se puede comprobar en el historial; lo que hizo cada persona fue
 | Formulario más claro, mensaje de pago no completado y página de gracias, a partir del feedback del panel | SCRUM-138, 139 y 140 | PR #31 |
 | Diagrama de objetos y guía de registros para la demo (`docs/modelo_datos.md`) | SCRUM-142 | PR #32 |
 | Formulario «¿Necesitas ayuda?» que crea un Case | SCRUM-141 | PR #33 |
-| Actualización de backlog, seguridad y este documento para la Entrega 2 | — | PR de `docs/` de esta fecha |
+| Actualización de backlog, seguridad y este documento para la Entrega 2 | — | PR #34 |
+| Flujo de donación en tres pasos con resumen de la causa; formulario a la derecha y montos flexibles | SCRUM-143, SCRUM-145 | PRs #35 y #37 |
+| Paso «Tus datos» más simple y tarjetas de monto en filas parejas | SCRUM-144 | PR #36 |
+| «Otro monto» en la página de la campaña y enlaces del correo (sitio y pasos de factura) | SCRUM-146 | PR #38 |
+| El error del formulario aparece junto al paso y la página baja sola | SCRUM-147 | PR #39 |
+| Preguntas y reportes de José de la semana del 16 y 17 de noviembre | SCRUM-148 | PR #40 |
+| Correo de facturas real en la sandbox | SCRUM-149 | PR #41 |
+| Pruebas de Apex compatibles con NPSP (cuentas de hogar y límite de consultas) | SCRUM-150 | PR #42 |
+| Encabezado con navegación, campañas primero en el inicio y portada compacta en móvil | SCRUM-151 | PR #43 |
+| Un solo «Campañas» en la barra y el muro solo dentro de una campaña | SCRUM-152 | PR #44 |
+| Diagrama de arquitectura y flujo de pago; actualización de backlog, seguridad y este documento | SCRUM-153 | PR de esta fecha |
 
 ### Daniel Amaya
 
