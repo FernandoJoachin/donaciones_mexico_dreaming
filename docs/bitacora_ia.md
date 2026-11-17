@@ -667,18 +667,17 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué no se verificó:** el aspecto de la sección de pasadas desplegada, porque en el sandbox no hay campañas cerradas (no se alteraron datos de otros); tampoco la bajada al llegar desde otra página con `?pestana=` (el panel del navegador estaba oculto y el desplazamiento no se completó en la prueba).
 - **Aceleración estimada:** no aplica (cambio visual de ~30 min).
 
-### 56. Panel interno: página de Resumen con el diseño del sitio, fase 1 (SCRUM-160)
+### 56. Panel interno: Resumen, Campañas, Moderar muro y Donativos con el diseño del sitio (SCRUM-160)
 - **Fecha:** 2026-11-17
 - **Autor:** José Carlos Leo Fernández
 - **Herramienta:** Claude Code (Anthropic)
 - **Historia:** SCRUM-160 — pulido para la presentación
-- **Qué se pidió:** que la app interna de Salesforce se vea como el panel de otro equipo (barra lateral y páginas propias), pero con nuestro estilo, para trabajar más práctico.
-- **Qué se hizo:** componente `mesaPanelAdmin` (barra lateral azul, tarjetas redondeadas, mismos colores que el sitio) en una pestaña `Panel_Admin` y una app nueva `Mesa_Panel`. La sección Resumen muestra recaudado y donativos pagados, campañas activas, reconocimientos visibles/ocultos, avance por campaña y los últimos 6 reconocimientos. Campañas, Moderar muro y Donativos abren las listas estándar. Datos: `MesaPanelController` (solo lectura, `with sharing`) con su prueba.
-- **Decisiones que tomó la IA y quedan a la vista:** (1) app nueva en vez de editar `Gestion_Donation_Campanas`, porque el PR #48 de Daniel la modifica y se evitan conflictos; (2) no se tocaron permission sets (también los cambia el #48): quien no sea administrador necesitará acceso a la clase `MesaPanelController` y a la app; (3) el recaudado cuenta solo `Closed Won`, igual que el sitio.
-- **Qué se verificó y cómo:** despliegue a UADY sin errores; prueba Apex pasa (1/1); ejecutando `obtenerResumen()` en la org devuelve 124,411 recaudado, 36 pagados, 5 campañas activas, 39 visibles, 0 ocultos y 6 recientes.
-- **Qué no se verificó:** el aspecto en pantalla (el panel pide iniciar sesión en el sandbox y no se introducen credenciales); el acceso de los roles Gestor, Moderador y Tesorería; el diseño en pantallas chicas.
-- **Pendiente (fases 2 y 3):** secciones propias de Campañas, Moderar muro y Donativos dentro del panel.
-- **Aceleración estimada:** no aplica (fase 1 de ~1.5 h).
+- **Qué se pidió:** que la app interna de Salesforce se vea como el panel de otro equipo (barra lateral y páginas propias), pero con nuestro estilo, para trabajar más práctico. En una segunda pasada, José señaló que faltaban las demás secciones.
+- **Qué se hizo:** componente `mesaPanelAdmin` (barra lateral azul, tarjetas redondeadas, mismos colores que el sitio) en una pestaña `Panel_Admin` y una app nueva `Mesa_Panel`, con cuatro secciones: **Resumen** (recaudado, activas, muro visible/oculto, avance, últimos reconocimientos), **Campañas** (tarjetas con avance, filtros, Nueva, Editar y Pausar/Reactivar), **Moderar muro** (filtros, Editar nombre y Ocultar/Mostrar) y **Donativos** (filtros pagados/pendientes y Ver). Datos: `MesaPanelController` (`with sharing`, `WITH USER_MODE`) con su prueba; las escrituras usan `updateRecord`, que respeta los permisos de cada persona.
+- **Decisiones que tomó la IA y quedan a la vista:** (1) la primera entrega solo hizo Resumen y dejó las demás secciones como atajos a las listas estándar; José lo notó, no la IA; (2) app nueva en vez de editar `Gestion_Donation_Campanas`, porque el PR #48 de Daniel la modifica; (3) no se tocaron permission sets: la app y la pestaña se activaron a mano en el perfil Administrador del sistema (lo hizo José); (4) el recaudado cuenta solo `Closed Won`, igual que el sitio; (5) «ocultar» cambia `Mostrar_En_Muro__c`, no borra, como pidió Daniel.
+- **Qué se verificó y cómo:** despliegue a UADY sin errores; prueba Apex pasa (2/2); en Chrome, con sesión de José, las cuatro secciones cargan con datos reales (13 donativos en México Dreamin, 5 campañas activas y 1 pausada, reconocimientos «Anónimo» sin campaña visibles).
+- **Qué no se verificó:** los botones que escriben (Pausar, Reactivar, Ocultar, Mostrar), para no alterar datos de demostración; el acceso de los roles Gestor, Moderador y Tesorería; pantallas chicas; la sección Donativos solo en su primera pantalla.
+- **Aceleración estimada:** no aplica (~2.5 h entre ambas pasadas).
 
 ## Pendiente por integrante
 

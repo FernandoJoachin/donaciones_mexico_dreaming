@@ -11,9 +11,8 @@
                 </span>
             </div>
             <nav class="menu" aria-label="Secciones del panel">
-                <button type="button" class="menu-item menu-activo" aria-current="page">Resumen</button>
-                <template for:each={atajos} for:item="a">
-                    <button key={a.clave} type="button" class="menu-item" data-clave={a.clave} onclick={irA}>{a.texto}</button>
+                <template for:each={menu} for:item="m">
+                    <button key={m.clave} type="button" class={m.clase} aria-current={m.actual} data-clave={m.clave} onclick={irASeccion}>{m.texto}</button>
                 </template>
             </nav>
             <a class="ver-sitio" href={urlSitio} target="_blank" rel="noopener noreferrer">Ver sitio público ↗</a>
@@ -21,83 +20,182 @@
 
         <main class="contenido">
             <header class="cabecera">
-                <h1 class="titulo">Resumen</h1>
-                <p class="subtitulo">Cómo van las campañas y los donativos de la mesa de regalos.</p>
+                <div>
+                    <h1 class="titulo">{titulo}</h1>
+                    <p class="subtitulo">{subtitulo}</p>
+                </div>
+                <template lwc:if={esCampanas}>
+                    <button type="button" class="btn-primario" onclick={nuevaCampana}>+ Nueva campaña</button>
+                </template>
             </header>
 
+            <template lwc:if={conFiltros}>
+                <div class="chips" role="group" aria-label="Filtrar">
+                    <template for:each={chips} for:item="f">
+                        <button key={f.clave} type="button" class={f.clase} aria-pressed={f.pulsado} data-clave={f.clave} onclick={cambiarFiltro}>{f.texto}</button>
+                    </template>
+                </div>
+            </template>
+
             <template lwc:if={hayError}>
-                <p class="aviso-error">No pudimos cargar el resumen. Revisa que tu usuario tenga acceso a la clase MesaPanelController.</p>
+                <p class="aviso-error">No pudimos cargar esta sección: {error}</p>
             </template>
             <template lwc:if={cargando}>
                 <p class="info">Cargando…</p>
             </template>
 
-            <template lwc:if={resumen}>
-                <section class="cifras" aria-label="Cifras principales">
-                    <div class="cifra cifra-principal">
-                        <span class="cifra-etiqueta">Recaudado</span>
-                        <span class="cifra-valor">{totalTexto}</span>
-                        <span class="cifra-nota">{donativosTexto}</span>
-                    </div>
-                    <div class="cifra">
-                        <span class="cifra-etiqueta">Campañas activas</span>
-                        <span class="cifra-valor">{resumen.campanasActivas}</span>
-                    </div>
-                    <div class="cifra">
-                        <span class="cifra-etiqueta">Visibles en el muro</span>
-                        <span class="cifra-valor">{resumen.visiblesEnMuro}</span>
-                    </div>
-                    <div class="cifra">
-                        <span class="cifra-etiqueta">Ocultos del muro</span>
-                        <span class="cifra-valor">{resumen.ocultosDelMuro}</span>
-                    </div>
-                </section>
+            <!-- ============ RESUMEN ============ -->
+            <template lwc:if={esResumen}>
+                <template lwc:if={resumen}>
+                    <section class="cifras" aria-label="Cifras principales">
+                        <div class="cifra cifra-principal">
+                            <span class="cifra-etiqueta">Recaudado</span>
+                            <span class="cifra-valor">{totalTexto}</span>
+                            <span class="cifra-nota">{donativosTexto}</span>
+                        </div>
+                        <div class="cifra">
+                            <span class="cifra-etiqueta">Campañas activas</span>
+                            <span class="cifra-valor">{resumen.campanasActivas}</span>
+                        </div>
+                        <div class="cifra">
+                            <span class="cifra-etiqueta">Visibles en el muro</span>
+                            <span class="cifra-valor">{resumen.visiblesEnMuro}</span>
+                        </div>
+                        <div class="cifra">
+                            <span class="cifra-etiqueta">Ocultos del muro</span>
+                            <span class="cifra-valor">{resumen.ocultosDelMuro}</span>
+                        </div>
+                    </section>
 
-                <div class="columnas">
-                    <section class="tarjeta">
-                        <h2 class="tarjeta-titulo">Campañas</h2>
-                        <ul class="lista">
-                            <template for:each={campanas} for:item="c">
-                                <li key={c.id} class="fila-campana">
-                                    <div class="fila-cabeza">
-                                        <span class="fila-nombre">{c.nombre}</span>
-                                        <span class={c.claseEstado}>{c.estado}</span>
-                                    </div>
-                                    <div class="fila-cifras">
-                                        <strong>{c.totalTexto}</strong>
-                                        <span>{c.metaTexto}</span>
-                                    </div>
-                                    <template lwc:if={c.conMeta}>
-                                        <div class="barra" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow={c.porcentaje} aria-label="Avance">
-                                            <div class="barra-relleno" style={c.estiloBarra}></div>
+                    <div class="columnas">
+                        <section class="tarjeta">
+                            <h2 class="tarjeta-titulo">Campañas</h2>
+                            <ul class="lista">
+                                <template for:each={resumenCampanas} for:item="c">
+                                    <li key={c.id} class="fila-campana">
+                                        <div class="fila-cabeza">
+                                            <span class="fila-nombre">{c.nombre}</span>
+                                            <span class={c.claseEstado}>{c.estado}</span>
                                         </div>
-                                    </template>
-                                </li>
-                            </template>
-                        </ul>
-                    </section>
+                                        <div class="fila-cifras">
+                                            <strong>{c.totalTexto}</strong>
+                                            <span>{c.metaTexto}</span>
+                                        </div>
+                                        <template lwc:if={c.conMeta}>
+                                            <div class="barra" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow={c.porcentaje} aria-label="Avance">
+                                                <div class="barra-relleno" style={c.estiloBarra}></div>
+                                            </div>
+                                        </template>
+                                    </li>
+                                </template>
+                            </ul>
+                        </section>
 
-                    <section class="tarjeta">
-                        <h2 class="tarjeta-titulo">Últimos reconocimientos</h2>
-                        <template lwc:if={sinRecientes}>
-                            <p class="info">Todavía no hay donativos.</p>
-                        </template>
-                        <ul class="lista">
-                            <template for:each={recientes} for:item="r">
-                                <li key={r.id} class="fila-reciente">
-                                    <div class="reciente-datos">
-                                        <span class="fila-nombre">{r.nombre}</span>
-                                        <span class="reciente-sub">{r.detalle}</span>
-                                    </div>
-                                    <div class="reciente-derecha">
-                                        <strong>{r.montoTexto}</strong>
-                                        <span class={r.claseVisible}>{r.visibleTexto}</span>
-                                    </div>
-                                </li>
+                        <section class="tarjeta">
+                            <h2 class="tarjeta-titulo">Últimos reconocimientos</h2>
+                            <template lwc:if={sinRecientes}>
+                                <p class="info">Todavía no hay donativos.</p>
                             </template>
-                        </ul>
-                    </section>
-                </div>
+                            <ul class="lista">
+                                <template for:each={resumenRecientes} for:item="r">
+                                    <li key={r.id} class="fila-reciente">
+                                        <div class="reciente-datos">
+                                            <span class="fila-nombre">{r.nombre}</span>
+                                            <span class="reciente-sub">{r.detalle}</span>
+                                        </div>
+                                        <div class="reciente-derecha">
+                                            <strong>{r.montoTexto}</strong>
+                                            <span class={r.claseVisible}>{r.visibleTexto}</span>
+                                        </div>
+                                    </li>
+                                </template>
+                            </ul>
+                        </section>
+                    </div>
+                </template>
+            </template>
+
+            <!-- ============ CAMPAÑAS ============ -->
+            <template lwc:if={esCampanas}>
+                <template lwc:if={campanasLista}>
+                    <template lwc:if={sinCampanas}>
+                        <p class="vacio">No hay campañas con este filtro.</p>
+                    </template>
+                    <ul class="rejilla">
+                        <template for:each={campanas} for:item="c">
+                            <li key={c.id} class="tarjeta tarjeta-campana">
+                                <div class="fila-cabeza">
+                                    <h2 class="campana-nombre">{c.nombre}</h2>
+                                    <span class={c.claseEstado}>{c.estado}</span>
+                                </div>
+                                <p class="reciente-sub">{c.periodo}</p>
+                                <div class="fila-cifras">
+                                    <strong class="cifra-media">{c.totalTexto}</strong>
+                                    <span>{c.metaTexto}</span>
+                                </div>
+                                <template lwc:if={c.conMeta}>
+                                    <div class="barra" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow={c.porcentaje} aria-label="Avance">
+                                        <div class="barra-relleno" style={c.estiloBarra}></div>
+                                    </div>
+                                </template>
+                                <p class="reciente-sub">{c.donativosTexto}</p>
+                                <div class="acciones">
+                                    <button type="button" class="btn-sec" data-id={c.id} data-objeto="Campaign" onclick={editarRegistro}>Editar</button>
+                                    <button type="button" class="btn-sec" data-id={c.id} data-activa={c.activa} disabled={ocupado} onclick={alternarCampana}>{c.textoPausa}</button>
+                                </div>
+                            </li>
+                        </template>
+                    </ul>
+                </template>
+            </template>
+
+            <!-- ============ MODERAR MURO ============ -->
+            <template lwc:if={esMuro}>
+                <template lwc:if={muroLista}>
+                    <template lwc:if={sinReconocimientos}>
+                        <p class="vacio">No hay reconocimientos con este filtro.</p>
+                    </template>
+                    <ul class="lista lista-ancha">
+                        <template for:each={reconocimientos} for:item="r">
+                            <li key={r.id} class="fila-reciente fila-tabla">
+                                <div class="reciente-datos">
+                                    <span class="fila-nombre">{r.nombre}</span>
+                                    <span class="reciente-sub">{r.detalle}</span>
+                                </div>
+                                <strong>{r.montoTexto}</strong>
+                                <span class={r.claseVisible}>{r.visibleTexto}</span>
+                                <div class="acciones">
+                                    <button type="button" class="btn-sec" data-id={r.id} data-objeto="Reconocimiento_Publico__c" onclick={editarRegistro}>Editar nombre</button>
+                                    <button type="button" class="btn-sec" data-id={r.id} data-visible={r.visible} disabled={ocupado} onclick={alternarMuro}>{r.textoAccion}</button>
+                                </div>
+                            </li>
+                        </template>
+                    </ul>
+                </template>
+            </template>
+
+            <!-- ============ DONATIVOS ============ -->
+            <template lwc:if={esDonativos}>
+                <template lwc:if={donativosLista}>
+                    <template lwc:if={sinDonativos}>
+                        <p class="vacio">No hay donativos con este filtro.</p>
+                    </template>
+                    <ul class="lista lista-ancha">
+                        <template for:each={donativos} for:item="d">
+                            <li key={d.id} class="fila-reciente fila-tabla">
+                                <div class="reciente-datos">
+                                    <span class="fila-nombre">{d.nombre}</span>
+                                    <span class="reciente-sub">{d.detalle}</span>
+                                </div>
+                                <strong>{d.montoTexto}</strong>
+                                <span class={d.claseEtapa}>{d.etapa}</span>
+                                <div class="acciones">
+                                    <button type="button" class="btn-sec" data-id={d.id} data-objeto="Opportunity" onclick={verRegistro}>Ver</button>
+                                </div>
+                            </li>
+                        </template>
+                    </ul>
+                </template>
             </template>
         </main>
     </div>
