@@ -697,6 +697,18 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué no se verificó:** el panel con un usuario de permisos reducidos (moderador, gestor o tesorería): no se inicia sesión como otras personas ni se asignan permisos de prueba. Queda como prueba pendiente para quien tenga esos usuarios.
 - **Aceleración estimada:** no aplica (~30 min).
 
+### 62. ⚠ El buscador del panel conservaba el texto al cambiar de sección (SCRUM-165)
+- **Fecha:** 2026-11-17
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** SCRUM-165 — se vio al revisar los fotogramas de la grabación del panel para el video
+- **Error de la IA (⚠):** al escribir un nombre en el buscador de «Moderar muro» y pasar a «Donativos», la caja seguía mostrando el texto, pero la lista de Donativos aparecía sin filtrar (51 donativos). La IA guardaba el texto de búsqueda de cada sección en el estado pero nunca lo ligaba a la caja, que es un solo elemento compartido por las dos secciones. En la verificación de la paginación se probó cada sección por separado y no el paso de una a otra.
+- **Qué se cambió:** cada sección guarda su propio texto (`texto`) y la caja lo muestra (`value={textoBusqueda}`); al volver a una sección su búsqueda sigue ahí.
+- **Qué se verificó y cómo:** en Chrome con la sesión de José: se escribe «Charritos» en Moderar muro, se pasa a Donativos (caja vacía, 51 donativos) y se regresa a Moderar muro (caja con «Charritos», 1 reconocimiento).
+- **Qué no se verificó:** escribir con acentos o espacios al final mientras la lista recarga.
+- **Nota sobre el conteo:** esta entrada no actualiza la fila de la tabla de IA para evitar otro conflicto con los PR #55, #56 y #57; se actualiza una sola vez al cerrar.
+- **Aceleración estimada:** no aplica (~15 min).
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
