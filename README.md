@@ -4,6 +4,10 @@ Proyecto base para que las personas se registren en un solo formulario y hagan u
 
 **Estado:** los componentes validan con `--dry-run` sin errores. Las pruebas Apex (16) se validan en una Developer Edition limpia. El pago con Stripe Checkout y su webhook de confirmación están implementados (US-05); falta configurarlos y probarlos de punta a punta en la org (ver [docs/guia_pruebas_stripe.md](docs/guia_pruebas_stripe.md)). Falta también una pantalla para que los admins puedan gestionar las campañas (CRUD).
 
+## Video demo (Entrega 2)
+
+- **Video de 4 min 50 s** (subtítulos, sin voz, con música de fondo libre de derechos): [demo-video/entrega-2-demo.mp4](demo-video/entrega-2-demo.mp4). Muestra el sitio, un pago completo con Stripe en modo de prueba, el panel interno de Salesforce (Resumen, Campañas, Moderar muro, Donativos y tablero), cómo se implementó, cómo se trabajó y los documentos. Todo en modo de prueba, con datos ficticios.
+
 ## Video demo (Entrega 1)
 
 - **Video de 3 min 25 s** (subtítulos, sin voz): [demo-video/entrega-1-demo.mp4](demo-video/entrega-1-demo.mp4). Recorre como visitante sin login el sitio central, la campaña, el formulario, la maqueta del pago de prueba, el muro, la factura por correo, la seguridad y el backlog con su avance.
