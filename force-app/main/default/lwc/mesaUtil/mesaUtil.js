@@ -122,7 +122,7 @@ const ICONO_SVG =
     "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'>" +
     "<defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#032d60'/><stop offset='1' stop-color='#0176d3'/></linearGradient></defs>" +
     "<rect width='64' height='64' rx='16' fill='url(#g)'/>" +
-    "<path d='M19.2 47a11.5 11.5 0 0 1-1.75-22.9A15 15 0 0 1 46.5 21.5a13 13 0 0 1-1.5 25.5z' fill='#fff'/></svg>";
+    "<path transform='translate(32 32) scale(.72) translate(-33 -27)' d='M19.2 47a11.5 11.5 0 0 1-1.75-22.9A15 15 0 0 1 46.5 21.5a13 13 0 0 1-1.5 25.5z' fill='#fff'/></svg>";
 
 /** Pone el ícono de la marca en la pestaña del navegador (quita el genérico). */
 export function ponerIcono() {

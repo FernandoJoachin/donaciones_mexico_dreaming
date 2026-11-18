@@ -706,6 +706,7 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Decisión:** se hizo por código y no en Experience Builder (propiedades de página y marcado del encabezado) porque la configuración del Builder no está en el repositorio: así viaja con el código y queda revisable en un PR.
 - **Qué se verificó y cómo:** como visitante en UADY con Chrome sin sesión, las cinco páginas (inicio, campaña, registro, muro y facturas) muestran el título nuevo y el ícono SVG en el `<head>`. La vista previa del ícono a 96, 32 y 16 px se ve nítida.
 - **Qué no se verificó:** cómo se ve en la barra de pestañas de un navegador real (solo se comprobó el HTML y el ícono suelto); **Safari no admite íconos SVG**, ahí seguirá el genérico; tampoco se probó la vista de celular.
+- **Ajuste posterior:** la nube del ícono quedaba pegada a los bordes; se redujo (escala .72 y centrada en el cuadro) y se volvió a publicar. Se comprobó solo en una vista previa del SVG suelto a 160 y 32 px.
 - **Aceleración estimada:** no aplica (~20 min).
 
 ## Pendiente por integrante
