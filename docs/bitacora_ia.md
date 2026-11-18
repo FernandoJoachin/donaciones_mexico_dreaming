@@ -709,11 +709,22 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué no se verificó:** el resumen de `mesaRegistro` con la misma medición ni los anchos de celular y tablet (a menos de 900 px la tarjeta lateral no es fija).
 - **Aceleración estimada:** no aplica (cambio de ~10 min).
 
+### 59. Datos de demostración del sandbox: nombres creíbles y reconocimientos huérfanos ocultos (sin ticket, datos de UADY)
+- **Fecha:** 2026-11-17
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Qué se pidió:** que los datos del sandbox se vean reales para el video y la demo (opción 1: renombrar, no borrar).
+- **Qué se hizo (solo en el sandbox UADY, nada en el repo):** con un script de Apex anónimo, las 30 oportunidades «DEMO CAMPAÑAS | …» y «DEMO MURO | …» se renombraron al formato de las reales: «Donativo - {nombre público} - dd/mm/aaaa» (anónimas: «Donativo - Anónimo - …»). La donación pendiente «Donación pendiente (no debe verse)» de 99,000 pasó a «Rafael Ortiz» con 1,200 y sigue en etapa pendiente (no suma al recaudado). Los dos reconocimientos «Anónimo» sin campaña ($500 y $5,000, de pagos de prueba del 17 de nov.) se ocultaron del muro con `Mostrar_En_Muro__c = false`, sin borrarlos.
+- **Qué se verificó y cómo:** 0 oportunidades «DEMO» restantes; el recaudado sigue en $124,411 (36 pagados con campaña); reconocimientos visibles 37 y ocultos 2 (antes 39 y 0).
+- **Qué no se tocó:** los 30 contactos «Demo 01-alicia-publica…» y su cuenta (no se ven en el sitio ni en el panel; con NPSP además generan cuentas de hogar); dos oportunidades pendientes «Ana Demostración» de pruebas anteriores. Los nombres públicos de los reconocimientos ya eran personas y organizaciones ficticias creíbles.
+- **Advertencia:** todos son datos de demostración ficticios. Si se vuelve a correr `scripts/apex/campanas-demostracion.apex` regresan los nombres «DEMO …». Cuando se cuente en la defensa, decir que son datos de prueba.
+- **Aceleración estimada:** no aplica (~15 min).
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 40 (1–9, 23–26 y 32–58) | 17 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47, 48, 51, 56, 57 y 58) |
+| José Carlos Leo Fernández | 41 (1–9, 23–26 y 32–59) | 17 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47, 48, 51, 56, 57 y 58) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 
