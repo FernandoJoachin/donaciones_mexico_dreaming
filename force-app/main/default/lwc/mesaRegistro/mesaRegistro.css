@@ -54,7 +54,8 @@
 .resumen {
     order: 1;
     position: sticky;
-    top: 1rem;
+    /* La barra de navegación es fija y mide 4rem: se suma para que el resumen no quede tapado al bajar. */
+    top: calc(4rem + 1rem);
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
