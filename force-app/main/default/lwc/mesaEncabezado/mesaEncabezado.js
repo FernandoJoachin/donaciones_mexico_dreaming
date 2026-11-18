@@ -1,5 +1,5 @@
 import { LightningElement, api } from 'lwc';
-import { resolverUrl, bajarALista } from 'c/mesaUtil';
+import { resolverUrl, bajarALista, ponerTitulo, ponerIcono } from 'c/mesaUtil';
 
 /**
  * Encabezado del sitio: marca, navegación y botón Donar. En pantallas chicas la navegación se abre
@@ -13,6 +13,21 @@ export default class MesaEncabezado extends LightningElement {
     @api paginaFacturas = 'facturas';
 
     menuAbierto = false;
+
+    /** El encabezado está en todas las páginas: aquí se pone el ícono y el título de la pestaña. */
+    connectedCallback() {
+        ponerIcono();
+        const ruta = window.location.pathname.replace(/\/+$/, '');
+        const tramo = ruta.substring(ruta.lastIndexOf('/') + 1);
+        const titulos = {
+            [this.paginaMuro]: 'Muro de agradecimiento',
+            [this.paginaFacturas]: 'Facturas',
+            registro: 'Donar',
+            campana: 'Campaña'
+        };
+        // La página de una campaña vuelve a poner su título con el nombre de la campaña cuando lo conoce.
+        ponerTitulo(titulos[tramo]);
+    }
 
     /** Id de la campaña en la dirección (?campana=), si la página es de una campaña; si no, undefined. */
     get campanaActual() {
