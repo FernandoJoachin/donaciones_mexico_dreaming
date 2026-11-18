@@ -765,11 +765,22 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué no se verificó:** cómo se ve en la barra de pestañas de un navegador real (solo se comprobó el HTML y el ícono suelto); **Safari no admite íconos SVG**, ahí seguirá el genérico; tampoco se probó la vista de celular.
 - **Ajuste posterior:** la nube del ícono quedaba pegada a los bordes; se redujo (escala .72 y centrada en el cuadro) y se volvió a publicar. Se comprobó solo en una vista previa del SVG suelto a 160 y 32 px.
 - **Aceleración estimada:** no aplica (~20 min).
+### 64. ⚠ El comprobante salía con el remitente de respaldo porque la etiqueta apuntaba a una dirección de ejemplo
+- **Fecha:** 2026-11-18
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Qué se pidió:** diagnosticar por qué no llegaba el correo del comprobante.
+- **Causa (error de la IA, ⚠):** en SCRUM-137 la IA dejó la etiqueta `Mesa_Correo_Remitente` con el marcador `comprobantes@ejemplo.org`. `MesaComprobante` busca esa dirección entre las de toda la organización, no la encuentra (la verificada es `contact.devxstudio@gmail.com`) y envía con el remitente de respaldo, sin dominio, que algunos servidores rechazan o mandan a spam. «Enviado» solo indica que Salesforce aceptó el envío.
+- **Qué se cambió:** el valor de la etiqueta pasó a `contact.devxstudio@gmail.com`; se desplegó al sandbox UADY y se subió directo a `main` y `entrega-1` a petición de José.
+- **Qué se verificó y cómo:** con consultas al sandbox: la etiqueta valía el marcador, la dirección verificada es otra y los comprobantes recientes figuran como «Enviado» sin rebotes.
+- **Qué no se verificó:** que el correo ya llegue. No se mandó ningún correo de prueba; una dirección de Gmail como remitente aún puede acabar en spam.
+- **Aceleración estimada:** no aplica (~15 min).
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 45 (1–9, 23–26 y 32–63) | 19 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47, 48, 51, 56, 57, 58, 61 y 62) |
+| José Carlos Leo Fernández | 46 (1–9, 23–26 y 32–64) | 20 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47, 48, 51, 56, 57, 58, 61, 62 y 64) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 
