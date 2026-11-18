@@ -19,7 +19,7 @@ const FECHA = new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'short',
 const TAM_PAGINA = 20;
 
 function listaVacia() {
-    return { cargado: false, filas: [], total: 0, haySiguiente: false, cursores: [null], indice: 0, buscar: '' };
+    return { cargado: false, filas: [], total: 0, haySiguiente: false, cursores: [null], indice: 0, buscar: '', texto: '' };
 }
 
 const SECCIONES = [
@@ -126,7 +126,7 @@ export default class MesaPanelAdmin extends NavigationMixin(LightningElement) {
     }
 
     reiniciarLista(clave) {
-        this.listas = { ...this.listas, [clave]: { ...listaVacia(), buscar: this.listas[clave].buscar } };
+        this.listas = { ...this.listas, [clave]: { ...listaVacia(), buscar: this.listas[clave].buscar, texto: this.listas[clave].texto } };
     }
 
     // ---------- Permisos: cada persona ve solo lo que puede usar ----------
@@ -286,6 +286,11 @@ export default class MesaPanelAdmin extends NavigationMixin(LightningElement) {
         return !this.lista.haySiguiente || this.ocupado;
     }
 
+    /** Lo que se ve en la caja: cada sección recuerda su propio texto de búsqueda. */
+    get textoBusqueda() {
+        return this.lista.texto;
+    }
+
     get marcadorBusqueda() {
         return this.seccion === 'muro' ? 'Buscar por nombre…' : 'Buscar donativo…';
     }
@@ -297,7 +302,7 @@ export default class MesaPanelAdmin extends NavigationMixin(LightningElement) {
         clearTimeout(this._temporizador);
         // eslint-disable-next-line @lwc/lwc/no-async-operation
         this._temporizador = setTimeout(() => {
-            this.listas = { ...this.listas, [clave]: { ...listaVacia(), buscar: texto.trim() } };
+            this.listas = { ...this.listas, [clave]: { ...listaVacia(), buscar: texto.trim(), texto } };
             this.cargar(clave);
         }, 350);
     }

@@ -39,7 +39,7 @@
 
             <template lwc:if={paginada}>
                 <div class="buscador">
-                    <input type="search" class="buscador-campo" placeholder={marcadorBusqueda} aria-label="Buscar" oninput={escribirBusqueda} />
+                    <input type="search" class="buscador-campo" placeholder={marcadorBusqueda} aria-label="Buscar" value={textoBusqueda} oninput={escribirBusqueda} />
                     <template lwc:if={lista.cargado}>
                         <span class="buscador-total">{textoTotal}</span>
                     </template>

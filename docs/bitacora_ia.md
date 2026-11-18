@@ -741,11 +741,23 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué se verificó y cómo:** como visitante en UADY, el pie ya no trae el enlace (comprobado con el mismo script). `/ayuda` también da 404, pero no es un fallo: «Ayuda» es un panel que se abre dentro de la página, no una página.
 - **Qué no se verificó:** el pie en otras páginas (campaña, muro, facturas) con la misma comprobación ni en celular.
 - **Aceleración estimada:** no aplica (~15 min).
+
+### 62. ⚠ El buscador del panel conservaba el texto al cambiar de sección (SCRUM-165)
+- **Fecha:** 2026-11-17
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** SCRUM-165 — se vio al revisar los fotogramas de la grabación del panel para el video
+- **Error de la IA (⚠):** al escribir un nombre en el buscador de «Moderar muro» y pasar a «Donativos», la caja seguía mostrando el texto, pero la lista de Donativos aparecía sin filtrar (51 donativos). La IA guardaba el texto de búsqueda de cada sección en el estado pero nunca lo ligaba a la caja, que es un solo elemento compartido por las dos secciones. En la verificación de la paginación se probó cada sección por separado y no el paso de una a otra.
+- **Qué se cambió:** cada sección guarda su propio texto (`texto`) y la caja lo muestra (`value={textoBusqueda}`); al volver a una sección su búsqueda sigue ahí.
+- **Qué se verificó y cómo:** en Chrome con la sesión de José: se escribe «Charritos» en Moderar muro, se pasa a Donativos (caja vacía, 51 donativos) y se regresa a Moderar muro (caja con «Charritos», 1 reconocimiento).
+- **Qué no se verificó:** escribir con acentos o espacios al final mientras la lista recarga.
+- **Nota sobre el conteo:** esta entrada no actualiza la fila de la tabla de IA para evitar otro conflicto con los PR #55, #56 y #57; se actualiza una sola vez al cerrar.
+- **Aceleración estimada:** no aplica (~15 min).
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 43 (1–9, 23–26 y 32–61) | 18 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47, 48, 51, 56, 57, 58 y 61) |
+| José Carlos Leo Fernández | 44 (1–9, 23–26 y 32–62) | 19 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47, 48, 51, 56, 57, 58, 61 y 62) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 
