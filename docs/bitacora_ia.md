@@ -697,11 +697,23 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué no se verificó:** el panel con un usuario de permisos reducidos (moderador, gestor o tesorería): no se inicia sesión como otras personas ni se asignan permisos de prueba. Queda como prueba pendiente para quien tenga esos usuarios.
 - **Aceleración estimada:** no aplica (~30 min).
 
+### 58. ⚠ La tarjeta de pago y el resumen fijos quedaban bajo la barra de navegación (SCRUM-162)
+- **Fecha:** 2026-11-17
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** SCRUM-162 — observación de José al revisar la página de campaña (captura): la tarjeta de «Donar» se pegaba arriba y la barra le tapaba la cifra
+- **Qué se pidió:** que lo que se queda fijo al bajar cuente la altura de la barra de navegación.
+- **Causa (error de la IA, ⚠):** al agregar la barra de navegación fija (4 rem) en una entrega anterior no se revisaron los elementos que ya eran `position: sticky`; seguían con `top: 1.5rem` y `top: 1rem`, pensados para cuando arriba no había nada. Lo mismo para cualquier elemento fijo nuevo: hay que sumar la barra.
+- **Qué se cambió:** `mesaCampanaDetalle` (tarjeta lateral): `top: calc(4rem + 1.5rem)`; `mesaRegistro` (resumen del formulario de pago): `top: calc(4rem + 1rem)`.
+- **Qué se verificó y cómo:** como visitante en UADY a 1440 px, en la página de México Dreamin la tarjeta lateral queda a 88 px del borde al bajar a 600, 1100 y 1600 px de scroll, con la barra terminando en 65 px (antes quedaba a 24 px, bajo la barra).
+- **Qué no se verificó:** el resumen de `mesaRegistro` con la misma medición ni los anchos de celular y tablet (a menos de 900 px la tarjeta lateral no es fija).
+- **Aceleración estimada:** no aplica (cambio de ~10 min).
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 39 (1–9, 23–26 y 32–57) | 16 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47, 48, 51, 56 y 57) |
+| José Carlos Leo Fernández | 40 (1–9, 23–26 y 32–58) | 17 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47, 48, 51, 56, 57 y 58) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 
