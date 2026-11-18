@@ -114,3 +114,51 @@ export function bajarALista(evento) {
     }
     return false;
 }
+
+const NOMBRE_SITIO = 'Mesa de regalos · México Dreamin';
+
+/** Ícono de la pestaña: la nube de la marca sobre el azul del sitio (SVG incrustado, sin archivos aparte). */
+const ICONO_SVG =
+    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'>" +
+    "<defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#032d60'/><stop offset='1' stop-color='#0176d3'/></linearGradient></defs>" +
+    "<rect width='64' height='64' rx='16' fill='url(#g)'/>" +
+    "<path transform='translate(32 32) scale(.72) translate(-33 -27)' d='M19.2 47a11.5 11.5 0 0 1-1.75-22.9A15 15 0 0 1 46.5 21.5a13 13 0 0 1-1.5 25.5z' fill='#fff'/></svg>";
+
+/** Pone el ícono de la marca en la pestaña del navegador (quita el genérico). */
+export function ponerIcono() {
+    try {
+        const href = `data:image/svg+xml,${encodeURIComponent(ICONO_SVG)}`;
+        document.querySelectorAll('link[rel~="icon"], link[rel="shortcut icon"]').forEach((l) => l.remove());
+        const link = document.createElement('link');
+        link.rel = 'icon';
+        link.type = 'image/svg+xml';
+        link.href = href;
+        document.head.appendChild(link);
+    } catch (e) {
+        // Sin acceso al documento (por ejemplo, en una vista previa): no pasa nada, solo no hay ícono propio.
+    }
+}
+
+/**
+ * Título de la pestaña: «Parte · Mesa de regalos» (o el nombre del sitio si no hay parte). La plataforma pone
+ * su propio título al cambiar de página, así que se vuelve a poner si lo cambia en los primeros segundos.
+ */
+export function ponerTitulo(parte) {
+    const titulo = parte ? `${parte} · Mesa de regalos` : NOMBRE_SITIO;
+    try {
+        document.title = titulo;
+        const nodo = document.querySelector('title');
+        if (nodo && typeof MutationObserver !== 'undefined') {
+            const vigilante = new MutationObserver(() => {
+                if (document.title !== titulo) {
+                    document.title = titulo;
+                }
+            });
+            vigilante.observe(nodo, { childList: true, characterData: true, subtree: true });
+            // eslint-disable-next-line @lwc/lwc/no-async-operation
+            setTimeout(() => vigilante.disconnect(), 8000);
+        }
+    } catch (e) {
+        // Sin acceso al documento: se queda el título de la plataforma.
+    }
+}

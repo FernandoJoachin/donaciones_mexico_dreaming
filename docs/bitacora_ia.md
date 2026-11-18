@@ -753,11 +753,23 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué no se verificó:** escribir con acentos o espacios al final mientras la lista recarga.
 - **Nota sobre el conteo:** esta entrada no actualiza la fila de la tabla de IA para evitar otro conflicto con los PR #55, #56 y #57; se actualiza una sola vez al cerrar.
 - **Aceleración estimada:** no aplica (~15 min).
+
+### 63. Favicon y títulos de pestaña con nombre en cada página (SCRUM-166)
+- **Fecha:** 2026-11-18
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** SCRUM-166 — pulido antes de grabar el video: las pestañas decían solo «muro», «campana» o «facturas» y tenían el ícono genérico
+- **Qué se hizo:** `mesaUtil` ahora exporta `ponerIcono` (la nube de la marca sobre el azul del sitio, como SVG incrustado, sin archivo aparte) y `ponerTitulo` (formato «Parte · Mesa de regalos»). `mesaEncabezado`, que está en todas las páginas, pone el ícono y el título según la página: «Mesa de regalos · México Dreamin» en el inicio, «Muro de agradecimiento · Mesa de regalos», «Facturas · Mesa de regalos» y «Donar · Mesa de regalos»; `mesaCampanaDetalle` lo cambia al **nombre de la campaña** cuando lo conoce («México Dreamin · Mesa de regalos»). Como la plataforma también escribe su propio título al cambiar de página, `ponerTitulo` lo vuelve a poner durante 8 s si lo cambian.
+- **Decisión:** se hizo por código y no en Experience Builder (propiedades de página y marcado del encabezado) porque la configuración del Builder no está en el repositorio: así viaja con el código y queda revisable en un PR.
+- **Qué se verificó y cómo:** como visitante en UADY con Chrome sin sesión, las cinco páginas (inicio, campaña, registro, muro y facturas) muestran el título nuevo y el ícono SVG en el `<head>`. La vista previa del ícono a 96, 32 y 16 px se ve nítida.
+- **Qué no se verificó:** cómo se ve en la barra de pestañas de un navegador real (solo se comprobó el HTML y el ícono suelto); **Safari no admite íconos SVG**, ahí seguirá el genérico; tampoco se probó la vista de celular.
+- **Ajuste posterior:** la nube del ícono quedaba pegada a los bordes; se redujo (escala .72 y centrada en el cuadro) y se volvió a publicar. Se comprobó solo en una vista previa del SVG suelto a 160 y 32 px.
+- **Aceleración estimada:** no aplica (~20 min).
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 44 (1–9, 23–26 y 32–62) | 19 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47, 48, 51, 56, 57, 58, 61 y 62) |
+| José Carlos Leo Fernández | 45 (1–9, 23–26 y 32–63) | 19 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47, 48, 51, 56, 57, 58, 61 y 62) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 

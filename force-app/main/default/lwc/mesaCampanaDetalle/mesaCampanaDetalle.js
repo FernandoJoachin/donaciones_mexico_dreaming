@@ -2,7 +2,7 @@ import { LightningElement, api, wire } from 'lwc';
 import { CurrentPageReference } from 'lightning/navigation';
 import obtenerCampana from '@salesforce/apex/MesaRegalosController.obtenerCampana';
 import obtenerMuro from '@salesforce/apex/MesaRegalosController.obtenerMuro';
-import { resolverUrl, irA, formatearMonto } from 'c/mesaUtil';
+import { resolverUrl, irA, formatearMonto, ponerTitulo } from 'c/mesaUtil';
 
 const MS_DIA = 24 * 60 * 60 * 1000;
 
@@ -63,6 +63,7 @@ export default class MesaCampanaDetalle extends LightningElement {
                 this.campana = d || null;
                 this.cargando = false;
                 if (d) {
+                    ponerTitulo(d.nombre);
                     this.cargarDonantes(id);
                 }
             })
