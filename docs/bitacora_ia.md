@@ -697,11 +697,22 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué no se verificó:** el panel con un usuario de permisos reducidos (moderador, gestor o tesorería): no se inicia sesión como otras personas ni se asignan permisos de prueba. Queda como prueba pendiente para quien tenga esos usuarios.
 - **Aceleración estimada:** no aplica (~30 min).
 
+### 61. ⚠ El pie mostraba el enlace «Reencuentro» a una página que ya no existe (SCRUM-164)
+- **Fecha:** 2026-11-17
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** SCRUM-164 — revisión del funcionamiento del sitio pedida por José, antes de grabar el video
+- **Cómo se encontró:** un script con un navegador sin login (Playwright con Chrome) recorrió inicio, campaña, muro y facturas y anotó respuestas 4xx y errores de consola. El pie del inicio traía «Reencuentro» → `/s/reencuentro`, que responde **404**. La página se eliminó cuando se quitó el flujo de token (bitácora 275 de la entrega anterior) pero el pie conservaba el enlace.
+- **Error de la IA (⚠):** el primer arreglo cambió solo el valor predeterminado de la propiedad `paginaReencuentro` a vacío, dando por hecho que el sitio usaba el predeterminado. Se desplegó, se publicó y se volvió a probar: el enlace seguía, porque el sitio tiene guardado el valor `reencuentro` en su configuración. El arreglo que funcionó fue quitar la entrada del código del pie; la propiedad queda marcada como obsoleta para no romper la configuración guardada.
+- **Qué se verificó y cómo:** como visitante en UADY, el pie ya no trae el enlace (comprobado con el mismo script). `/ayuda` también da 404, pero no es un fallo: «Ayuda» es un panel que se abre dentro de la página, no una página.
+- **Qué no se verificó:** el pie en otras páginas (campaña, muro, facturas) con la misma comprobación ni en celular.
+- **Aceleración estimada:** no aplica (~15 min).
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 39 (1–9, 23–26 y 32–57) | 16 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47, 48, 51, 56 y 57) |
+| José Carlos Leo Fernández | 40 (1–9, 23–26, 32–57 y 61) | 17 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47, 48, 51, 56, 57 y 61) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 
