@@ -720,6 +720,17 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Advertencia:** todos son datos de demostración ficticios. Si se vuelve a correr `scripts/apex/campanas-demostracion.apex` regresan los nombres «DEMO …». Cuando se cuente en la defensa, decir que son datos de prueba.
 - **Aceleración estimada:** no aplica (~15 min).
 
+### 60. Documento de arquitectura: el panel interno, el reporte y el tablero (SCRUM-163)
+- **Fecha:** 2026-11-17
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** SCRUM-163 — preparar el video de la defensa; el documento original (bitácora 49) salió de la retroalimentación del panel y solo cubría el sitio público
+- **Qué se pidió:** actualizar la arquitectura con lo construido hoy.
+- **Qué se hizo:** `docs/arquitectura.md` pasa de 6 a 7 secciones. Nueva sección 3 «El panel interno» con un diagrama (componente, `MesaPanelController`, API de registros, API de información de objetos, reporte y tablero) y una tabla de qué hace y cómo lo hace cada sección; una fila del panel en «Quién corre cada cosa»; cinco decisiones nuevas (solo se publican campañas del tipo «Campaña de donación», una campaña con pagos no se elimina, moderar es ocultar y no borrar, paginación por cursor, permisos por objeto y no por rol); y la demo de cinco minutos ahora incluye el panel y el tablero.
+- **Qué se verificó y cómo:** cada afirmación nueva se contrastó con el código ya mergeado en `entrega-1` (`MesaPanelController`, `mesaPanelAdmin`, `MesaCampanaGuardia`, filtro de tipo de registro en `MesaRegalosController`).
+- **Qué no se verificó:** que el diagrama nuevo se dibuje (Mermaid) en GitHub; se escribió con la misma sintaxis del existente. Tampoco se actualizaron backlog, seguridad ni contribución con los PRs #49 a #56.
+- **Aceleración estimada:** no aplica (~20 min).
+
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
