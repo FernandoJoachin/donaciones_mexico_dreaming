@@ -697,6 +697,63 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué no se verificó:** el panel con un usuario de permisos reducidos (moderador, gestor o tesorería): no se inicia sesión como otras personas ni se asignan permisos de prueba. Queda como prueba pendiente para quien tenga esos usuarios.
 - **Aceleración estimada:** no aplica (~30 min).
 
+### 58. ⚠ La tarjeta de pago y el resumen fijos quedaban bajo la barra de navegación (SCRUM-162)
+- **Fecha:** 2026-11-17
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** SCRUM-162 — observación de José al revisar la página de campaña (captura): la tarjeta de «Donar» se pegaba arriba y la barra le tapaba la cifra
+- **Qué se pidió:** que lo que se queda fijo al bajar cuente la altura de la barra de navegación.
+- **Causa (error de la IA, ⚠):** al agregar la barra de navegación fija (4 rem) en una entrega anterior no se revisaron los elementos que ya eran `position: sticky`; seguían con `top: 1.5rem` y `top: 1rem`, pensados para cuando arriba no había nada. Lo mismo para cualquier elemento fijo nuevo: hay que sumar la barra.
+- **Qué se cambió:** `mesaCampanaDetalle` (tarjeta lateral): `top: calc(4rem + 1.5rem)`; `mesaRegistro` (resumen del formulario de pago): `top: calc(4rem + 1rem)`.
+- **Qué se verificó y cómo:** como visitante en UADY a 1440 px, en la página de México Dreamin la tarjeta lateral queda a 88 px del borde al bajar a 600, 1100 y 1600 px de scroll, con la barra terminando en 65 px (antes quedaba a 24 px, bajo la barra).
+- **Qué no se verificó:** el resumen de `mesaRegistro` con la misma medición ni los anchos de celular y tablet (a menos de 900 px la tarjeta lateral no es fija).
+- **Aceleración estimada:** no aplica (cambio de ~10 min).
+
+### 59. Datos de demostración del sandbox: nombres creíbles y reconocimientos huérfanos ocultos (sin ticket, datos de UADY)
+- **Fecha:** 2026-11-17
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Qué se pidió:** que los datos del sandbox se vean reales para el video y la demo (opción 1: renombrar, no borrar).
+- **Qué se hizo (solo en el sandbox UADY, nada en el repo):** con un script de Apex anónimo, las 30 oportunidades «DEMO CAMPAÑAS | …» y «DEMO MURO | …» se renombraron al formato de las reales: «Donativo - {nombre público} - dd/mm/aaaa» (anónimas: «Donativo - Anónimo - …»). La donación pendiente «Donación pendiente (no debe verse)» de 99,000 pasó a «Rafael Ortiz» con 1,200 y sigue en etapa pendiente (no suma al recaudado). Los dos reconocimientos «Anónimo» sin campaña ($500 y $5,000, de pagos de prueba del 17 de nov.) se ocultaron del muro con `Mostrar_En_Muro__c = false`, sin borrarlos.
+- **Qué se verificó y cómo:** 0 oportunidades «DEMO» restantes; el recaudado sigue en $124,411 (36 pagados con campaña); reconocimientos visibles 37 y ocultos 2 (antes 39 y 0).
+- **Qué no se tocó:** los 30 contactos «Demo 01-alicia-publica…» y su cuenta (no se ven en el sitio ni en el panel; con NPSP además generan cuentas de hogar); dos oportunidades pendientes «Ana Demostración» de pruebas anteriores. Los nombres públicos de los reconocimientos ya eran personas y organizaciones ficticias creíbles.
+- **Advertencia:** todos son datos de demostración ficticios. Si se vuelve a correr `scripts/apex/campanas-demostracion.apex` regresan los nombres «DEMO …». Cuando se cuente en la defensa, decir que son datos de prueba.
+- **Aceleración estimada:** no aplica (~15 min).
+
+### 60. Documento de arquitectura: el panel interno, el reporte y el tablero (SCRUM-163)
+- **Fecha:** 2026-11-17
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** SCRUM-163 — preparar el video de la defensa; el documento original (bitácora 49) salió de la retroalimentación del panel y solo cubría el sitio público
+- **Qué se pidió:** actualizar la arquitectura con lo construido hoy.
+- **Qué se hizo:** `docs/arquitectura.md` pasa de 6 a 7 secciones. Nueva sección 3 «El panel interno» con un diagrama (componente, `MesaPanelController`, API de registros, API de información de objetos, reporte y tablero) y una tabla de qué hace y cómo lo hace cada sección; una fila del panel en «Quién corre cada cosa»; cinco decisiones nuevas (solo se publican campañas del tipo «Campaña de donación», una campaña con pagos no se elimina, moderar es ocultar y no borrar, paginación por cursor, permisos por objeto y no por rol); y la demo de cinco minutos ahora incluye el panel y el tablero.
+- **Qué se verificó y cómo:** cada afirmación nueva se contrastó con el código ya mergeado en `entrega-1` (`MesaPanelController`, `mesaPanelAdmin`, `MesaCampanaGuardia`, filtro de tipo de registro en `MesaRegalosController`).
+- **Qué no se verificó:** que el diagrama nuevo se dibuje (Mermaid) en GitHub; se escribió con la misma sintaxis del existente. Tampoco se actualizaron backlog, seguridad ni contribución con los PRs #49 a #56.
+- **Aceleración estimada:** no aplica (~20 min).
+
+### 61. ⚠ El pie mostraba el enlace «Reencuentro» a una página que ya no existe (SCRUM-164)
+- **Fecha:** 2026-11-17
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** SCRUM-164 — revisión del funcionamiento del sitio pedida por José, antes de grabar el video
+- **Cómo se encontró:** un script con un navegador sin login (Playwright con Chrome) recorrió inicio, campaña, muro y facturas y anotó respuestas 4xx y errores de consola. El pie del inicio traía «Reencuentro» → `/s/reencuentro`, que responde **404**. La página se eliminó cuando se quitó el flujo de token (bitácora 275 de la entrega anterior) pero el pie conservaba el enlace.
+- **Error de la IA (⚠):** el primer arreglo cambió solo el valor predeterminado de la propiedad `paginaReencuentro` a vacío, dando por hecho que el sitio usaba el predeterminado. Se desplegó, se publicó y se volvió a probar: el enlace seguía, porque el sitio tiene guardado el valor `reencuentro` en su configuración. El arreglo que funcionó fue quitar la entrada del código del pie; la propiedad queda marcada como obsoleta para no romper la configuración guardada.
+- **Qué se verificó y cómo:** como visitante en UADY, el pie ya no trae el enlace (comprobado con el mismo script). `/ayuda` también da 404, pero no es un fallo: «Ayuda» es un panel que se abre dentro de la página, no una página.
+- **Qué no se verificó:** el pie en otras páginas (campaña, muro, facturas) con la misma comprobación ni en celular.
+- **Aceleración estimada:** no aplica (~15 min).
+
+### 62. ⚠ El buscador del panel conservaba el texto al cambiar de sección (SCRUM-165)
+- **Fecha:** 2026-11-17
+- **Autor:** José Carlos Leo Fernández
+- **Herramienta:** Claude Code (Anthropic)
+- **Historia:** SCRUM-165 — se vio al revisar los fotogramas de la grabación del panel para el video
+- **Error de la IA (⚠):** al escribir un nombre en el buscador de «Moderar muro» y pasar a «Donativos», la caja seguía mostrando el texto, pero la lista de Donativos aparecía sin filtrar (51 donativos). La IA guardaba el texto de búsqueda de cada sección en el estado pero nunca lo ligaba a la caja, que es un solo elemento compartido por las dos secciones. En la verificación de la paginación se probó cada sección por separado y no el paso de una a otra.
+- **Qué se cambió:** cada sección guarda su propio texto (`texto`) y la caja lo muestra (`value={textoBusqueda}`); al volver a una sección su búsqueda sigue ahí.
+- **Qué se verificó y cómo:** en Chrome con la sesión de José: se escribe «Charritos» en Moderar muro, se pasa a Donativos (caja vacía, 51 donativos) y se regresa a Moderar muro (caja con «Charritos», 1 reconocimiento).
+- **Qué no se verificó:** escribir con acentos o espacios al final mientras la lista recarga.
+- **Nota sobre el conteo:** esta entrada no actualiza la fila de la tabla de IA para evitar otro conflicto con los PR #55, #56 y #57; se actualiza una sola vez al cerrar.
+- **Aceleración estimada:** no aplica (~15 min).
+
 ### 63. Favicon y títulos de pestaña con nombre en cada página (SCRUM-166)
 - **Fecha:** 2026-11-18
 - **Autor:** José Carlos Leo Fernández
@@ -708,12 +765,11 @@ Las entradas donde la IA se equivocó están marcadas con **⚠ Error de la IA**
 - **Qué no se verificó:** cómo se ve en la barra de pestañas de un navegador real (solo se comprobó el HTML y el ícono suelto); **Safari no admite íconos SVG**, ahí seguirá el genérico; tampoco se probó la vista de celular.
 - **Ajuste posterior:** la nube del ícono quedaba pegada a los bordes; se redujo (escala .72 y centrada en el cuadro) y se volvió a publicar. Se comprobó solo en una vista previa del SVG suelto a 160 y 32 px.
 - **Aceleración estimada:** no aplica (~20 min).
-
 ## Pendiente por integrante
 
 | Integrante | Entradas | Errores de la IA marcados |
 |---|---|---|
-| José Carlos Leo Fernández | 39 (1–9, 23–26 y 32–57) | 16 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47, 48, 51, 56 y 57) |
+| José Carlos Leo Fernández | 45 (1–9, 23–26 y 32–63) | 19 (entradas 1, 4, 5, 8, 9, 23, 24, 34, 37, 38, 46, 47, 48, 51, 56, 57, 58, 61 y 62) |
 | Fernando Joachín | 11 (entradas 10–15 y 27–31) | 5 (entradas 11, 13, 28, 29 y 30) |
 | Daniel Amaya | 7 (16-22) | (16, 17, 19, 20, 21, 22) |
 

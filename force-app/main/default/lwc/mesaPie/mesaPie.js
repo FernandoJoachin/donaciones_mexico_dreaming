@@ -16,7 +16,8 @@ export default class MesaPie extends LightningElement {
     @api paginaCampanas = '';
     @api paginaDonar = 'registro';
     @api paginaMuro = 'muro';
-    @api paginaReencuentro = 'reencuentro';
+    /** Obsoleta: la página de reencuentro ya no existe. Se conserva solo para no romper la configuración guardada en el sitio. */
+    @api paginaReencuentro = '';
     @api paginaFacturas = 'facturas';
 
     // Aviso de privacidad: URL o nombre de pagina. Vacio = no se muestra.
@@ -82,7 +83,6 @@ export default class MesaPie extends LightningElement {
             { id: 'campanas', texto: 'Campañas', pagina: this.paginaCampanas },
             { id: 'donar', texto: 'Donar', url: this.urlDonar, lista: 'activas' },
             { id: 'muro', texto: 'Quién ya se sumó', pagina: this.paginaMuro },
-            { id: 'reencuentro', texto: 'Reencuentro', pagina: this.paginaReencuentro },
             { id: 'facturas', texto: 'Facturas', pagina: this.paginaFacturas }
         ];
         // El muro es de cada campaña: el enlace solo aparece dentro de una campaña y lleva al muro de esa campaña.
